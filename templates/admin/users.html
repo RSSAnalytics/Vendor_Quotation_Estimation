@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Admin Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+
+{% block navbar %}
+  <li><a href="{{ url_for('admin_home') }}"><i class="bi bi-house navicon"></i> Home </a></li>
+  <li class="dropdown"><a href="#"><i class="bi bi-grid navicon"></i> <span>Category</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+    <ul>
+        <li><a href="{{ url_for('thiruvachi') }}">Thiruvachi</a></li>
+        <li><a href="{{ url_for('kavasam') }}">Kavasam</a></li>
+        <li><a href="{{ url_for('vahanam') }}">Vahanam</a></li>
+        <li><a href="{{ url_for('sheet_metal') }}">Sheet Metal</a></li>
+        <li><a href="{{ url_for('panchaloha_statue') }}">Panchaloha Statue</a></li>
+    </ul>
+  </li>
+  <li><a href="{{ url_for('users_details') }}" class="active"><i class="bi bi-person navicon"></i> <b style="color: yellow;">Users Details</b> </a></li>
+  <li><a href="{{ url_for('index') }}"><i class="bi bi-box-arrow-right navicon"></i> Logout </a></li>
+{% endblock navbar %}
+
+
+
+{% block content %}
+    <section id="contact" class="contact section">
+
+        <center>
+            <div class="container section-title text" data-aos="fade-up">
+                <h2>Users Details</h2>
+            </div>
+        </center>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="table-responsive mt-3">
+
+                <table class="table table-bordered align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Emp_Id</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in data %}
+                            <tr>
+                                <td>{{ row.id }}</td>
+                                <td>{{ row.name }}</td>
+                                <td>{{ row.emp_id }}</td>
+                                <td>{{ row.email }}</td>
+                                <td>{{ row.mobile }}</td>
+                                <td class="text-center">
+                                    <form action="{{ url_for('users_details') }}" method="post" class="m-0">
+                                        <input type="hidden" name="id" value="{{ row.id }}">
+
+                                        <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <select name="status" class="form-select form-select-sm" required style="min-width: 170px;">
+                                            <option value="" {% if not row.status %}selected{% endif %}>Give Permission</option>
+                                            <option value="approved" {% if row.status == "approved" %}selected{% endif %}>Approve</option>
+                                            <option value="pending" {% if row.status == "pending" %}selected{% endif %}>Block (Pending)</option>
+                                        </select>
+
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-check2-circle me-1"></i> Save
+                                        </button>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+    </section>
+{% endblock content %}

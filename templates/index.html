@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+
+
+{% block navbar %}
+  <li><a href="{{ url_for('index') }}" class="active"><i class="bi bi-house navicon"></i> <b style="color: yellow;">Home</b> </a></li>
+  <li><a href="{{ url_for('admin_login') }}"><i class="bi bi-shield-lock navicon"></i>Admin</a></li>
+  <li class="dropdown"><a href="#"><i class="bi bi-person navicon"></i> <span>User</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+    <ul>
+      <li><a href="{{ url_for('user_register') }}">Register</a></li>
+      <li><a href="{{ url_for('user_login') }}">Log In</a></li>
+    </ul>
+  </li>
+{% endblock navbar %}
+
+
+
+{% block content %}
+  <section id="hero" class="hero section dark-background">
+
+    <img src="/static/assets/img/bg.jpg" alt="" data-aos="fade-in" class="">
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <h2>Raja Spritual Pvt Ltd</h2>
+      <p> 
+        <b> <i>
+          <span class="typed" data-typed-items="Tradition, Devotion, Quality" style="color: yellow;">Devotion</span>
+          <span class="typed-cursor typed-cursor--blink" aria-hidden="true"></span>
+          <span class="typed-cursor typed-cursor--blink" aria-hidden="true"></span> 
+          <sep style="color: rgb(33, 172, 61);">In every Spiritual Product</sep> 
+        </i> </b> 
+      </p>
+    </div>
+
+  </section>
+{% endblock content %}

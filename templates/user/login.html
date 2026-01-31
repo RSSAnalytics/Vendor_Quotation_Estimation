@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+
+
+{% block navbar %}
+  <li><a href="{{ url_for('index') }}"><i class="bi bi-house navicon"></i> Home </a></li>
+  <li><a href="{{ url_for('admin_login') }}"><i class="bi bi-shield-lock navicon"></i> Admin </a></li>
+  <li class="dropdown"><a href="#" class="active"><i class="bi bi-person navicon"></i> <span> <b style="color: yellow;">User</b> </span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+    <ul>
+      <li><a href="{{ url_for('user_register') }}"> Register </a></li>
+      <li><a href="{{ url_for('user_login') }}"> <b style="color: yellow;">Log In</b> </a></li>
+    </ul>
+  </li>
+{% endblock navbar %}
+
+
+
+{% block content %}
+    <section id="contact" class="contact section">
+
+        <center>
+            <div class="container section-title" data-aos="fade-up">
+                <h2>User LogIn</h2>
+            </div>
+        </center>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="row gy-4 justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                <form action="{{ url_for('user_login') }}" method="post"
+                        class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+                    <div class="row gy-4">
+
+                    <div class="col-md-12">
+                        <label for="name-field" class="pb-2">Email</label>
+                        <input type="email" name="email" id="name-field" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label for="name-field" class="pb-2">Password</label>
+                        <input type="password" name="password" id="name-field" class="form-control" required>
+                    </div>
+
+
+                    <div class="col-md-12 text-center">
+                        <button type="submit">Submit</button>
+                    </div>
+
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+{% endblock content %}

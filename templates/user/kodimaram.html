@@ -1,0 +1,416 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Estimation Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+
+{% block navbar %}
+    <li><a href="{{ url_for('user_home') }}"><i class="bi bi-house navicon"></i> Home </a></li>
+    <li class="dropdown"><a href="#" class="active"><i class="bi bi-grid navicon"></i> <span>Category</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+        <ul>
+            <li><a href="{{ url_for('user_thiruvachi') }}">Thiruvachi</a></li>
+            <li><a href="{{ url_for('user_kavasam') }}">Kavasam</a></li>
+            <li><a href="{{ url_for('user_vahanam') }}">Vahanam</a></li>
+            <li><a href="{{ url_for('user_kodimaram') }}"><b style="color: yellow;">Kodimaram</b></a></li>
+            <li><a href="{{ url_for('user_sheet_metal') }}">Sheet Metal</a></li>
+            <li><a href="{{ url_for('user_panchaloha_status') }}">Panchaloha Statue</a></li>
+        </ul>
+    </li>
+    <li><a href="{{ url_for('index') }}"><i class="bi bi-box-arrow-right navicon"></i> Logout </a></li>
+{% endblock navbar %}
+
+
+{% block content %}
+    <section id="contact" class="contact section">
+
+        <center>
+            <div class="container section-title text" data-aos="fade-up">
+                <h2>Estimate Kodimaram Models</h2>
+            </div>
+        </center>
+
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="row gy-4 justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <form action="{{ url_for('user_kodimaram') }}" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+                        <div class="row gy-4">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="name-field" class="pb-2"></label>
+                                    <input type="number" step="any" name="height" placeholder="Height" id="name-field" class="form-control" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <br>
+                                    <select name="UOM_Height" id="name-field" class="form-control" required>
+                                        <option value="">Unit of Measure (Height)</option>
+                                        <option value="Feet">Feet</option>
+                                        <option value="Inch">Inch</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="name-field" class="pb-2"></label>
+                                    <input type="number" step="any" name="diameter" placeholder="Diameter" id="name-field" class="form-control" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="name-field" class="pb-2"> </label>
+                                    <select name="UOM_Diameter" id="name-field" class="form-control" required>
+                                        <option value="">Unit of Measure (Diameter)</option>
+                                        <option value="Feet">Feet</option>
+                                        <option value="Inch">Inch</option>
+                                    </select>
+                                </div>
+                            </div>
+                    
+                            <div class="col-md-12 text-center">
+                                <button type="submit">Submit</button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div><br>
+
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="table-responsive mt-3">
+                {% if data %}
+                    <center>
+                        <h4 style="color: red;"> 
+                            <b style="
+                                background-color: rgb(185, 239, 192); 
+                                padding-left: 20px; 
+                                padding-right: 20px; 
+                                padding-top: 5px; 
+                                padding-bottom: 5px;"> 
+                                Height : {{data.height}} | Diameter : {{data.diameter}}
+                            </b> 
+                        </h4><br>
+                    </center>
+
+                    <table class="table table-bordered align-middle">
+                        <thead>
+                            <tr>
+                                <th style="background-color: yellowgreen; border-color: white;">Name of the list</th>
+                                <th style="background-color: yellowgreen; border-color: white;">Height Percentage %</th>
+                                <th style="background-color: yellowgreen; border-color: white;">Height</th>
+                                <th style="background-color: yellowgreen; border-color: white;">Diameter Percentage %</th>
+                                <th style="background-color: yellowgreen; border-color: white;">Diameter</th>
+                                <th style="background-color: yellowgreen; border-color: white;">Kodimaram SQFT</th>
+                                <th style="background-color: yellowgreen; border-color: white;">Visiri balagai SQFT</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>Batmam</td>
+                                <td>{{ "%.2f" % data.Batmam_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Batmam_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.Batmam_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Batmam_Dia | float }}</td>
+                                <td>{{ "%.2f" % data.Batmam_KM_SQFT | float }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Small_Arada</td>
+                                <td>{{ "%.2f" % data.Small_Arada_1_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Small_Arada_1_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.Small_Arada_1_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Small_Arada_1_Dia | float }}</td>
+                                <td>{{ "%.2f" % data.Small_Arada_1_KM_SQFT | float }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Arada</td>
+                                <td>{{ "%.2f" % data.Arada_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Arada_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.Arada_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Arada_Dia | float }}</td>
+                                <td>{{ "%.2f" % data.Arada_KM_SQFT | float }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Small_Arada</td>
+                                <td>{{ "%.2f" % data.Small_Arada_2_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Small_Arada_2_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.Small_Arada_2_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Small_Arada_2_Dia | float }}</td>
+                                <td>{{ "%.2f" % data.Small_Arada_2_KM_SQFT | float }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Box</td>
+                                <td>{{ "%.2f" % data.Box_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Box_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.Box_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Box_Dia | float }}</td>
+                                <td>{{ "%.2f" % data.Box_KM_SQFT | float }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Nagabanthanam</td>
+                                <td>{{ "%.2f" % data.Nagabanthanam_1_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Nagabanthanam_1_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.Nagabanthanam_1_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Nagabanthanam_1_Dia | float }}</td>
+                                <td>{{ "%.2f" % data.Nagabanthanam_1_KM_SQFT | float }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Kuvalai</td>
+                                <td>{{ "%.2f" % data.Kuvalai_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Kuvalai_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.Kuvalai_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Kuvalai_Dia | float }}</td>
+                                <td>{{ "%.2f" % data.Kuvalai_KM_SQFT | float }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Nagabanthanam</td>
+                                <td>{{ "%.2f" % data.Nagabanthanam_2_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Nagabanthanam_2_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.Nagabanthanam_2_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Nagabanthanam_2_Dia | float }}</td>
+                                <td>{{ "%.2f" % data.Nagabanthanam_2_KM_SQFT | float }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Manipalagai</td>
+                                <td>{{ "%.2f" % data.manipalagai_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.manipalagai_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.manipalagai_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.manipalagai_Dia | float }}</td>
+                                <td>{{ "%.2f" % data.manipalagai_KM_SQFT | float }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Kalasam</td>
+                                <td>{{ "%.2f" % data.kalasam_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.kalasam_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.kalasam_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.kalasam_Dia | float }}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Visiribalagai</td>
+                                <td>{{ "%.2f" % data.Visiribalagai_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Visiribalagai_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.Visiribalagai_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Visiribalagai_Dia | float }}</td>
+                                <td></td>
+                                <td>{{ "%.2f" % data.Visiribalagai_VB_SQFT | float }}</td>
+                            </tr>
+
+                            <tr>
+                                <td>Visiribalagai_side</td>
+                                <td>{{ "%.2f" % data.Visiribalagai_side_Hgt_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Visiribalagai_side_Hgt | float }}</td>
+                                <td>{{ "%.2f" % data.Visiribalagai_side_Dia_perc | float }}</td>
+                                <td>{{ "%.2f" % data.Visiribalagai_side_Dia | float }}</td>
+                                <td></td>
+                                <td>{{ "%.2f" % data.Visiribalagai_side_VB_SQFT | float }}</td>
+                            </tr>
+
+                            <tr>
+                                <td style="background-color: rgb(1, 255, 30); border-color: white;">Total</td>
+                                <td style="background-color: rgb(1, 255, 30); border-color: white;"></td>
+                                <td style="background-color: rgb(1, 255, 30); border-color: white;">{{ "%.2f" % data.Total_Hgt | float }}</td>
+                                <td style="background-color: rgb(1, 255, 30); border-color: white;"></td>
+                                <td style="background-color: rgb(1, 255, 30); border-color: white;">{{ "%.2f" % data.Total_Dia | float }}</td>
+                                <td style="background-color: rgb(1, 255, 30); border-color: white;">{{ "%.2f" % data.Total_KM_SQFT | float }}</td>
+                                <td style="background-color: rgb(1, 255, 30); border-color: white;">{{ "%.2f" % data.Total_VB_SQFT | float }}</td>
+                            </tr>
+                        </tbody>
+                    </table><br>
+
+                    <button class="btn btn-success mb-3" onclick="downloadExcel()">
+                        <i class="bi bi-file-earmark-excel"></i> Download Excel
+                    </button>
+
+                    <table id="KodimaramTable" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+                        <thead class="align-middle">
+                            <tr class="table-danger text-center">
+                                <th colspan="2" class="text-center py-3">
+                                    Brass 18 / 20 Gauge
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            
+                            <tr>
+                                <td class="fw-semibold">Height</td>
+                                <td class="text-end">{{ "%.2f" % data.height | float }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold">Diameter</td>
+                                <td class="text-end">{{ "%.2f" % data.diameter | float }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold">Approximate SQFT</td>
+                                <td class="text-end">{{ "%.2f" % data.Apx_SQFT | float }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold">Approximate Weight</td>
+                                <td class="text-end">{{ "%.2f" % data.Apx_Wgt | float }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold">Cost</td>
+                                <td class="text-end">{{ data.cost | int }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold">Total Cost</td>
+                                <td class="text-end fw-bold">{{ data.Total_cost | int }}</td>
+                            </tr>
+
+                            <tr class="table-warning">
+                                <td class="fw-semibold">Total Cost with GST</td>
+                                <td class="text-end fw-bold">{{ data.Total_cost_with_GST | int }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                {% endif %}
+            </div>
+
+        </div>
+    </section>
+{% endblock content %}
+
+
+{% block extra_script %}
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const lightbox = GLightbox({
+        selector: ".glightbox",
+        touchNavigation: true,
+        loop: true
+        });
+    });
+    </script>
+
+    <script>
+        function toggleAll(source) {
+            document.querySelectorAll(".row-check").forEach(cb => {
+                cb.checked = source.checked;
+            });
+        }
+
+        function downloadExcel() {
+
+            const table = document.getElementById("KodimaramTable");
+            const clone = table.cloneNode(true);
+
+            /* -------------------------------------------------
+            KEEP ONLY SELECTED ROWS
+            ------------------------------------------------- */
+            const rows = clone.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                const checkbox = row.querySelector(".row-check");
+                if (!checkbox || !checkbox.checked) {
+                    row.remove();
+                }
+            });
+
+            // If no rows selected → export all
+            if (clone.querySelectorAll("tbody tr").length === 0) {
+                table.querySelectorAll("tbody tr").forEach(tr => {
+                    clone.querySelector("tbody").appendChild(tr.cloneNode(true));
+                });
+            }
+
+            /* -------------------------------------------------
+            REMOVE CHECKBOX & IMAGE COLUMNS
+            (checkbox = col 0, image = col 2 originally)
+            ------------------------------------------------- */
+            clone.querySelectorAll("tr").forEach(row => {
+                if (row.children.length > 2) {
+                    row.children[2].remove(); // Image
+                    row.children[0].remove(); // Checkbox
+                }
+            });
+
+            /* -------------------------------------------------
+            CREATE WORKBOOK
+            ------------------------------------------------- */
+            const wb = XLSX.utils.table_to_book(clone, {
+                sheet: "Kodimaram Estimation"
+            });
+
+            const ws = wb.Sheets["Kodimaram Estimation"];
+            const range = XLSX.utils.decode_range(ws["!ref"]);
+
+            /* -------------------------------------------------
+            HEADER STYLING + FREEZE HEADER
+            ------------------------------------------------- */
+            ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[addr]) continue;
+
+                ws[addr].s = {
+                    font: { bold: true },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    fill: { fgColor: { rgb: "E7E6E6" } },
+                    border: {
+                        top: { style: "thin" },
+                        bottom: { style: "thin" },
+                        left: { style: "thin" },
+                        right: { style: "thin" }
+                    }
+                };
+            }
+
+            // /* -------------------------------------------------
+            // ₹ CURRENCY FORMAT (LAST COLUMN = COST)
+            // ------------------------------------------------- */
+            // for (let R = 1; R <= range.e.r; ++R) {
+            //     const cellAddr = XLSX.utils.encode_cell({ r: R, c: range.e.c });
+            //     if (!ws[cellAddr]) continue;
+
+            //     ws[cellAddr].t = "n";
+            //     ws[cellAddr].z = '₹#,##0';
+            // }
+
+            /* -------------------------------------------------
+            AUTO COLUMN WIDTH
+            ------------------------------------------------- */
+            ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
+
+            /* -------------------------------------------------
+            DATE IN FILENAME
+            ------------------------------------------------- */
+            const today = new Date().toISOString().split("T")[0];
+            XLSX.writeFile(wb, `Kodimaram_Estimation_${today}.xlsx`);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+{% endblock extra_script %}

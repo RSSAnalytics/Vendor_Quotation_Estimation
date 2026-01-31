@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Estimation Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+
+{% block navbar %}
+    <li><a href="{{ url_for('user_home') }}"><i class="bi bi-house navicon"></i> Home </a></li>
+    <li class="dropdown"><a href="#" class="active"><i class="bi bi-grid navicon"></i> <span>Category</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+        <ul>
+            <li><a href="{{ url_for('user_thiruvachi') }}"> Thiruvachi </a></li>
+            <li><a href="{{ url_for('user_kavasam') }}">Kavasam</a></li>
+            <li><a href="{{ url_for('user_vahanam') }}">Vahanam</a></li>
+            <li><a href="{{ url_for('user_kodimaram') }}">Kodimaram</a></li>
+            <li><a href="{{ url_for('user_sheet_metal') }}"><b style="color: yellow;">Sheet Metal</b></a></li>
+            <li><a href="{{ url_for('user_panchaloha_status') }}">Panchaloha Statue</a></li>
+        </ul>
+    </li>
+    <li><a href="{{ url_for('index') }}"><i class="bi bi-box-arrow-right navicon"></i> Logout </a></li>
+{% endblock navbar %}
+
+
+{% block content %}
+    <section id="contact" class="contact section">
+
+        <center>
+            <div class="container section-title text" data-aos="fade-up">
+                <h2>Estimate Sheet Metal Models</h2>
+            </div>
+        </center>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="row gy-4 justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                <form action="{{ url_for('user_sheet_metal') }}" method="post"
+                        class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+                    <div class="row gy-4">
+
+                        <div class="col-md-12">
+                            <label for="name-field" class="pb-2"> </label>
+                            <select name="Gauge" id="name-field" class="form-control" required>
+                                <option value="">Choose Gauge</option>
+                                <option value="20 Gauge">20 Gauge</option>
+                                <option value="22 Gauge">22 Gauge</option>
+                            </select>
+                        </div>
+
+                        <div id="measure-container"></div>
+
+                        <div style="margin-top:10px;">
+                            <button type="button"
+                                    onclick="addMeasureRow()"
+                                    class="col-md-12"
+                                    style="
+                                        padding:8px 14px;
+                                        border-radius:6px;
+                                        background:#1c4e80;
+                                        color:white;
+                                        border:none;">
+                                ➕ Add Measure
+                            </button>
+                        </div>
+
+                        <div id="measure-error"
+                            style="color:red;font-size:13px;margin-top:8px;display:none;">
+                            ⚠ Please fill all measure selections and required fields.
+                        </div>
+
+                        <div style="
+                                    margin-top:15px;
+                                    text-align:center;">
+                            <button type="submit"
+                                    onclick="return validateMeasures()"
+                                    style="padding:10px 20px;
+                                            border-radius:6px;
+                                            background:#2e7d32;
+                                            color:white;
+                                            border:none;">
+                                Submit
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div><br>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="table-responsive mt-3">
+                {% if get_data %}
+                    <button class="btn btn-success mb-3" onclick="downloadExcel()">
+                        <i class="bi bi-file-earmark-excel"></i> Download Excel
+                    </button>
+
+                    <table id="sheet_metal_Table" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+                        <thead class="align-middle">
+                            <tr class="table-danger text-center">
+                                <th rowspan="2" class="px-3" style="background-color:rgba(193, 56, 56, 0.941);">
+                                    <input type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                                </th>
+                
+                                <th rowspan="2" class="px-3" style="background-color:rgba(193, 56, 56, 0.941);">Model</th>
+                                <th rowspan="2" class="px-3" style="background-color: rgba(193, 56, 56, 0.941);">Heads</th>
+                                <th rowspan="2" class="px-3 text-start" style="background-color: rgba(193, 56, 56, 0.941);">Work Description</th>
+
+                                <th colspan="3" class="px-3" style="background-color: rgba(193, 56, 56, 0.941);">20 Gauge</th>
+                                <th colspan="3" class="px-3" style="background-color: rgba(193, 56, 56, 0.941);">22 Gauge</th>
+                            </tr>
+
+                            <tr class="table-secondary text-center">
+                                <th class="small" style="background-color: bisque;">Below 21 SQFT</th>
+                                <th class="small" style="background-color: bisque;">21 to 50 SQFT</th>
+                                <th class="small" style="background-color: bisque;">Above 50 SQFT</th>
+
+                                <th class="small" style="background-color: bisque;">Below 21 SQFT</th>
+                                <th class="small" style="background-color: bisque;">21 to 50 SQFT</th>
+                                <th class="small" style="background-color: bisque;">Above 50 SQFT</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for data in get_data %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="row-check">
+                                    </td>
+                                    <td>{{ data[0] }}</td>
+                                    <td>{{ data[1] }}</td>
+                                    <td>{{ data[2] }}</td>
+                                    <td>{{ data[3] | int }}</td>
+                                    <td>{{ data[4] | int }}</td>
+                                    <td>{{ data[5] | int }}</td>
+                                    <td>{{ data[6] | int }}</td>
+                                    <td>{{ data[7] | int }}</td>
+                                    <td>{{ data[8] | int }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table><br>
+
+                {% else %}
+
+                    <button class="btn btn-success mb-3" onclick="downloadExcel()">
+                        <i class="bi bi-file-earmark-excel"></i> Download Excel
+                    </button>
+
+                    <table id="sheet_metal_Table" class="table table-hover table-striped table-bordered align-middle shadow-sm rounded-3 overflow-hidden" style="border-color: black;">
+                        <tbody>
+                            <tr>
+                                <td class="fw-semibold">Gauge</td>
+                                <td class="text-end">{{ data.Gauge }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold">Total SQFT (Nilai Padi Plain)</td>
+                                <td class="text-end">{{ "%.2f" % data.nilai_padi_20_SQFT | float }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold">Total SQFT (Nilai Padi Vargam)</td>
+                                <td class="text-end">{{ "%.2f" % data.nilai_padi_vargam_SQFT | float }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold">Addinal Customized Picture per Sqft Count</td>
+                                <td class="text-end">{{ "%.0f" % data.pic | int }}</td>
+                            </tr>
+
+                            <tr class="table-warning">
+                                <td class="fw-semibold">Total Cost</td>
+                                <td class="text-end">{{ "%.0f" % data.total_cost | int }}</td>
+                            </tr>
+
+                            <tr class="table-warning">
+                                <td class="fw-semibold">Total Cost with GST (5%)</td>
+                                <td class="text-end">{{ "%.0f" % data.total_cost_with_GST | int }}</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+
+                {% endif %}
+            </div>
+
+        </div>
+    </section>
+{% endblock content %}
+
+{% block extra_script %}
+    <script>
+        let measureIndex = 0;
+
+        function addMeasureRow() {
+
+            const container = document.getElementById("measure-container");
+
+            const row = document.createElement("div");
+            row.className = "measure-row";
+            row.style = `
+                border:1px solid #d1d9e6;
+                padding:10px;
+                margin-top:10px;
+                border-radius:8px;
+                background:#f9fbfd;
+            `;
+
+            row.innerHTML = `
+                <label style="font-weight:600;">Select Measure Type</label>
+
+                <select name="measures[${measureIndex}][type]"
+                        onchange="handleMeasureChange(this, ${measureIndex})"
+                        required
+                        style="width:100%;padding:6px;margin-top:6px;">
+                    <option value="">-- Select Measure --</option>
+                    <option value="nilai_padi_20">Nilai Padi -20% Picture</option>
+                    <option value="nilai_padi_vargam">Nilai Padi Normal + Vargam + 20% Picture</option>
+                    <option value="custom_picture">Additional Customized Picture (per Sqft)</option>
+                </select>
+
+                <div id="measure-fields-${measureIndex}" style="margin-top:8px;"></div>
+            `;
+
+            container.appendChild(row);
+            measureIndex++;
+        }
+
+        function handleMeasureChange(select, index) {
+
+            const target = document.getElementById(`measure-fields-${index}`);
+            target.innerHTML = "";
+
+            if (select.value === "nilai_padi_20" || select.value === "nilai_padi_vargam") {
+                target.innerHTML = `
+                    <label>Height</label>
+                    <div style="display:flex;gap:6px;margin-bottom:6px;">
+                        <input type="number" step="any"
+                            name="measures[${index}][height]"
+                            required
+                            style="flex:2;padding:6px;">
+
+                        <select name="measures[${index}][uom_height]"
+                                required
+                                style="flex:1;padding:6px;">
+                            <option value="">Unit</option>
+                            <option value="Feet">Feet</option>
+                            <option value="Inch">Inch</option>
+                        </select>
+                    </div>
+
+                    <label>Width</label>
+                    <div style="display:flex;gap:6px;">
+                        <input type="number" step="any"
+                            name="measures[${index}][width]"
+                            required
+                            style="flex:2;padding:6px;">
+
+                        <select name="measures[${index}][uom_width]"
+                                required
+                                style="flex:1;padding:6px;">
+                            <option value="">Unit</option>
+                            <option value="Feet">Feet</option>
+                            <option value="Inch">Inch</option>
+                        </select>
+                    </div>
+                `;
+            }
+
+            if (select.value === "custom_picture") {
+                target.innerHTML = `
+                    <label>Picture Count</label>
+                    <input type="number"
+                        name="measures[${index}][count]"
+                        required
+                        style="width:100%;padding:6px;">
+                `;
+            }
+        }
+
+        function validateMeasures() {
+
+            const rows = document.querySelectorAll(".measure-row");
+            const error = document.getElementById("measure-error");
+
+            if (rows.length === 0) {
+                error.style.display = "block";
+                error.innerText = "⚠ Please add at least one measure.";
+                return false;
+            }
+
+            for (let row of rows) {
+
+                const select = row.querySelector("select");
+                if (!select || select.value === "") {
+                    error.style.display = "block";
+                    return false;
+                }
+
+                const inputs = row.querySelectorAll("input");
+                for (let input of inputs) {
+                    if (!input.value) {
+                        error.style.display = "block";
+                        return false;
+                    }
+                }
+            }
+
+            error.style.display = "none";
+            return true;
+        }
+    </script>
+
+    <script>
+        function toggleAll(source) {
+            document.querySelectorAll(".row-check").forEach(cb => {
+                cb.checked = source.checked;
+            });
+        }
+
+        function downloadExcel() {
+
+            const table = document.getElementById("sheet_metal_Table");
+            const clone = table.cloneNode(true);
+
+            /* -------------------------------------------------
+            KEEP ONLY SELECTED ROWS
+            ------------------------------------------------- */
+            const rows = clone.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                const checkbox = row.querySelector(".row-check");
+                if (!checkbox || !checkbox.checked) {
+                    row.remove();
+                }
+            });
+
+            // If no rows selected → export all
+            if (clone.querySelectorAll("tbody tr").length === 0) {
+                table.querySelectorAll("tbody tr").forEach(tr => {
+                    clone.querySelector("tbody").appendChild(tr.cloneNode(true));
+                });
+            }
+
+            // Remove ONLY checkbox cells safely
+            clone.querySelectorAll("input.row-check").forEach(cb => {
+                const td = cb.closest("td");
+                if (td) td.remove();
+            });
+
+            // Remove checkbox header cell
+            const selectAll = clone.querySelector("#selectAll");
+            if (selectAll) {
+                const th = selectAll.closest("th");
+                if (th) th.remove();
+            }
+
+            /* -------------------------------------------------
+            CREATE WORKBOOK
+            ------------------------------------------------- */
+            const wb = XLSX.utils.table_to_book(clone, {
+                sheet: "Sheet_Metal Estimation"
+            });
+
+            const ws = wb.Sheets["Sheet_Metal Estimation"];
+            const range = XLSX.utils.decode_range(ws["!ref"]);
+
+            /* -------------------------------------------------
+            HEADER STYLING + FREEZE HEADER
+            ------------------------------------------------- */
+            ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[addr]) continue;
+
+                ws[addr].s = {
+                    font: { bold: true },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    fill: { fgColor: { rgb: "E7E6E6" } },
+                    border: {
+                        top: { style: "thin" },
+                        bottom: { style: "thin" },
+                        left: { style: "thin" },
+                        right: { style: "thin" }
+                    }
+                };
+            }
+
+            // /* -------------------------------------------------
+            // ₹ CURRENCY FORMAT (LAST COLUMN = COST)
+            // ------------------------------------------------- */
+            // for (let R = 1; R <= range.e.r; ++R) {
+            //     const cellAddr = XLSX.utils.encode_cell({ r: R, c: range.e.c });
+            //     if (!ws[cellAddr]) continue;
+
+            //     ws[cellAddr].t = "n";
+            //     ws[cellAddr].z = '₹#,##0';
+            // }
+
+            /* -------------------------------------------------
+            AUTO COLUMN WIDTH
+            ------------------------------------------------- */
+            ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
+
+            /* -------------------------------------------------
+            DATE IN FILENAME
+            ------------------------------------------------- */
+            const today = new Date().toISOString().split("T")[0];
+            XLSX.writeFile(wb, `Sheet_Metal_Estimation_${today}.xlsx`);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+{% endblock extra_script %}

@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Admin Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+{% block navbar %}
+    <li><a href="{{ url_for('admin_home') }}"><i class="bi bi-house navicon"></i> Home</a></li>
+
+    <li class="dropdown">
+        <a href="#" class="active">
+            <i class="bi bi-grid navicon"></i>
+            <span><b style="color: yellow;">Category</b></span>
+            <i class="bi bi-chevron-down toggle-dropdown"></i>
+        </a>
+        <ul>
+            <li><a href="{{ url_for('thiruvachi') }}">Thiruvachi</a></li>
+            <li><a href="{{ url_for('kavasam') }}"><b style="color: yellow;">Kavasam</b></a></li>
+            <li><a href="{{ url_for('vahanam') }}">Vahanam</a></li>
+            <li><a href="{{ url_for('sheet_metal') }}">Sheet Metal</a></li>
+            <li><a href="{{ url_for('panchaloha_statue') }}">Panchaloha Statue</a></li>
+        </ul>
+    </li>
+
+    <li><a href="{{ url_for('users_details') }}"><i class="bi bi-person navicon"></i> Users</a></li>
+    <li><a href="{{ url_for('index') }}"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
+{% endblock navbar %}
+
+{% block content %}
+    <section class="contact section">
+
+        <div class="container text-center mb-3">
+            <h2>Kavasam Models Details</h2>
+        </div><br>
+
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-success" onclick="downloadExcel()">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
+                </button>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addModelModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add model
+                    </button>
+
+                    <button class="btn btn-secondary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#UpdateRates">
+                        <i class="bi bi-pencil-square"></i> Update Rates
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="Kavasam_Table" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+                    <thead class="align-middle">
+                        <tr class="table-danger text-center">
+                            <th rowspan="2">
+                                <input type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                            </th>
+                            <th rowspan="2">SQFT Range</th>
+                            <th rowspan="2">Wax Cost</th>
+                            <th colspan="3">Gauge Rate</th>
+                            <th colspan="3">Brass / Copper</th>
+                            <th colspan="2">Pure Silver <i style="color: red;">(Rate per Gram - ₹ {{rate_data['pure_silver_rate']}} & Margin Rate - ₹ {{rate_data['pure_silver_margin_rate']}})</i></th>
+                            <th colspan="2">Copper + Silver <i style="color: red;">(Rate per SQFT - ₹ {{rate_data['silver_rate']}})</i></th>
+                            <th colspan="2">Copper + Gold <i style="color: red;">(Rate per SQFT - ₹ {{rate_data['gold_rate']}})</i></th>
+                            <th rowspan="2">Update</th>
+                            <th rowspan="2">Delete</th>
+                        </tr>
+                        <tr class="table-danger">
+                            <th style="background-color:rgba(245, 245, 220, 0.465);">24 Gauge</th><th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                            <th style="background-color:rgba(245, 245, 220, 0.465);">24 Gauge</th><th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                            <th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                            <th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                            <th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in data %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="row-check">
+                                </td>
+
+                                <td>{{ row.sqft|int }}</td>
+                                <td>{{ row.wax_cost|int }}</td>
+
+                                <td style="background-color:rgba(245, 245, 220, 0.465);">{{ row.gauge_24|int }}</td>
+                                <td style="background-color: rgba(240, 255, 255, 0.475);">{{ row.gauge_22|int }}</td>
+                                <td style="background-color: rgba(255, 235, 205, 0.536);">{{ row.gauge_20|int }}</td>
+
+                                <td style="background-color:rgba(245, 245, 220, 0.465);">{{ (row.sqft|int * row.gauge_24|int)|int }}</td>
+                                <td style="background-color: rgba(240, 255, 255, 0.475);">{{ (row.sqft|int * row.gauge_22|int)|int }}</td>
+                                <td style="background-color: rgba(255, 235, 205, 0.536);">{{ (row.sqft|int * row.gauge_20|int)|int }}</td>
+
+                                <td style="background-color: rgba(240, 255, 255, 0.475);">{{ ((rate_data['pure_silver_rate']|int + rate_data['pure_silver_margin_rate']|int) * ((row.sqft|int * 0.625) * 1000))|int }}</td>
+                                <td style="background-color: rgba(255, 235, 205, 0.536);">{{ ((rate_data['pure_silver_rate']|int + rate_data['pure_silver_margin_rate']|int) * ((row.sqft|int * 0.75) * 1000))|int }}</td>
+
+                                <td style="background-color: rgba(240, 255, 255, 0.475);">{{ (row.sqft|int * (row.gauge_22|int + (row.gauge_22|int * 0.1) + rate_data['silver_rate']|int))|int }}</td>
+                                <td style="background-color: rgba(255, 235, 205, 0.536);">{{ (row.sqft|int * (row.gauge_20|int + (row.gauge_20|int * 0.1) + rate_data['silver_rate']|int))|int }}</td>
+
+                                <td style="background-color: rgba(240, 255, 255, 0.475);">{{ (row.sqft * (row.gauge_22|int + (row.gauge_22|int * 0.1) + rate_data['gold_rate']|int))|int }}</td>
+                                <td style="background-color: rgba(255, 235, 205, 0.536);">{{ (row.sqft * (row.gauge_20|int + (row.gauge_20|int * 0.1) + rate_data['gold_rate']|int))|int }}</td>
+
+                                <td>
+                                    <button class="btn btn-warning btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#updateModal{{ row.model }}">
+                                        Update
+                                    </button>
+                                </td>
+
+                                <td>
+                                    <form method="POST"
+                                        action="{{ url_for('kavasam_delete', model=row.model) }}"
+                                        onsubmit="return confirm('Delete this model?');">
+                                        <button class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= UPDATE RATES ================= -->
+    <div class="modal fade" id="UpdateRates" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <form method="POST" action="{{ url_for('kavasam_rates') }}">
+                    <div class="modal-header">
+                        <h5>Update Kavasam Model Rates</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <table class="table table-bordered align-middle text-center">
+                            <tbody>
+                                <tr class="table-secondary"><th colspan="2">Silver</th></tr>
+                                <tr><th>Copper + Silver Rate</th><td><input type="number" name="silver_rate" value="{{rate_data['silver_rate']}}" class="form-control" required></td></tr>
+                                <tr><th>Pure Silver Rate</th><td><input type="number" name="pure_silver_rate" class="form-control" value="{{rate_data['pure_silver_rate']}}" required></td></tr>
+                                <tr><th>Pure Silver Margin Rate</th><td><input type="number" name="pure_silver_margin_rate" class="form-control"  value="{{rate_data['pure_silver_margin_rate']}}" required></td></tr>
+
+                                <tr class="table-secondary"><th colspan="2">Gold</th></tr>
+                                <tr><th>Copper + Gold Rate</th><td><input type="number" name="gold_rate" value="{{rate_data['gold_rate']}}" class="form-control" required></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary">Submit</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ADD MODEL ================= -->
+    <div class="modal fade" id="addModelModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <form method="POST" action="{{ url_for('kavasam') }}">
+                    <div class="modal-header">
+                        <h5>Add Kavasam Model</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <table class="table table-bordered align-middle text-center">
+                            <tbody>
+                                <tr><th>SQFT Range</th><td><input type="number" name="sqft" class="form-control" required></td></tr>
+                                <tr><th>Wax Cost</th><td><input type="number" name="wax_cost" class="form-control" required></td></tr>
+
+                                <tr class="table-secondary"><th colspan="2">Brass / Copper</th></tr>
+                                <tr><th>24 Gauge</th><td><input type="number" name="gauge_24" class="form-control" required></td></tr>
+                                <tr><th>22 Gauge</th><td><input type="number" name="gauge_22" class="form-control" required></td></tr>
+                                <tr><th>20 Gauge</th><td><input type="number" name="gauge_20" class="form-control" required></td></tr>
+
+                                {% if rate_data %}
+                                    <tr class="table-secondary"><th colspan="2">Silver</th></tr>
+                                    <tr><th>Copper + Silver Rate</th><td><input type="number" name="silver_rate" value="{{rate_data['silver_rate']}}" class="form-control" readonly required></td></tr>
+                                    <tr><th>Pure Silver Rate</th><td><input type="number" name="pure_silver_rate" class="form-control" value="{{rate_data['pure_silver_rate']}}" readonly required></td></tr>
+                                    <tr><th>Pure Silver Margin Rate</th><td><input type="number" name="pure_silver_margin_rate" class="form-control"  value="{{rate_data['pure_silver_margin_rate']}}"readonly required></td></tr>
+
+                                    <tr class="table-secondary"><th colspan="2">Gold</th></tr>
+                                    <tr><th>Copper + Gold Rate</th><td><input type="number" name="gold_rate" value="{{rate_data['gold_rate']}}" class="form-control" readonly required></td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary">Submit</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= UPDATE MODALS ================= -->
+    {% for row in data %}
+        <div class="modal fade" id="updateModal{{ row.model }}" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+
+                    <form method="POST" action="{{ url_for('kavasam_update', model=row.model) }}">
+                        <div class="modal-header">
+                            <h5>Update Model : {{ row.model }}</h5>
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <table class="table table-bordered align-middle text-center">
+                                <tbody>
+                                    <tr><th>SQFT</th><td><input type="number" name="sqft" value="{{ row.sqft }}" class="form-control" required></td></tr>
+                                    <tr><th>Wax Cost</th><td><input type="number" name="wax_cost" value="{{ row.wax_cost }}" class="form-control" required></td></tr>
+                                    
+                                    <tr class="table-secondary"><th colspan="2">Brass / Copper</th></tr>
+                                    <tr><th>24 Gauge</th><td><input type="number" name="gauge_24" value="{{ row.gauge_24 }}" class="form-control" required></td></tr>
+                                    <tr><th>22 Gauge</th><td><input type="number" name="gauge_22" value="{{ row.gauge_22 }}" class="form-control" required></td></tr>
+                                    <tr><th>20 Gauge</th><td><input type="number" name="gauge_20" value="{{ row.gauge_20 }}" class="form-control" required></td></tr>
+                                    
+                                    {% if rate_data %}
+                                        <tr class="table-secondary"><th colspan="2">Silver</th></tr>
+                                        <tr><th>Silver Rate</th><td><input type="number" name="silver_rate" value="{{ rate_data['silver_rate'] }}" class="form-control" readonly required></td></tr>
+                                        <tr><th>Pure Silver Rate</th><td><input type="number" name="pure_silver_rate" value="{{ rate_data['pure_silver_rate'] }}" class="form-control" readonly required></td></tr>
+                                        <tr><th>Pure Silver Margin Rate</th><td><input type="number" name="pure_silver_margin_rate" value="{{ rate_data['pure_silver_margin_rate'] }}" class="form-control" readonly required></td></tr>
+                                        
+                                        <tr class="table-secondary"><th colspan="2">Gold</th></tr>
+                                        <tr><th>Gold Rate</th><td><input type="number" name="gold_rate" value="{{ rate_data['gold_rate'] }}" class="form-control" readonly required></td></tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <button class="btn btn-warning">Save Changes</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock content %}
+
+{% block extra_script %}
+    <script>
+        function toggleAll(source) {
+            document.querySelectorAll(".row-check").forEach(cb => {
+                cb.checked = source.checked;
+            });
+        }
+
+        function downloadExcel() {
+
+            const table = document.getElementById("Kavasam_Table");
+            const clone = table.cloneNode(true);
+
+            /* -------------------------------------------------
+            KEEP ONLY SELECTED ROWS
+            ------------------------------------------------- */
+            const rows = clone.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                const checkbox = row.querySelector(".row-check");
+                if (!checkbox || !checkbox.checked) {
+                    row.remove();
+                }
+            });
+
+            // If no rows selected → export all
+            if (clone.querySelectorAll("tbody tr").length === 0) {
+                table.querySelectorAll("tbody tr").forEach(tr => {
+                    clone.querySelector("tbody").appendChild(tr.cloneNode(true));
+                });
+            }
+
+            /* -------------------------------------------------
+            REMOVE CHECKBOX COLUMN
+            ------------------------------------------------- */
+
+            // Remove checkbox cells
+            clone.querySelectorAll("input.row-check").forEach(cb => {
+                const td = cb.closest("td");
+                if (td) td.remove();
+            });
+
+            // Remove checkbox header
+            const selectAll = clone.querySelector("#selectAll");
+            if (selectAll) {
+                const th = selectAll.closest("th");
+                if (th) th.remove();
+            }
+
+            /* -------------------------------------------------
+            REMOVE UPDATE & DELETE (ROWSPAN / COLSPAN SAFE)
+            ------------------------------------------------- */
+
+            // Remove any cell that contains only "Update" or "Delete"
+            clone.querySelectorAll("td, th").forEach(cell => {
+                const text = cell.innerText.trim().toLowerCase();
+                if (text === "update" || text === "delete") {
+                    cell.remove();
+                }
+            });
+
+            /* -------------------------------------------------
+            CREATE WORKBOOK
+            ------------------------------------------------- */
+            const wb = XLSX.utils.table_to_book(clone, {
+                sheet: "Kavasam Estimation"
+            });
+
+            const ws = wb.Sheets["Kavasam Estimation"];
+            const range = XLSX.utils.decode_range(ws["!ref"]);
+
+            /* -------------------------------------------------
+            FREEZE HEADER (FIRST ROW)
+            ------------------------------------------------- */
+            ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+
+            /* -------------------------------------------------
+            HEADER STYLING
+            ------------------------------------------------- */
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[addr]) continue;
+
+                ws[addr].s = {
+                    font: { bold: true },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    fill: { fgColor: { rgb: "E7E6E6" } },
+                    border: {
+                        top: { style: "thin" },
+                        bottom: { style: "thin" },
+                        left: { style: "thin" },
+                        right: { style: "thin" }
+                    }
+                };
+            }
+
+            /* -------------------------------------------------
+            AUTO COLUMN WIDTH
+            ------------------------------------------------- */
+            ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
+
+            /* -------------------------------------------------
+            DATE IN FILENAME
+            ------------------------------------------------- */
+            const today = new Date().toISOString().split("T")[0];
+            XLSX.writeFile(wb, `Kavasam_Estimation_${today}.xlsx`);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+{% endblock extra_script %}

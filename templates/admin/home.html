@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Admin Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+
+{% block navbar %}
+  <li><a href="{{ url_for('admin_home') }}" class="active"><i class="bi bi-house navicon"></i> <b style="color: yellow;">Home</b> </a></li>
+  <li class="dropdown"><a href="#"><i class="bi bi-grid navicon"></i> <span>Category</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+    <ul>
+      <li><a href="{{ url_for('thiruvachi') }}">Thiruvachi</a></li>
+      <li><a href="{{ url_for('kavasam') }}">Kavasam</a></li>
+      <li><a href="{{ url_for('vahanam') }}">Vahanam</a></li>
+      <li><a href="{{ url_for('sheet_metal') }}">Sheet Metal</a></li>
+      <li><a href="{{ url_for('panchaloha_statue') }}">Panchaloha Statue</a></li>
+    </ul>
+  </li>
+  <li><a href="{{ url_for('users_details') }}"><i class="bi bi-person navicon"></i> Users Details </a></li>
+  <li><a href="{{ url_for('index') }}"><i class="bi bi-box-arrow-right navicon"></i> Logout </a></li>
+{% endblock navbar %}
+
+
+
+{% block content %}
+    <section id="hero" class="hero section dark-background">
+
+        <img src="/static/assets/img/bg.jpg" alt="" data-aos="fade-in" class="">
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <h2>Raja Spritual Pvt Ltd</h2>
+            <p> 
+                <b> <i>
+                    <sep style="color: rgb(33, 172, 61);">Welcome</sep>
+                    <span class="typed" data-typed-items="Admin" style="color: yellow;">Admin</span>
+                    <span class="typed-cursor typed-cursor--blink" aria-hidden="true"></span>
+                    <span class="typed-cursor typed-cursor--blink" aria-hidden="true"></span> 
+                </i> </b>
+            </p>
+        </div>
+
+    </section>
+{% endblock content %}

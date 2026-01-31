@@ -1,0 +1,655 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Estimation Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+
+{% block navbar %}
+    <li><a href="{{ url_for('user_home') }}"><i class="bi bi-house navicon"></i> Home </a></li>
+    <li class="dropdown"><a href="#" class="active"><i class="bi bi-grid navicon"></i> <span>Category</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+        <ul>
+            <li><a href="{{ url_for('user_thiruvachi') }}">Thiruvachi</a></li>
+            <li><a href="{{ url_for('user_kavasam') }}"><b style="color: yellow;">Kavasam</b></a></li>
+            <li><a href="{{ url_for('user_vahanam') }}">Vahanam</a></li>
+            <li><a href="{{ url_for('user_kodimaram') }}">Kodimaram</a></li>
+            <li><a href="{{ url_for('user_sheet_metal') }}">Sheet Metal</a></li>
+            <li><a href="{{ url_for('user_panchaloha_status') }}">Panchaloha Statue</a></li>
+        </ul>
+    </li>
+    <li><a href="{{ url_for('index') }}"><i class="bi bi-box-arrow-right navicon"></i> Logout </a></li>
+{% endblock navbar %}
+
+
+{% block content %}
+    <section id="contact" class="contact section">
+
+        <center>
+            <div class="container section-title text" data-aos="fade-up">
+                <h2>Estimate Kavasam Models</h2>
+            </div>
+        </center>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="row gy-4 justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    
+                    <form action="{{ url_for('user_kavasam') }}" method="post" class="php-email-form">
+                        <div id="measure-container">
+                            <!-- MEASURE BLOCK 0 -->
+                            <div class="measure-row"
+                                style="border:1px solid #d1d9e6;padding:10px;border-radius:8px;margin-bottom:10px;">
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="number" step="any"
+                                            name="measures[0][height]"
+                                            placeholder="Height"
+                                            class="form-control"
+                                            required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <select name="measures[0][uom_height]"
+                                                class="form-control"
+                                                required>
+                                            <option value="">UOM (Height)</option>
+                                            <option value="Feet">Feet</option>
+                                            <option value="Inch">Inch</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <input type="number" step="any"
+                                            name="measures[0][width]"
+                                            placeholder="Width"
+                                            class="form-control"
+                                            required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <select name="measures[0][uom_width]"
+                                                class="form-control"
+                                                required>
+                                            <option value="">UOM (Width)</option>
+                                            <option value="Feet">Feet</option>
+                                            <option value="Inch">Inch</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ADD BUTTON -->
+                        <button type="button"
+                                onclick="addMeasure()"
+                                style="margin-top:10px;
+                                    padding:8px 14px;
+                                    border-radius:6px;
+                                    background:#1c4e80;
+                                    color:white;
+                                    border:none;">
+                            ➕ Add Measure
+                        </button>
+
+                        <div class="text-center mt-3">
+                            <button type="submit">Submit</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div><br>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="table-responsive mt-3">
+
+                {% if get_data %}
+                    <div style="
+                        border:1px solid #d1d9e6;
+                        border-radius:10px;
+                        overflow:hidden;
+                        box-shadow:0 3px 10px rgba(0,0,0,0.06);
+                        background:#ffffff;
+                        max-width:700px;
+                        margin:auto;
+                        ">
+
+                        <!-- HEADER -->
+                        <div style="
+                            background:linear-gradient(135deg,#3f87a6,#1c4e80);
+                            color:white;
+                            padding:8px 12px;
+                            font-weight:600;
+                            font-size:14px;
+                        ">
+                            <i class="bi bi-calculator-fill" style="margin-right:8px;"></i>
+                            Calculation Fields
+                        </div>
+
+                        <!-- TABLE -->
+                        <table style="
+                            width:100%;
+                            border-collapse:separate;
+                            border-spacing:0;
+                            font-size:13px;
+                            ">
+
+                            <tbody>
+
+                                <!-- METAL -->
+                                <tr>
+                                    <td colspan="2" style="
+                                        padding:6px;
+                                        text-align:center;
+                                        font-weight:600;
+                                        background:#f5eef8;
+                                        color:#4a148c;
+                                        border-bottom:1px solid #d1d9e6;
+                                    ">
+                                        METAL RATES
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        Pure Silver Rate
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{get_rate_data['pure_silver_rate']}}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        Pure Silver Margin Rate
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{get_rate_data['pure_silver_margin_rate']}}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        Copper with Silver Rate
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{get_rate_data['silver_rate']|int}}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        Copper with Gold Rate
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{get_rate_data['gold_rate']|int}}
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div><br>
+
+
+                    <button class="btn btn-success mb-3" onclick="downloadExcel()">
+                        <i class="bi bi-file-earmark-excel"></i> Download Excel
+                    </button>
+
+                    <table id="KavasamTable" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+                        <thead>
+                            <tr class="table-danger">
+                                <th rowspan="2">
+                                    <input type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                                </th>
+                                <th rowspan="2">SQFT Range</th>
+                                <th rowspan="2">Wax Cost</th>
+                                <th colspan="3">Gauge Rate</th>
+                                <th colspan="3">Brass / Copper</th>
+                                <th colspan="2">Pure Silver</th>
+                                <th colspan="2">Copper + Silver</th>
+                                <th colspan="2">Copper + Gold</th>
+                            </tr>
+                            <tr class="table-danger">
+                                <th style="background-color:rgba(245, 245, 220, 0.465);">24 Gauge</th><th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                                <th style="background-color:rgba(245, 245, 220, 0.465);">24 Gauge</th><th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                                <th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                                <th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                                <th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for row in get_data %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="row-check">
+                                    </td>
+
+                                    <td>{{ row.sqft|int }}</td>
+                                    <td>{{ row.wax_cost|int }}</td>
+
+                                    <td style="background-color:rgba(245, 245, 220, 0.465);">{{ row.gauge_24|int }}</td>
+                                    <td style="background-color: rgba(240, 255, 255, 0.475);">{{ row.gauge_22|int }}</td>
+                                    <td style="background-color: rgba(255, 235, 205, 0.536);">{{ row.gauge_20|int }}</td>
+
+                                    <td style="background-color:rgba(245, 245, 220, 0.465);">{{ (row.sqft|int * row.gauge_24|int)|int }}</td>
+                                    <td style="background-color: rgba(240, 255, 255, 0.475);">{{ (row.sqft|int * row.gauge_22|int)|int }}</td>
+                                    <td style="background-color: rgba(255, 235, 205, 0.536);">{{ (row.sqft|int * row.gauge_20|int)|int }}</td>
+
+                                    <td style="background-color: rgba(240, 255, 255, 0.475);">{{ ((get_rate_data['pure_silver_rate']|int + get_rate_data['pure_silver_margin_rate']|int) * ((row.sqft|int * 0.625) * 1000))|int }}</td>
+                                    <td style="background-color: rgba(255, 235, 205, 0.536);">{{ ((get_rate_data['pure_silver_rate']|int + get_rate_data['pure_silver_margin_rate']|int) * ((row.sqft|int * 0.75) * 1000))|int }}</td>
+
+                                    <td style="background-color: rgba(240, 255, 255, 0.475);">{{ (row.sqft|int * (row.gauge_22|int + (row.gauge_22|int * 0.1) + get_rate_data['silver_rate']|int))|int }}</td>
+                                    <td style="background-color: rgba(255, 235, 205, 0.536);">{{ (row.sqft|int * (row.gauge_20|int + (row.gauge_20|int * 0.1) + get_rate_data['silver_rate']|int))|int }}</td>
+
+                                    <td style="background-color: rgba(240, 255, 255, 0.475);">{{ (row.sqft * (row.gauge_22|int + (row.gauge_22|int * 0.1) + get_rate_data['gold_rate']|int))|int }}</td>
+                                    <td style="background-color: rgba(255, 235, 205, 0.536);">{{ (row.sqft * (row.gauge_20|int + (row.gauge_20|int * 0.1) + get_rate_data['gold_rate']|int))|int }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                {% else %}
+
+                    <div style="
+                        border:1px solid #d1d9e6;
+                        border-radius:10px;
+                        overflow:hidden;
+                        box-shadow:0 3px 10px rgba(0,0,0,0.06);
+                        background:#ffffff;
+                        max-width:700px;
+                        margin:auto;
+                        ">
+
+                        <!-- HEADER -->
+                        <div style="
+                            background:linear-gradient(135deg,#3f87a6,#1c4e80);
+                            color:white;
+                            padding:8px 12px;
+                            font-weight:600;
+                            font-size:14px;
+                        ">
+                            <i class="bi bi-calculator-fill" style="margin-right:8px;"></i>
+                            Calculation Fields
+                        </div>
+
+                        <!-- TABLE -->
+                        <table style="
+                            width:100%;
+                            border-collapse:separate;
+                            border-spacing:0;
+                            font-size:13px;
+                            ">
+
+                            <tbody>
+
+                                    <!-- SECTION -->
+                                    <tr>
+                                        <td colspan="2" style="
+                                            padding:6px;
+                                            text-align:center;
+                                            font-weight:600;
+                                            background:#eef4fb;
+                                            color:#1c4e80;
+                                            border-bottom:1px solid #d1d9e6;
+                                        ">
+                                            SQFT DETAILS
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                            Actual SQFT
+                                        </td>
+                                        <td style="padding:6px;font-weight:600;color:#2e7d32;border-bottom:1px solid #e5eaf0;">
+                                            {{ "%.2f" % total_sqft | float }}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                            SQFT Range
+                                        </td>
+                                        <td style="padding:6px;font-weight:500;border-bottom:1px solid #e5eaf0;">
+                                            {{ data.sqft | int }}
+                                        </td>
+                                    </tr>
+
+                                    <!-- COST -->
+                                    <tr>
+                                        <td colspan="2" style="
+                                            padding:6px;
+                                            text-align:center;
+                                            font-weight:600;
+                                            background:#fff4e5;
+                                            color:#e65100;
+                                            border-bottom:1px solid #d1d9e6;
+                                        ">
+                                            BASE COST
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                            24 Gauge
+                                        </td>
+                                        <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                            ₹ {{ data.gauge_24 | int }}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                            22 Gauge
+                                        </td>
+                                        <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                            ₹ {{ data.gauge_22 | int }}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                            20 Gauge
+                                        </td>
+                                        <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                            ₹ {{ data.gauge_20 | int }}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                            Wax Cost
+                                        </td>
+                                        <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                            ₹ {{ data.wax_cost | int }}
+                                        </td>
+                                    </tr>
+
+                                    <!-- METAL -->
+                                    <tr>
+                                        <td colspan="2" style="
+                                            padding:6px;
+                                            text-align:center;
+                                            font-weight:600;
+                                            background:#f5eef8;
+                                            color:#4a148c;
+                                            border-bottom:1px solid #d1d9e6;
+                                        ">
+                                            METAL RATES
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                            Pure Silver Rate
+                                        </td>
+                                        <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                            ₹ {{rate_data['pure_silver_rate']}}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                            Pure Silver Margin Rate
+                                        </td>
+                                        <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                            ₹ {{rate_data['pure_silver_margin_rate']}}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                            Copper with Silver Rate
+                                        </td>
+                                        <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                            ₹ {{rate_data['silver_rate']|int}}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                            Copper with Gold Rate
+                                        </td>
+                                        <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                            ₹ {{rate_data['gold_rate']|int}}
+                                        </td>
+                                    </tr>
+
+                            </tbody>
+                        </table>
+                    </div><br>
+
+                    <button class="btn btn-success mb-3" onclick="downloadExcel()">
+                        <i class="bi bi-file-earmark-excel"></i> Download Excel
+                    </button>
+
+                    <table id="KavasamTable" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+                        <thead>
+                            <tr class="table-danger">
+                                <th rowspan="2" style="text-align: center;">
+                                    <input type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                                </th>
+                                <th rowspan="2" style="text-align: center;">SQFT Range</th>
+                                <th rowspan="2" style="text-align: center;">Wax Cost</th>
+                                <th colspan="3" style="text-align: center;">Gauge Rate (Fixed)</th>
+                                <th colspan="2" style="text-align: center;">Brass / Copper</th>
+                                <th colspan="2" style="text-align: center;">Pure Silver</th>
+                                <th colspan="2" style="text-align: center;">Copper + Silver</th>
+                                <th colspan="2" style="text-align: center;">Copper + Gold</th>
+                            </tr>
+                            <tr class="table-danger">
+                                <th style="background-color:rgba(245, 245, 220, 0.465);">24 Gauge</th><th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                                <th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                                <th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                                <th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                                <th style="background-color: rgba(240, 255, 255, 0.475);">22 Gauge</th><th style="background-color: rgba(255, 235, 205, 0.536);">20 Gauge</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="row-check">
+                                </td>
+
+                                <td>{{ data.sqft|int }}</td>
+                                <td>{{ data.wax_cost|int }}</td>
+
+                                <td style="background-color:rgba(245, 245, 220, 0.465);">{{ data.gauge_24|int }}</td>
+                                <td style="background-color: rgba(240, 255, 255, 0.475);">{{ data.gauge_22|int }}</td>
+                                <td style="background-color: rgba(255, 235, 205, 0.536);">{{ data.gauge_20|int }}</td>
+
+                                <td style="background-color: rgba(240, 255, 255, 0.475);">{{ (total_sqft * data.gauge_22|int)|int }}</td>
+                                <td style="background-color: rgba(255, 235, 205, 0.536);">{{ (total_sqft * data.gauge_20|int)|int }}</td>
+
+                                <td style="background-color: rgba(240, 255, 255, 0.475);">{{ ((rate_data['pure_silver_rate']|int + rate_data['pure_silver_margin_rate']|int) * ((total_sqft * 0.625) * 1000))|int }}</td>
+                                <td style="background-color: rgba(255, 235, 205, 0.536);">{{ ((rate_data['pure_silver_rate']|int + rate_data['pure_silver_margin_rate']|int) * ((total_sqft * 0.75) * 1000))|int }}</td>
+
+                                <td style="background-color: rgba(240, 255, 255, 0.475);">{{ (total_sqft * (data.gauge_22|int + (data.gauge_22|int * 0.1) + rate_data['silver_rate']|int))|int }}</td>
+                                <td style="background-color: rgba(255, 235, 205, 0.536);">{{ (total_sqft * (data.gauge_20|int + (data.gauge_20|int * 0.1) + rate_data['silver_rate']|int))|int }}</td>
+
+                                <td style="background-color: rgba(240, 255, 255, 0.475);">{{ (total_sqft * (data.gauge_22|int + (data.gauge_22|int * 0.1) + rate_data['gold_rate']|int))|int }}</td>
+                                <td style="background-color: rgba(255, 235, 205, 0.536);">{{ (total_sqft * (data.gauge_20|int + (data.gauge_20|int * 0.1) + rate_data['gold_rate']|int))|int }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endif %}
+
+            </div>
+        </div>
+    </section>
+{% endblock content %}
+
+
+{% block extra_script %}
+    <script>
+        function toggleAll(source) {
+            document.querySelectorAll(".row-check").forEach(cb => {
+                cb.checked = source.checked;
+            });
+        }
+
+        function downloadExcel() {
+
+            const table = document.getElementById("KavasamTable");
+            const clone = table.cloneNode(true);
+
+            /* -------------------------------------------------
+            KEEP ONLY SELECTED ROWS
+            ------------------------------------------------- */
+            const rows = clone.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                const checkbox = row.querySelector(".row-check");
+                if (!checkbox || !checkbox.checked) {
+                    row.remove();
+                }
+            });
+
+            // If no rows selected → export all
+            if (clone.querySelectorAll("tbody tr").length === 0) {
+                table.querySelectorAll("tbody tr").forEach(tr => {
+                    clone.querySelector("tbody").appendChild(tr.cloneNode(true));
+                });
+            }
+
+            // Remove ONLY checkbox cells safely
+            clone.querySelectorAll("input.row-check").forEach(cb => {
+                const td = cb.closest("td");
+                if (td) td.remove();
+            });
+
+            // Remove checkbox header cell
+            const selectAll = clone.querySelector("#selectAll");
+            if (selectAll) {
+                const th = selectAll.closest("th");
+                if (th) th.remove();
+            }
+
+
+            /* -------------------------------------------------
+            CREATE WORKBOOK
+            ------------------------------------------------- */
+            const wb = XLSX.utils.table_to_book(clone, {
+                sheet: "Kavasam Estimation"
+            });
+
+            const ws = wb.Sheets["Kavasam Estimation"];
+            const range = XLSX.utils.decode_range(ws["!ref"]);
+
+            /* -------------------------------------------------
+            HEADER STYLING + FREEZE HEADER
+            ------------------------------------------------- */
+            ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[addr]) continue;
+
+                ws[addr].s = {
+                    font: { bold: true },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    fill: { fgColor: { rgb: "E7E6E6" } },
+                    border: {
+                        top: { style: "thin" },
+                        bottom: { style: "thin" },
+                        left: { style: "thin" },
+                        right: { style: "thin" }
+                    }
+                };
+            }
+
+            // /* -------------------------------------------------
+            // ₹ CURRENCY FORMAT (LAST COLUMN = COST)
+            // ------------------------------------------------- */
+            // for (let R = 1; R <= range.e.r; ++R) {
+            //     const cellAddr = XLSX.utils.encode_cell({ r: R, c: range.e.c });
+            //     if (!ws[cellAddr]) continue;
+
+            //     ws[cellAddr].t = "n";
+            //     ws[cellAddr].z = '₹#,##0';
+            // }
+
+            /* -------------------------------------------------
+            AUTO COLUMN WIDTH
+            ------------------------------------------------- */
+            ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
+
+            /* -------------------------------------------------
+            DATE IN FILENAME
+            ------------------------------------------------- */
+            const today = new Date().toISOString().split("T")[0];
+            XLSX.writeFile(wb, `Kavasam_Estimation_${today}.xlsx`);
+        }
+    </script>
+
+    <script>
+        let measureIndex = 1;
+
+        function addMeasure() {
+            const container = document.getElementById("measure-container");
+
+            const block = document.createElement("div");
+            block.className = "measure-row";
+            block.style = `
+                border:1px solid #d1d9e6;
+                padding:10px;
+                border-radius:8px;
+                margin-bottom:10px;
+                background:#f9fbfd;
+            `;
+
+            block.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="number" step="any"
+                            name="measures[${measureIndex}][height]"
+                            placeholder="Height"
+                            class="form-control"
+                            required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <select name="measures[${measureIndex}][uom_height]"
+                                class="form-control"
+                                required>
+                            <option value="">UOM (Height)</option>
+                            <option value="Feet">Feet</option>
+                            <option value="Inch">Inch</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <input type="number" step="any"
+                            name="measures[${measureIndex}][width]"
+                            placeholder="Width"
+                            class="form-control"
+                            required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <select name="measures[${measureIndex}][uom_width]"
+                                class="form-control"
+                                required>
+                            <option value="">UOM (Width)</option>
+                            <option value="Feet">Feet</option>
+                            <option value="Inch">Inch</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(block);
+            measureIndex++;
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+{% endblock extra_script %}

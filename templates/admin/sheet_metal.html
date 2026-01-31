@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Admin Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+
+{% block navbar %}
+    <li><a href="{{ url_for('admin_home') }}"><i class="bi bi-house navicon"></i> Home </a></li>
+
+    <li class="dropdown">
+        <a href="#" class="active">
+            <i class="bi bi-grid navicon"></i>
+                <span>
+                    <b style="color: yellow;">
+                        Category
+                    </b>
+                </span>
+            <i class="bi bi-chevron-down toggle-dropdown"></i>
+        </a>
+        <ul>
+            <li><a href="{{ url_for('thiruvachi') }}">Thiruvachi</a></li>
+            <li><a href="{{ url_for('kavasam') }}">Kavasam</a></li>
+            <li><a href="{{ url_for('vahanam') }}">Vahanam</a></li>
+            <li><a href="{{ url_for('sheet_metal') }}"><b style="color: yellow;">Sheet Metal</b></a></li>
+            <li><a href="{{ url_for('panchaloha_statue') }}">Panchaloha Statue</a></li>
+        </ul>
+    </li>
+
+    <li><a href="{{ url_for('users_details') }}"><i class="bi bi-person navicon"></i> Users Details </a></li>
+
+    <li><a href="{{ url_for('index') }}"><i class="bi bi-box-arrow-right navicon"></i> Logout </a></li>
+{% endblock navbar %}
+
+
+{% block content %}
+    <section id="contact" class="contact section">
+
+        <center>
+            <div class="container section-title text" data-aos="fade-up">
+                <h2>Sheet Metal Models Details</h2>
+            </div>
+        </center>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-success" onclick="downloadExcel()">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
+                </button>
+
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModelModal">
+                    <i class="bi bi-plus-circle me-1"></i> Add model
+                </button>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table id="Vahanam_Table" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+                    <thead class="align-middle">
+                        <tr class="table-danger text-center">
+                            <th rowspan="2" class="px-3" style="background-color:rgba(193, 56, 56, 0.941); color: white;">
+                                <input type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                            </th>
+                            <th rowspan="2" class="px-3" style="background-color:rgba(193, 56, 56, 0.941);">Model</th>
+                            <th rowspan="2" class="px-3" style="background-color: rgba(193, 56, 56, 0.941);">Heads</th>
+                            <th rowspan="2" class="px-3 text-start" style="background-color: rgba(193, 56, 56, 0.941);">Work Description</th>
+
+                            <th colspan="3" class="px-3" style="background-color: rgba(193, 56, 56, 0.941);">20 Gauge</th>
+                            <th colspan="3" class="px-3" style="background-color: rgba(193, 56, 56, 0.941);">22 Gauge</th>
+
+                            <th rowspan="2" class="px-3" style="background-color: rgba(193, 56, 56, 0.941);">Update</th>
+                            <th rowspan="2" class="px-3" style="background-color: rgba(193, 56, 56, 0.941);">Delete</th>
+                        </tr>
+
+                        <tr class="table-secondary text-center">
+                            <th class="small" style="background-color: bisque;">Below 21 SQFT</th>
+                            <th class="small" style="background-color: bisque;">21 to 50 SQFT</th>
+                            <th class="small" style="background-color: bisque;">Above 50 SQFT</th>
+
+                            <th class="small" style="background-color: bisque;">Below 21 SQFT</th>
+                            <th class="small" style="background-color: bisque;">21 to 50 SQFT</th>
+                            <th class="small" style="background-color: bisque;">Above 50 SQFT</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in data %}
+                            <tr>
+                                <td><input type="checkbox" class="row-check"></td>
+                                <td>{{ row.model }}</td>
+                                <td>{{ row.heads }}</td>
+                                <td>{{ row.work_desc }}</td>
+                                <td>{{ row.gauge_20__below_21_sqft }}</td>
+                                <td>{{ row.gauge_20__21_50_sqft }}</td>
+                                <td>{{ row.gauge_20__above_50_sqft }}</td>
+                                <td>{{ row.gauge_22__below_21_sqft }}</td>
+                                <td>{{ row.gauge_22__21_50_sqft }}</td>
+                                <td>{{ row.gauge_22__above_50_sqft }}</td>
+
+                                <td>
+                                    <button class="btn btn-sm btn-warning"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#updateModal{{ row.model }}">
+                                        <i class="bi bi-pencil-square me-1"></i>Update
+                                    </button>
+                                </td>
+
+                                <td>
+                                    <form method="POST"
+                                        action="{{ url_for('sheet_metal_delete', model=row.model) }}"
+                                        onsubmit="return confirm('Are you sure?');">
+                                        <button class="btn btn-sm btn-danger">
+                                            <i class="bi bi-trash me-1"></i>Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% for row in data %}
+                    <div class="modal fade" id="updateModal{{ row.model }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Update Model: {{ row.model }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <!-- ✅ YOUR TABLE FORM (UNCHANGED) -->
+                                <form method="POST"
+                                    action="{{ url_for('sheet_metal_update', model=row.model) }}">
+
+                                    <div class="modal-body">
+                                        <table class="table table-bordered align-middle"
+                                            style="background:#f8fbff; border-radius:6px;">
+                                            <tbody>
+
+                                                <tr>
+                                                    <th style="width:30%">Heads</th>
+                                                    <td>
+                                                        <input type="text" name="heads"
+                                                            class="form-control"
+                                                            value="{{ row.heads }}" required>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Work Description</th>
+                                                    <td>
+                                                        <textarea name="work_desc"
+                                                                class="form-control"
+                                                                rows="3" required>{{ row.work_desc }}</textarea>
+                                                    </td>
+                                                </tr>
+
+                                                <tr class="table-secondary text-center">
+                                                    <th colspan="2">20 Gauge</th>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Below 21 SQFT</th>
+                                                    <td><input type="number" name="gauge_20__below_21_sqft"
+                                                            class="form-control"
+                                                            value="{{ row.gauge_20__below_21_sqft }}" required></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>21 to 50 SQFT</th>
+                                                    <td><input type="number" name="gauge_20__21_50_sqft"
+                                                            class="form-control"
+                                                            value="{{ row.gauge_20__21_50_sqft }}" required></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Above 50 SQFT</th>
+                                                    <td><input type="number" name="gauge_20__above_50_sqft"
+                                                            class="form-control"
+                                                            value="{{ row.gauge_20__above_50_sqft }}" required></td>
+                                                </tr>
+
+                                                <tr class="table-secondary text-center">
+                                                    <th colspan="2">22 Gauge</th>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Below 21 SQFT</th>
+                                                    <td><input type="number" name="gauge_22__below_21_sqft"
+                                                            class="form-control"
+                                                            value="{{ row.gauge_22__below_21_sqft }}" required></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>21 to 50 SQFT</th>
+                                                    <td><input type="number" name="gauge_22__21_50_sqft"
+                                                            class="form-control"
+                                                            value="{{ row.gauge_22__21_50_sqft }}" required></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Above 50 SQFT</th>
+                                                    <td><input type="number" name="gauge_22__above_50_sqft"
+                                                            class="form-control"
+                                                            value="{{ row.gauge_22__above_50_sqft }}" required></td>
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-warning">Save Changes</button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+            </div>
+
+            {# ===================== ADD MODAL ===================== #}
+                <div class="modal fade" id="addModelModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">Add Sheet Metal Model</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <form method="POST" action="{{ url_for('sheet_metal') }}" enctype="multipart/form-data">
+                                <div class="modal-body">
+
+                                    <table class="table table-bordered align-middle"
+                                        style="background:#f8fbff; border-radius:6px; overflow:hidden;">
+                                        <tbody>
+
+                                            <tr>
+                                                <th style="width:30%">Heads</th>
+                                                <td>
+                                                    <input type="text"
+                                                        name="heads"
+                                                        class="form-control"
+                                                        required>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Work Description</th>
+                                                <td>
+                                                    <textarea name="work_desc"
+                                                            class="form-control"
+                                                            rows="3"
+                                                            required></textarea>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="table-secondary text-center">
+                                                <th colspan="2">20 Gauge</th>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Below 21 SQFT</th>
+                                                <td>
+                                                    <input type="number"
+                                                        step="any"
+                                                        name="gauge_20__below_21_sqft"
+                                                        class="form-control"
+                                                        required>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>21 to 50 SQFT</th>
+                                                <td>
+                                                    <input type="number"
+                                                        step="any"
+                                                        name="gauge_20__21_50_sqft"
+                                                        class="form-control"
+                                                        required>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Above 50 SQFT</th>
+                                                <td>
+                                                    <input type="number"
+                                                        step="any"
+                                                        name="gauge_20__above_50_sqft"
+                                                        class="form-control"
+                                                        required>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="table-secondary text-center">
+                                                <th colspan="2">22 Gauge</th>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Below 21 SQFT</th>
+                                                <td>
+                                                    <input type="number"
+                                                        step="any"
+                                                        name="gauge_22__below_21_sqft"
+                                                        class="form-control"
+                                                        required>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>21 to 50 SQFT</th>
+                                                <td>
+                                                    <input type="number"
+                                                        step="any"
+                                                        name="gauge_22__21_50_sqft"
+                                                        class="form-control"
+                                                        required>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Above 50 SQFT</th>
+                                                <td>
+                                                    <input type="number"
+                                                        step="any"
+                                                        name="gauge_22__above_50_sqft"
+                                                        class="form-control"
+                                                        required>
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button"
+                                            class="btn btn-light"
+                                            data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+                                    <button type="submit"
+                                            class="btn btn-primary">
+                                        Submit
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            {# ===================== END ADD MODAL ===================== #}
+
+        </div>
+    </section>
+{% endblock content %}
+
+
+{% block extra_script %}
+    <script>
+        function toggleAll(source) {
+            document.querySelectorAll(".row-check").forEach(cb => {
+                cb.checked = source.checked;
+            });
+        }
+
+        function downloadExcel() {
+
+            const table = document.getElementById("Vahanam_Table");
+            const clone = table.cloneNode(true);
+
+            /* -------------------------------------------------
+            KEEP ONLY SELECTED ROWS
+            ------------------------------------------------- */
+            const rows = clone.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                const checkbox = row.querySelector(".row-check");
+                if (!checkbox || !checkbox.checked) {
+                    row.remove();
+                }
+            });
+
+            // If no rows selected → export all
+            if (clone.querySelectorAll("tbody tr").length === 0) {
+                table.querySelectorAll("tbody tr").forEach(tr => {
+                    clone.querySelector("tbody").appendChild(tr.cloneNode(true));
+                });
+            }
+
+            /* -------------------------------------------------
+            REMOVE CHECKBOX COLUMN
+            ------------------------------------------------- */
+
+            // Remove checkbox cells
+            clone.querySelectorAll("input.row-check").forEach(cb => {
+                const td = cb.closest("td");
+                if (td) td.remove();
+            });
+
+            // Remove checkbox header
+            const selectAll = clone.querySelector("#selectAll");
+            if (selectAll) {
+                const th = selectAll.closest("th");
+                if (th) th.remove();
+            }
+
+            /* -------------------------------------------------
+            REMOVE UPDATE & DELETE COLUMNS (ROWSPAN SAFE)
+            ------------------------------------------------- */
+
+            // Remove any cell whose text is exactly "Update" or "Delete"
+            clone.querySelectorAll("th, td").forEach(cell => {
+                const text = cell.innerText.trim().toLowerCase();
+                if (text === "update" || text === "delete") {
+                    cell.remove();
+                }
+            });
+
+            /* -------------------------------------------------
+            CREATE WORKBOOK
+            ------------------------------------------------- */
+            const wb = XLSX.utils.table_to_book(clone, {
+                sheet: "Vahanam Estimation"
+            });
+
+            const ws = wb.Sheets["Vahanam Estimation"];
+            const range = XLSX.utils.decode_range(ws["!ref"]);
+
+            /* -------------------------------------------------
+            FREEZE HEADER
+            ------------------------------------------------- */
+            ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+
+            /* -------------------------------------------------
+            HEADER STYLING
+            ------------------------------------------------- */
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[addr]) continue;
+
+                ws[addr].s = {
+                    font: { bold: true },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    fill: { fgColor: { rgb: "E7E6E6" } },
+                    border: {
+                        top: { style: "thin" },
+                        bottom: { style: "thin" },
+                        left: { style: "thin" },
+                        right: { style: "thin" }
+                    }
+                };
+            }
+
+            /* -------------------------------------------------
+            AUTO COLUMN WIDTH
+            ------------------------------------------------- */
+            ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
+
+            /* -------------------------------------------------
+            FILE NAME
+            ------------------------------------------------- */
+            const today = new Date().toISOString().split("T")[0];
+            XLSX.writeFile(wb, `Vahanam_Estimation_${today}.xlsx`);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+{% endblock extra_script %}

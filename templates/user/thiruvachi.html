@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Estimation Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+
+{% block navbar %}
+    <li><a href="{{ url_for('user_home') }}"><i class="bi bi-house navicon"></i> Home </a></li>
+    <li class="dropdown"><a href="#" class="active"><i class="bi bi-grid navicon"></i> <span>Category</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+        <ul>
+            <li><a href="{{ url_for('user_thiruvachi') }}"> <b style="color: yellow;">Thiruvachi</b> </a></li>
+            <li><a href="{{ url_for('user_kavasam') }}">Kavasam</a></li>
+            <li><a href="{{ url_for('user_vahanam') }}">Vahanam</a></li>
+            <li><a href="{{ url_for('user_kodimaram') }}">Kodimaram</a></li>
+            <li><a href="{{ url_for('user_sheet_metal') }}">Sheet Metal</a></li>
+            <li><a href="{{ url_for('user_panchaloha_status') }}">Panchaloha Statue</a></li>
+        </ul>
+    </li>
+    <li><a href="{{ url_for('index') }}"><i class="bi bi-box-arrow-right navicon"></i> Logout </a></li>
+{% endblock navbar %}
+
+
+{% block content %}
+    <section id="contact" class="contact section">
+
+        <center>
+            <div class="container section-title text" data-aos="fade-up">
+                <h2>Estimate Thiruvachi Models</h2>
+            </div>
+        </center>
+
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="row gy-4 justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                <form action="{{ url_for('user_thiruvachi') }}" method="post"
+                        class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+                    <div class="row gy-4">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="name-field" class="pb-2"></label>
+                            <input type="number" step="any" name="height" placeholder="Height" id="name-field" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <br>
+                            <select name="UOM_Height" id="name-field" class="form-control" required>
+                                <option value="">Unit of Measure (Height)</option>
+                                <option value="Feet">Feet</option>
+                                <option value="Inch">Inch</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="name-field" class="pb-2"></label>
+                            <input type="number" step="any" name="width" placeholder="Width" id="name-field" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="name-field" class="pb-2"> </label>
+                            <select name="UOM_Width" id="name-field" class="form-control" required>
+                                <option value="">Unit of Measure (Width)</option>
+                                <option value="Feet">Feet</option>
+                                <option value="Inch">Inch</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12 text-center">
+                        <button type="submit">Submit</button>
+                    </div>
+
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div><br>
+
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="table-responsive mt-3">
+
+                {% if get_data %}
+                    <button class="btn btn-success mb-3" onclick="downloadExcel()">
+                        <i class="bi bi-file-earmark-excel"></i> Download Excel
+                    </button>
+
+                    <table id="thiruvachiTable" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+                        <thead class="align-middle">
+                            <tr class="table-danger text-center">
+                                <th>
+                                    <input type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                                </th>
+                                <th>Model</th>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Leg breadth</th>
+                                <th>Sheet thick</th>
+                                <th>Work details</th>
+                                <th>Brass Cost</th>
+                                <!-- <th>Silver Cost</th>
+                                <th>Gold Cost</th> -->
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for row in get_data %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="row-check">
+                                    </td>
+
+                                    <td>{{ row.model }}</td>
+
+                                    <td style="width:90px;">
+                                        <a href="{{ url_for('thiruvachi_img', model=row.model) }}"
+                                            class="glightbox"
+                                            data-gallery="thiruvachi-gallery"
+                                            data-type="image"
+                                            title="{{ row.name }} (Model: {{ row.model }})">
+
+                                            <img
+                                            src="{{ url_for('thiruvachi_img', model=row.model) }}"
+                                            alt="img"
+                                            style="width:70px;height:70px;object-fit:cover;border-radius:8px;cursor:zoom-in;">
+                                        </a>
+                                    </td>
+
+                                    <td>{{ row.name }}</td>
+                                    <td>{{ row.leg_breadth }}''</td>
+                                    <td>{{ row.sheet_thick }} Gauge</td>
+                                    <td>{{ row.work_details }}</td>
+                                    <td>{{ "%.0f" % row.cost | float }}</td>
+                                </tr>
+
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                {% else %}
+                    <button class="btn btn-success mb-3" onclick="downloadExcel()">
+                        <i class="bi bi-file-earmark-excel"></i> Download Excel
+                    </button>
+
+                    <table id="thiruvachiTable" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+                        <thead class="align-middle">
+                            <tr class="table-danger text-center">
+                                <th>
+                                    <input type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                                </th>
+                                <th>Model</th>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Leg breadth</th>
+                                <th>Sheet thick</th>
+                                <th>Work details</th>
+                                <th>Brass Cost</th>
+                                <!-- <th>Silver Cost</th>
+                                <th>Gold Cost</th> -->
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for row in data %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="row-check">
+                                    </td>
+                                    
+                                    <td>{{ row.model }}</td>
+
+                                    <td style="width:90px;">
+                                        <a href="{{ url_for('thiruvachi_img', model=row.model) }}"
+                                            class="glightbox"
+                                            data-gallery="thiruvachi-gallery"
+                                            data-type="image"
+                                            title="{{ row.name }} (Model: {{ row.model }})">
+
+                                            <img
+                                            src="{{ url_for('thiruvachi_img', model=row.model) }}"
+                                            alt="img"
+                                            style="width:70px;height:70px;object-fit:cover;border-radius:8px;cursor:zoom-in;">
+                                        </a>
+                                    </td>
+
+                                    <td>{{ row.name }}</td>
+                                    <td>{{ row.leg_breadth }}''</td>
+                                    <td>{{ row.sheet_thick }} Gauge</td>
+                                    <td>{{ row.work_details }}</td>
+                                    <td>₹ {{ ((((no_of_Square_feet|float) + 1) * (row.cost|float)) | round(0)) | int }}</td>
+                                    <!-- <td>₹ {{ ((((no_of_Square_feet|default(0))|float) * ((row.cost|float) + 2500)) | round(0)) | int }}</td>
+                                    <td>₹ {{ ((((no_of_Square_feet|default(0))|float) * ((row.cost|float) + 9900)) | round(0)) | int }}</td> -->
+                                </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                {% endif %}
+                
+            </div>
+        </div>
+    </section>
+{% endblock content %}
+
+
+{% block extra_script %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const lightbox = GLightbox({
+            selector: ".glightbox",
+            touchNavigation: true,
+            loop: true
+            });
+        });
+    </script>
+
+    <script>
+        function toggleAll(source) {
+            document.querySelectorAll(".row-check").forEach(cb => {
+                cb.checked = source.checked;
+            });
+        }
+
+        function downloadExcel() {
+
+            const table = document.getElementById("thiruvachiTable");
+            const clone = table.cloneNode(true);
+
+            /* -------------------------------------------------
+            KEEP ONLY SELECTED ROWS
+            ------------------------------------------------- */
+            const rows = clone.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                const checkbox = row.querySelector(".row-check");
+                if (!checkbox || !checkbox.checked) {
+                    row.remove();
+                }
+            });
+
+            // If no rows selected → export all
+            if (clone.querySelectorAll("tbody tr").length === 0) {
+                table.querySelectorAll("tbody tr").forEach(tr => {
+                    clone.querySelector("tbody").appendChild(tr.cloneNode(true));
+                });
+            }
+
+            /* -------------------------------------------------
+            REMOVE CHECKBOX & IMAGE COLUMNS
+            (checkbox = col 0, image = col 2 originally)
+            ------------------------------------------------- */
+            clone.querySelectorAll("tr").forEach(row => {
+                if (row.children.length > 2) {
+                    row.children[2].remove(); // Image
+                    row.children[0].remove(); // Checkbox
+                }
+            });
+
+            /* -------------------------------------------------
+            CREATE WORKBOOK
+            ------------------------------------------------- */
+            const wb = XLSX.utils.table_to_book(clone, {
+                sheet: "Thiruvachi Estimation"
+            });
+
+            const ws = wb.Sheets["Thiruvachi Estimation"];
+            const range = XLSX.utils.decode_range(ws["!ref"]);
+
+            /* -------------------------------------------------
+            HEADER STYLING + FREEZE HEADER
+            ------------------------------------------------- */
+            ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[addr]) continue;
+
+                ws[addr].s = {
+                    font: { bold: true },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    fill: { fgColor: { rgb: "E7E6E6" } },
+                    border: {
+                        top: { style: "thin" },
+                        bottom: { style: "thin" },
+                        left: { style: "thin" },
+                        right: { style: "thin" }
+                    }
+                };
+            }
+
+            // /* -------------------------------------------------
+            // ₹ CURRENCY FORMAT (LAST COLUMN = COST)
+            // ------------------------------------------------- */
+            // for (let R = 1; R <= range.e.r; ++R) {
+            //     const cellAddr = XLSX.utils.encode_cell({ r: R, c: range.e.c });
+            //     if (!ws[cellAddr]) continue;
+
+            //     ws[cellAddr].t = "n";
+            //     ws[cellAddr].z = '₹#,##0';
+            // }
+
+            /* -------------------------------------------------
+            AUTO COLUMN WIDTH
+            ------------------------------------------------- */
+            ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
+
+            /* -------------------------------------------------
+            DATE IN FILENAME
+            ------------------------------------------------- */
+            const today = new Date().toISOString().split("T")[0];
+            XLSX.writeFile(wb, `Thiruvachi_Estimation_${today}.xlsx`);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+{% endblock extra_script %}
