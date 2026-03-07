@@ -1,0 +1,663 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Admin Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+{% block navbar %}
+    <li><a href="{{ url_for('admin_home') }}" style="color: white;"><i class="bi bi-house navicon"></i> Home</a></li>
+
+    <li class="dropdown">
+        <a href="#"  style="color: yellow;">
+            <i class="bi bi-grid navicon"></i>
+            <span><b>Category</b></span>
+            <i class="bi bi-chevron-down toggle-dropdown"></i>
+        </a>
+        <ul>
+            <li><a href="{{ url_for('thiruvachi') }}" style="color: white;">Thiruvachi</a></li>
+            <li><a href="{{ url_for('kavasam') }}" style="color: white;">Kavasam</a></li>
+            <li><a href="{{ url_for('vahanam') }}" style="color: yellow;"><b>Vahanam</b></a></li>
+            <li><a href="{{ url_for('sheet_metal') }}" style="color: white;">Sheet Metal</a></li>
+            <li><a href="{{ url_for('panchaloha_statue') }}" style="color: white;">Panchaloha Statue</a></li>
+            <li><a href="{{ url_for('kodimaram') }}" style="color: white;">Kodimaram</a></li>
+        </ul>
+    </li>
+
+    <li><a href="{{ url_for('users_details') }}" style="color: white;"><i class="bi bi-person navicon"></i> Users Details</a></li>
+    <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
+{% endblock navbar %}
+
+{% block content %}
+    <section class="section" style="background-color: #FFFDD0; min-height: 100vh;">
+
+        <center>
+            <h2 class="mb-4">Vahanam Models Details</h2>
+        </center>
+
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-success" onclick="downloadExcel()">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
+                </button>
+
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModelModal">
+                    <i class="bi bi-plus-circle me-1"></i> Add model
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table id="Vahanam_Table" class="table table-bordered table-hover align-middle shadow-sm">
+
+                    <thead class="align-middle">
+                        <tr class="table-danger text-center">
+                            <th rowspan="3">
+                                <input type="checkbox" id="selectAll" onclick="toggleAll(this)" style="background-color: aliceblue;">
+                            </th>
+                            <th rowspan="3">Name</th>
+                            <th rowspan="3">Image</th>
+                            <th rowspan="3" style="width: 15%;">Specification</th>
+                            <th colspan="7">Height</th>
+                            <th rowspan="3">Update</th>
+                            <th rowspan="3">Delete</th>
+                        </tr>
+
+                        <tr class="excel-only" style="display:none;">
+                            <th colspan="7">Wood</th>
+                            <th colspan="7">brass</th>
+                        </tr>
+
+
+                        <tr>
+                            <th colspan="7" class="p-2">
+
+                                <ul class="nav nav-pills nav-fill gap-2 small bg-primary rounded-5 shadow-sm"
+                                    id="modelTabs"
+                                    style="--bs-nav-link-color:white;
+                                        --bs-nav-pills-link-active-color:#0d6efd;
+                                        --bs-nav-pills-link-active-bg:white;">
+
+                                    <li class="nav-item">
+                                        <button class="nav-link active" data-model="wood">Wood</button>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <button class="nav-link" data-model="brass">brass</button>
+                                    </li>
+
+                                </ul>
+
+                            </th>
+                        </tr>
+
+                        <tr class="table-secondary text-center">
+                            <th>1.5 Ft</th>
+                            <th>2 Ft</th>
+                            <th>2.5 Ft</th>
+                            <th>3 Ft</th>
+                            <th>3.5 Ft</th>
+                            <th>4 Ft</th>
+                            <th>5 Ft</th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+                        {% for row in data %}
+                            <tr>
+                                <td><input type="checkbox" class="row-check" style="background-color: aliceblue;"></td>
+                                <td>{{ row.name }}</td>
+
+                                <td style="width:100px;" class="text-center">
+                                    {% if row.images and row.images|length > 0 %}
+
+                                        {# PRIMARY IMAGE (THUMBNAIL) #}
+                                        <a href="data:{{ row.images[0].type }};base64,{{ row.images[0].b64 }}"
+                                            class="glightbox"
+                                            data-gallery="vahanam-{{ row.id }}"
+                                            data-type="image"
+                                            data-title="Name: {{ row.name }}">
+
+                                            <img
+                                                src="data:{{ row.images[0].type }};base64,{{ row.images[0].b64 }}"
+                                                style="width:70px;height:70px;object-fit:cover;border-radius:8px;cursor:zoom-in;">
+                                        </a>
+
+                                        {# HIDDEN GALLERY IMAGES #}
+                                        {% for img in row.images[1:] %}
+                                            <a href="data:{{ img.type }};base64,{{ img.b64 }}"
+                                            class="glightbox d-none"
+                                            data-gallery="vahanam-{{ row.id }}"
+                                            data-type="image"
+                                            data-title="Name: {{ row.name }}">
+                                            </a>
+                                        {% endfor %}
+
+                                        <small class="text-muted d-block mt-1">
+                                            {{ row.images|length }} images
+                                        </small>
+
+                                    {% else %}
+                                        <span class="text-muted">No image</span>
+                                    {% endif %}
+                                </td>
+
+                                <td style="width:15%; white-space: normal; text-align: justify;">
+                                    {{ row.specification }}
+                                </td>
+
+                                <!-- wood -->
+                                <td class="hgt wood">{{ row.wood_hgt_1_5ft }}</td>
+                                <td class="hgt wood">{{ row.wood_hgt_2ft }}</td>
+                                <td class="hgt wood">{{ row.wood_hgt_2_5ft }}</td>
+                                <td class="hgt wood">{{ row.wood_hgt_3ft }}</td>
+                                <td class="hgt wood">{{ row.wood_hgt_3_5ft }}</td>
+                                <td class="hgt wood">{{ row.wood_hgt_4ft }}</td>
+                                <td class="hgt wood">{{ row.wood_hgt_5ft }}</td>
+
+                                <!-- brass -->
+                                <td class="hgt brass">{{ row.brass_hgt_1_5ft }}</td>
+                                <td class="hgt brass">{{ row.brass_hgt_2ft }}</td>
+                                <td class="hgt brass">{{ row.brass_hgt_2_5ft }}</td>
+                                <td class="hgt brass">{{ row.brass_hgt_3ft }}</td>
+                                <td class="hgt brass">{{ row.brass_hgt_3_5ft }}</td>
+                                <td class="hgt brass">{{ row.brass_hgt_4ft }}</td>
+                                <td class="hgt brass">{{ row.brass_hgt_5ft }}</td>
+
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-warning"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#updateModal{{ row.id }}">
+                                        Update
+                                    </button>
+                                </td>
+
+                                <td class="text-center">
+                                    <form method="POST"
+                                        action="{{ url_for('vahanam_delete', id=row.id) }}"
+                                        enctype="multipart/form-data"
+                                        onsubmit="return confirm('Are you sure?');">
+                                        <button class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= ADD MODAL ================= -->
+    <div class="modal fade" id="addModelModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Vahanam Model</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <form method="POST" action="{{ url_for('vahanam') }}" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Name</th>
+                                <td><input type="text" name="name" class="form-control" required style="background-color: aliceblue;"></td>
+                            </tr>
+
+                            <tr>
+                                <th>Specification</th>
+                                <td><textarea name="specification" class="form-control" style="background-color: aliceblue;"></textarea></td>
+                            </tr>
+
+                            <tr>
+                                <th>Upload Images</th>
+                                <td>
+                                    <input type="file"
+                                    name="images"
+                                    class="form-control"
+                                    accept="image/*"
+                                    multiple
+                                    style="background-color: aliceblue;">
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="table table-bordered">
+
+                            <tr class="table-primary text-center">
+                                <th colspan="6">Height Rates</th>
+                            </tr>
+
+                            <tr class="table-secondary text-center">
+                                <th>Hight (Feet)</th>
+                                <th>Wood</th>
+                                <th>Sheet</th>
+                            </tr>
+
+                            <tr>
+                                <th> 1.5 Ft </th>
+                                <td> <input type="number" name="wood_hgt_1_5ft" class="form-control" style="background-color: aliceblue;"> </td>
+                                <td> <input type="number" name="brass_hgt_1_5ft" class="form-control" style="background-color: aliceblue;"> </td>
+                            </tr>
+
+                            <tr>
+                                <th> 2 Ft </th>
+                                <td> <input type="number" name="wood_hgt_2ft" class="form-control" style="background-color: aliceblue;"> </td>
+                                <td> <input type="number" name="brass_hgt_2ft" class="form-control" style="background-color: aliceblue;"> </td>
+                            </tr>
+
+                            <tr>
+                                <th> 2.5 Ft </th>
+                                <td> <input type="number" name="wood_hgt_2_5ft" class="form-control" style="background-color: aliceblue;"> </td>
+                                <td> <input type="number" name="brass_hgt_2_5ft" class="form-control" style="background-color: aliceblue;"> </td>
+                            </tr>
+
+                            <tr>
+                                <th> 3 Ft </th>
+                                <td> <input type="number" name="wood_hgt_3ft" class="form-control" style="background-color: aliceblue;"> </td>
+                                <td> <input type="number" name="brass_hgt_3ft" class="form-control" style="background-color: aliceblue;"> </td>
+                            </tr>
+
+                            <tr>
+                                <th> 3.5 Ft </th>
+                                <td> <input type="number" name="wood_hgt_3_5ft" class="form-control" style="background-color: aliceblue;"> </td>
+                                <td> <input type="number" name="brass_hgt_3_5ft" class="form-control" style="background-color: aliceblue;"> </td>
+                            </tr>
+
+                            <tr>
+                                <th> 4 Ft </th>
+                                <td> <input type="number" name="wood_hgt_4ft" class="form-control" style="background-color: aliceblue;"> </td>
+                                <td> <input type="number" name="brass_hgt_4ft" class="form-control" style="background-color: aliceblue;"> </td>
+                            </tr>
+
+                            <tr>
+                                <th> 5 Ft </th>
+                                <td> <input type="number" name="wood_hgt_5ft" class="form-control" style="background-color: aliceblue;"> </td>
+                                <td> <input type="number" name="brass_hgt_5ft" class="form-control" style="background-color: aliceblue;"> </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= UPDATE MODALS ================= -->
+    {% for row in data %}
+        <div class="modal fade" id="updateModal{{ row.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update {{ row.name }}</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('vahanam_update', id=row.id) }}" enctype="multipart/form-data">
+                        <div class="modal-body">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Name</th>
+                                    <td><input type="text" name="name" value="{{ row.name }}" class="form-control" required></td>
+                                </tr>
+
+                                <tr>
+                                    <th>Specification</th>
+                                    <td><textarea name="specification" value="{{ row.specification }}" class="form-control">{{ row.specification }}</textarea></td>
+                                </tr>
+
+                                <tr>
+                                    <th>Add Images (Optional)</th>
+                                    <td>
+                                        <input type="file"
+                                            name="images"
+                                            class="form-control"
+                                            accept="image/*"
+                                            multiple
+                                            style="background-color: aliceblue;"
+                                            >
+                                        <small class="text-muted">If you don’t upload, existing image will remain.</small>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Existing Images</th>
+                                    <td>
+                                        <div class="col-8 d-flex flex-wrap gap-2">
+                                            {% for img in row.images %}
+                                                <div class="position-relative image-box" data-image-id="{{ img.id }}">
+                                                    <img
+                                                        src="data:{{ img.type }};base64,{{ img.b64 }}"
+                                                        style="width:80px;height:60px;object-fit:cover;border-radius:6px;">
+
+                                                    <button type="button"
+                                                            class="btn btn-danger btn-sm position-absolute top-0 end-0"
+                                                            style="padding:2px 6px;font-size:12px;"
+                                                            onclick="deleteImage({{ img.id }}, this)">
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table class="table table-bordered">
+                                <tr class="table-primary text-center">
+                                    <th colspan="6">Height Rates</th>
+                                </tr>
+
+                                <tr class="table-secondary text-center">
+                                    <th rowspan="2">Hight (Feet)</th>
+                                    <th>wood</th>
+                                    <th>Sheet</th>
+                                </tr>
+
+                                <tr class="table-info text-center">
+                                    <th>wood</th>
+                                    <th>brass</th>
+                                </tr>
+
+                                <tr>
+                                    <th> 1.5 Ft </th>
+                                    <td> <input type="number" name="wood_hgt_1_5ft" value="{{ row.wood_hgt_1_5ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                    <td> <input type="number" name="brass_hgt_1_5ft" value="{{ row.brass_hgt_1_5ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                </tr>
+
+                                <tr>
+                                    <th> 2 Ft </th>
+                                    <td> <input type="number" name="wood_hgt_2ft" value="{{ row.wood_hgt_2ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                    <td> <input type="number" name="brass_hgt_2ft" value="{{ row.brass_hgt_2ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                </tr>
+
+                                <tr>
+                                    <th> 2.5 Ft </th>
+                                    <td> <input type="number" name="wood_hgt_2_5ft" value="{{ row.wood_hgt_2_5ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                    <td> <input type="number" name="brass_hgt_2_5ft" value="{{ row.brass_hgt_2_5ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                </tr>
+
+                                <tr>
+                                    <th> 3 Ft </th>
+                                    <td> <input type="number" name="wood_hgt_3ft" value="{{ row.wood_hgt_3ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                    <td> <input type="number" name="brass_hgt_3ft" value="{{ row.brass_hgt_3ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                </tr>
+
+                                <tr>
+                                    <th> 3.5 Ft </th>
+                                    <td> <input type="number" name="wood_hgt_3_5ft" value="{{ row.wood_hgt_3_5ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                    <td> <input type="number" name="brass_hgt_3_5ft" value="{{ row.brass_hgt_3_5ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                </tr>
+
+                                <tr>
+                                    <th> 4 Ft </th>
+                                    <td> <input type="number" name="wood_hgt_4ft" value="{{ row.wood_hgt_4ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                    <td> <input type="number" name="brass_hgt_4ft" value="{{ row.brass_hgt_4ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                </tr>
+
+                                <tr>
+                                    <th> 5 Ft </th>
+                                    <td> <input type="number" name="wood_hgt_5ft" value="{{ row.wood_hgt_5ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                    <td> <input type="number" name="brass_hgt_5ft" value="{{ row.brass_hgt_5ft }}" class="form-control" style="background-color: aliceblue;"> </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <button class="btn btn-warning">Save Changes</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock content %}
+
+{% block extra_script %}
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            GLightbox({
+                selector: ".glightbox",
+                touchNavigation: true,
+                loop: true
+            });
+        });
+    </script>
+
+    <script>
+        function deleteImage(imageId, btn) {
+            if (!confirm("Delete this image?")) return;
+
+            fetch(`/vahanam/image/delete/${imageId}`, {
+                method: "POST"
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove image box from UI
+                    btn.closest(".image-box").remove();
+                } else {
+                    alert("Failed to delete image");
+                }
+            })
+            .catch(() => alert("Error deleting image"));
+        }
+    </script>
+
+    <script>
+        function downloadExcel() {
+
+            const table = document.getElementById("Vahanam_Table");
+            const clone = table.cloneNode(true);
+
+            /* ---------------------------------------------
+            KEEP ONLY SELECTED ROWS
+            --------------------------------------------- */
+            clone.querySelectorAll("tbody tr").forEach(row => {
+                const cb = row.querySelector(".row-check");
+                if (!cb || !cb.checked) row.remove();
+            });
+
+            if (clone.querySelectorAll("tbody tr").length === 0) {
+                table.querySelectorAll("tbody tr").forEach(tr => {
+                    clone.querySelector("tbody").appendChild(tr.cloneNode(true));
+                });
+            }
+
+            /* ---------------------------------------------
+            REMOVE CHECKBOX / IMAGE / UPDATE / DELETE
+            --------------------------------------------- */
+
+            // Remove row checkboxes
+            clone.querySelectorAll(".row-check").forEach(cb => cb.closest("td")?.remove());
+            clone.querySelector("#selectAll")?.closest("th")?.remove();
+
+            // ✅ REMOVE IMAGE COLUMN (after checkbox removal)
+            clone.querySelectorAll("thead tr, tbody tr").forEach(tr => {
+                // Index after checkbox removal:
+                // 0 = Name
+                // 1 = Image  ❌ remove this
+                // 2 = Specification ✅ keep this
+                tr.children[1]?.remove();
+            });
+
+            // Remove Update / Delete
+            clone.querySelectorAll("th,td").forEach(c => {
+                const t = c.innerText.trim().toLowerCase();
+                if (t === "update" || t === "delete") c.remove();
+            });
+
+            /* ---------------------------------------------
+            SHOW EXCEL HEADERS / REMOVE PILLS
+            --------------------------------------------- */
+            clone.querySelectorAll(".excel-only").forEach(r => r.style.display = "");
+            clone.querySelectorAll("#modelTabs").forEach(p => p.closest("th")?.remove());
+
+            clone.querySelectorAll("thead tr").forEach(tr => {
+                if (tr.innerText.trim() === "") tr.remove();
+            });
+
+            /* ---------------------------------------------
+            CREATE WORKBOOK
+            --------------------------------------------- */
+            const wb = XLSX.utils.table_to_book(clone, {
+                sheet: "Vahanam Estimation"
+            });
+
+            const ws = wb.Sheets["Vahanam Estimation"];
+            const range = XLSX.utils.decode_range(ws["!ref"]);
+
+            const headerRowCount = clone.querySelectorAll("thead tr").length;
+            ws["!freeze"] = { xSplit: 0, ySplit: headerRowCount };
+
+            /* ---------------------------------------------
+            MERGES (CORRECTED)
+            --------------------------------------------- */
+            ws["!merges"] = [];
+
+            // Name & Specification (3 rows)
+            ws["!merges"].push(
+                { s: { r: 0, c: 0 }, e: { r: 2, c: 0 } },
+                { s: { r: 0, c: 1 }, e: { r: 2, c: 1 } }
+            );
+
+            // Height header across all models
+            const HEIGHT_START_COL = 2; // AFTER removing image
+            const MODELS = 5;
+            const COLS_PER_MODEL = 7;
+            const HEIGHT_END_COL = HEIGHT_START_COL + (MODELS * COLS_PER_MODEL) - 1;
+
+            ws["!merges"].push({
+                s: { r: 0, c: HEIGHT_START_COL },
+                e: { r: 0, c: HEIGHT_END_COL }
+            });
+
+            /* ---------------------------------------------
+            MODEL GROUP HEADERS (FIXED ORDER)
+            --------------------------------------------- */
+            const modelHeaders = [
+                "wood",
+                "brass"
+            ];
+
+            let col = HEIGHT_START_COL;
+            modelHeaders.forEach(label => {
+                ws["!merges"].push({
+                    s: { r: 1, c: col },
+                    e: { r: 1, c: col + 6 }
+                });
+
+                ws[XLSX.utils.encode_cell({ r: 1, c: col })] = {
+                    t: "s",
+                    v: label
+                };
+
+                col += 7;
+            });
+
+            /* ---------------------------------------------
+            HEIGHT LABELS (REPEATED FOR EACH MODEL)
+            --------------------------------------------- */
+            const heights = ["1.5 Ft","2 Ft","2.5 Ft","3 Ft","3.5 Ft","4 Ft","5 Ft"];
+
+            col = HEIGHT_START_COL;
+            for (let m = 0; m < MODELS; m++) {
+                heights.forEach((h, i) => {
+                    ws[XLSX.utils.encode_cell({ r: 2, c: col + i })] = { t: "s", v: h };
+                });
+                col += 7;
+            }
+
+            /* ---------------------------------------------
+            HEADER STYLING
+            --------------------------------------------- */
+            for (let r = 0; r < headerRowCount; r++) {
+                for (let c = range.s.c; c <= range.e.c; c++) {
+                    const addr = XLSX.utils.encode_cell({ r, c });
+                    if (!ws[addr]) continue;
+
+                    ws[addr].s = {
+                        font: { bold: true },
+                        alignment: { horizontal: "center", vertical: "center", wrapText: true },
+                        border: {
+                            top: { style: "thin" },
+                            bottom: { style: "thin" },
+                            left: { style: "thin" },
+                            right: { style: "thin" }
+                        }
+                    };
+                }
+            }
+
+            /* ---------------------------------------------
+            COLUMN WIDTHS
+            --------------------------------------------- */
+            ws["!cols"] = [
+                { wch: 22 },   // Name
+                { wch: 40 },   // Specification
+                ...Array(35).fill({ wch: 11 })
+            ];
+
+            /* ---------------------------------------------
+            EXPORT
+            --------------------------------------------- */
+            const today = new Date().toISOString().split("T")[0];
+            XLSX.writeFile(wb, `Vahanam_Estimation_${today}.xlsx`);
+        }
+    </script>
+
+    <script>
+        function toggleAll(source) {
+            document.querySelectorAll(".row-check")
+                .forEach(cb => cb.checked = source.checked);
+        }
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const allModels = ['wood', 'brass'];
+
+            function showModel(model) {
+                allModels.forEach(m => {
+                    document.querySelectorAll('.' + m)
+                        .forEach(td => td.style.display = 'none');
+                });
+
+                document.querySelectorAll('.' + model)
+                    .forEach(td => td.style.display = '');
+            }
+
+            document.querySelectorAll('#modelTabs button').forEach(btn => {
+                btn.addEventListener('click', function () {
+
+                    document.querySelectorAll('#modelTabs button')
+                        .forEach(b => b.classList.remove('active'));
+
+                    this.classList.add('active');
+
+                    showModel(this.dataset.model);
+                });
+            });
+
+            // Default = Wood
+            showModel('wood');
+
+        });
+    </script>
+{% endblock extra_script %}

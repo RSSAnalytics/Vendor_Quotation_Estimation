@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+
+{% block navbar %}
+  <li><a href="{{ url_for('index') }}" style="color: yellow;"><i class="bi bi-house navicon" style="color: yellow;"></i> <b>Home</b> </a></li>
+  <li><a href="{{ url_for('admin_login') }}" style="color: white;"><i class="bi bi-shield-lock navicon"></i>Admin</a></li>
+  <li class="dropdown"><a href="#"><i class="bi bi-person navicon" style="color: white;"></i> <span style="color: white;">User</span> <i class="bi bi-chevron-down toggle-dropdown" style="color: white;"></i></a>
+    <ul>
+      <li style="color: white;"><a href="{{ url_for('user_register') }}" style="color: white;">Register</a></li>
+      <li style="color: white;"><a href="{{ url_for('user_login') }}" style="color: white;">Log In</a></li>
+    </ul>
+  </li>
+{% endblock navbar %}
+
+
+
+{% block content %}
+  <section id="hero" class="hero section dark-background">
+
+    <img src="/static/assets/img/bg.jpg" alt="" data-aos="fade-in" class="">
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100" style="background-color: #e0c40f95; width: fit-content; margin-top: -250px;" align="center">
+      <h2>Raja Spritual Pvt Ltd</h2>
+      <p> 
+        Legacy in every carving, Devotion in every detail!
+      </p>
+    </div>
+
+  </section>
+{% endblock content %}

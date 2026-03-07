@@ -1,0 +1,861 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Estimation Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+
+{% block extra_style %}
+    <link href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" rel="stylesheet">
+{% endblock extra_style %}
+
+
+{% block navbar %}
+    <li><a href="{{ url_for('user_home') }}" style="color: white;"><i class="bi bi-house navicon"></i> Home </a></li>
+    <li class="dropdown"><a href="#" style="color: yellow;"><i class="bi bi-grid navicon"></i> <span>Category</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+        <ul>
+            <li><a href="{{ url_for('user_thiruvachi') }}" style="color: white;">Thiruvachi</a></li>
+            <li><a href="{{ url_for('user_kavasam') }}" style="color: yellow;"><b>Kavasam</b></a></li>
+            <li><a href="{{ url_for('user_vahanam') }}" style="color: white;">Vahanam</a></li>
+            <li><a href="{{ url_for('user_kodimaram') }}" style="color: white;">Kodimaram</a></li>
+            <li><a href="{{ url_for('user_sheet_metal') }}" style="color: white;">Sheet Metal</a></li>
+            <li><a href="{{ url_for('user_panchaloha_statue') }}" style="color: white;">Panchaloha Statue</a></li>
+        </ul>
+    </li>
+    <li><a href="{{ url_for('user_quotation_1') }}" style="color: white;"><i class="bi bi-file-earmark-text navicon"></i>Quotation</a></li>
+    <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-box-arrow-right navicon"></i> Logout </a></li>
+{% endblock navbar %}
+
+
+{% block content %}
+    <style>
+        .kavasam-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+            justify-items: center;
+        }
+
+        .kavasam-card {
+            width: 220px;
+            height: 220px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            transition: 0.3s ease;
+        }
+
+        .kavasam-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .kavasam-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: zoom-in;
+        }
+    </style>
+
+
+    <section id="contact" class="contact section" style="background-color: #FBDAAF; min-height: 100vh;">
+
+        <center>
+            <div class="container section-title text" data-aos="fade-up">
+                <h2>Estimate Kavasam Models</h2>
+            </div>
+        </center>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="row gy-4 justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    
+                    <form action="{{ url_for('user_kavasam') }}" method="post" class="php-email-form">
+                        <div id="measure-container">
+
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <select name="thickness" id="name-field" class="form-control" required>
+                                        <option value="">-- Select Thickness --</option>
+                                        <option value="gauge_20">20 Gauge</option>
+                                        <option value="gauge_22">22 Gauge</option>
+                                        <option value="gauge_24">24 Gauge</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <select name="material" id="name-field" class="form-control" required>
+                                        <option value="">-- Select Material --</option>
+                                        <option value="brass">brass</option>
+                                        <option value="copper">Copper</option>
+                                        <option value="Pure Silver">Pure Silver</option>
+                                        <option value="Silver Platting">Silver Platting</option>
+                                        <option value="Gold Platting">Gold Platting</option>
+                                    </select>
+                                </div>
+                            </div><br>
+
+                            
+                            <!-- MEASURE BLOCK 0 -->
+                            <div class="measure-row" style="border:1px solid #d1d9e6;padding:10px;border-radius:8px;margin-bottom:10px;">
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="number" step="any"
+                                            name="measures[0][height]"
+                                            placeholder="Height"
+                                            class="form-control"
+                                            required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <select name="measures[0][uom_height]"
+                                                class="form-control"
+                                                required>
+                                            <option value="">UOM (Height)</option>
+                                            <option value="Feet">Feet</option>
+                                            <option value="Inch">Inch</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <input type="number" step="any"
+                                            name="measures[0][width]"
+                                            placeholder="Width"
+                                            class="form-control"
+                                            required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <select name="measures[0][uom_width]"
+                                                class="form-control"
+                                                required>
+                                            <option value="">UOM (Width)</option>
+                                            <option value="Feet">Feet</option>
+                                            <option value="Inch">Inch</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ADD BUTTON -->
+                        <button type="button"
+                                onclick="addMeasure()"
+                                style="margin-top:10px;
+                                    padding:8px 14px;
+                                    border-radius:6px;
+                                    background:#1c4e80;
+                                    color:white;
+                                    border:none;">
+                            ➕ Add Measure
+                        </button>
+
+                        <div class="text-center mt-3">
+                            <button type="submit">Submit</button>
+                        </div>
+                    </form>
+
+                </div>
+
+                {% if images %}
+                    <div class="container mt-5">
+                        <div class="text-center mb-4">
+                            <h4 class="fw-bold text-primary">
+                                Reference Kavasam Images
+                            </h4>
+                            <div style="width:120px;height:3px;background:#1c4e80;margin:10px auto;"></div>
+                        </div>
+
+                        <div class="kavasam-gallery">
+                            {% for img in images %}
+                                <div class="kavasam-card">
+                                    <a href="{{ url_for('kavasam_image', image_id=img.id) }}"
+                                        class="glightbox"
+                                        data-gallery="kavasam-gallery"
+                                        data-type="image"
+                                        data-title="Kavasam Design">
+
+                                        <img 
+                                            src="{{ url_for('kavasam_image', image_id=img.id) }}"
+                                            alt="Kavasam"
+                                            class="kavasam-image">
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div><br>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="table-responsive mt-3">
+
+                {% if data %}
+
+                    <div style="
+                        border:1px solid #d1d9e6;
+                        border-radius:10px;
+                        overflow:hidden;
+                        box-shadow:0 3px 10px rgba(0,0,0,0.06);
+                        background:#ffffff;
+                        max-width:700px;
+                        margin:auto;
+                        ">
+
+                        <div style="
+                            background:linear-gradient(135deg,#3f87a6,#1c4e80);
+                            color:white;
+                            padding:8px 12px;
+                            font-weight:600;
+                            font-size:14px;
+                        ">
+                            <i class="bi bi-calculator-fill" style="margin-right:8px;"></i>
+                            Calculation Fields
+                        </div>
+
+                        <table style="
+                            width:100%;
+                            border-collapse:separate;
+                            border-spacing:0;
+                            font-size:13px;
+                            ">
+
+                            <tbody>
+                                <tr>
+                                    <td colspan="2" style="
+                                        padding:6px;
+                                        text-align:center;
+                                        font-weight:600;
+                                        background:#eef4fb;
+                                        color:#1c4e80;
+                                        border-bottom:1px solid #d1d9e6;
+                                    ">
+                                        SQFT DETAILS
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        Actual SQFT
+                                    </td>
+                                    <td style="padding:6px;font-weight:600;color:#2e7d32;border-bottom:1px solid #e5eaf0;">
+                                        {{ "%.2f" % total_SQFT | float }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        SQFT Range
+                                    </td>
+                                    <td style="padding:6px;font-weight:500;border-bottom:1px solid #e5eaf0;">
+                                        {{ data.SQFT | int }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2" style="
+                                        padding:6px;
+                                        text-align:center;
+                                        font-weight:600;
+                                        background:#fff4e5;
+                                        color:#e65100;
+                                        border-bottom:1px solid #d1d9e6;
+                                    ">
+                                        BASE COST
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        24 Gauge
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{ data.gauge_24 | int }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        22 Gauge
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{ data.gauge_22 | int }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        20 Gauge
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{ data.gauge_20 | int }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        Wax Cost
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{ data.wax_cost | int }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2" style="
+                                        padding:6px;
+                                        text-align:center;
+                                        font-weight:600;
+                                        background:#f5eef8;
+                                        color:#4a148c;
+                                        border-bottom:1px solid #d1d9e6;
+                                    ">
+                                        METAL RATES
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        Pure Silver Rate
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{rate_data['pure_silver_rate']}}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        Pure Silver Margin Rate
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{rate_data['pure_silver_margin_rate']}}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        Silver Platting Rate
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{rate_data['silver_rate']|int}}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:6px;border-right:1px solid #e5eaf0;border-bottom:1px solid #e5eaf0;">
+                                        Gold Platting Rate
+                                    </td>
+                                    <td style="padding:6px;border-bottom:1px solid #e5eaf0;">
+                                        ₹ {{rate_data['gold_rate']|int}}
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div><br>
+                    
+                {% endif %}
+
+                
+                {% if final_cost %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-success mb-3" onclick="downloadExcel()">
+                            <i class="bi bi-file-earmark-excel"></i> Download Excel
+                        </button>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#QuotationPDF">
+                                <i class="bi bi-plus-circle me-1"></i> Quotation PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <table id="KavasamTable" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+                        <tbody>
+
+                            <tr>
+                                <td class="fw-semibold">Material</td>
+                                <td class="text-end">{{ material }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold">Sheet thickness</td>
+                                <td class="text-end">{{ thickness }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold">No of SQFT</td>
+                                <td class="text-end">{{ "{:,.2f}".format(total_SQFT) }}</td>
+                            </tr>
+
+
+                            <tr>
+                                <td class="fw-semibold">Wax Cost</td>
+                                <td class="text-end">{{ wax_cost }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-semibold" style="background-color: blanchedalmond;">Total Cost (per Unit - include GST 3%)</td>
+                                <td class="text-end" style="background-color: blanchedalmond;">{{ final_cost }}</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+
+                    {# ===================== Quotation PDF ===================== #}
+                        <div class="modal fade" id="QuotationPDF" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Kavasam Quotation Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <form id="kavasamPdfForm" method="POST" action="{{ url_for('kavasam_pdf') }}" enctype="multipart/form-data">
+                                        <div class="modal-body">
+
+                                            <table class="table table-bordered align-middle"
+                                                style="background:#f8fbff; border-radius:6px; overflow:hidden;">
+                                                <tbody>
+                                                    <tr class="table-secondary text-center"><th colspan="2">Kavasam Details</th></tr>
+
+                                                    <tr>
+                                                        <th style="width:30%">Material</th>
+                                                        <td>
+                                                            <input type="text"
+                                                                name="material"
+                                                                value="{{ material }}"
+                                                                class="form-control"
+                                                                style="background-color: aliceblue;"
+                                                                readonly
+                                                                required>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th>Sheet thickness</th>
+                                                        <td>
+                                                            <input type="text"
+                                                                name="thickness"
+                                                                value="{{ thickness }}"
+                                                                class="form-control"
+                                                                style="background-color: aliceblue;"
+                                                                readonly
+                                                                required>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th>No of SQFT</th>
+                                                        <td>
+                                                            <input type="number"
+                                                                step="0.01"
+                                                                min="0"
+                                                                name="total_SQFT"
+                                                                value="{{ '%.2f'|format(total_SQFT) }}"
+                                                                class="form-control"
+                                                                style="background-color: aliceblue;"
+                                                                required>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th>Unit</th>
+                                                        <td>
+                                                            <input type="number"
+                                                                step="0.01"
+                                                                min="0"
+                                                                name="unit"
+                                                                value="1"
+                                                                class="form-control"
+                                                                style="background-color: aliceblue;"
+                                                                required>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th>Wax Cost</th>
+                                                        <td>
+                                                            <input type="number"
+                                                                name="wax_cost"
+                                                                value="{{ wax_cost | int }}"
+                                                                class="form-control"
+                                                                style="background-color: aliceblue;"
+                                                                required>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th>Total Cost (per Unit - include GST 3%)</th>
+                                                        <td>
+                                                            <input type="number"
+                                                                name="cost"
+                                                                value="{{ final_cost * 1.05 | int }}"
+                                                                class="form-control"
+                                                                style="background-color: aliceblue;"
+                                                                required>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th>Transportation Cost (if not included in Total cost)</th>
+                                                        <td>
+                                                            <input type="text"
+                                                                name="transportation_cost"
+                                                                value="0" 
+                                                                class="form-control"
+                                                                style="background-color: aliceblue;"
+                                                                >
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th>No of Delivery days</th>
+                                                        <td>
+                                                            <input type="text"
+                                                                name="delivery_days"
+                                                                value="{{ delivery_days }}"
+                                                                class="form-control"
+                                                                style="background-color: aliceblue;"
+                                                                required>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th>Quotation Validity days</th>
+                                                        <td>
+                                                            <input type="text"
+                                                                name="validity_days"
+                                                                value="{{ validity_days }}"
+                                                                class="form-control"
+                                                                style="background-color: aliceblue;"
+                                                                required>
+                                                        </td>
+                                                    </tr>
+
+
+                                                    <tr class="table-secondary text-center"><th colspan="2">Customer Details</th></tr>
+
+                                                    <tr>
+                                                        <th>Choose Customer</th>
+                                                        <td>
+                                                            <select name="customer_id"
+                                                                    id="customer_select"
+                                                                    class="form-control"
+                                                                    style="background-color: aliceblue;"
+                                                                    required>
+
+                                                                <option value="">Select Customer</option>
+
+                                                                {% for customer in customer_data %}
+                                                                    <option value="{{ customer.id }}" data-mobile="{{ customer.mobile }}">
+                                                                        {{ customer.id }} - {{ customer.name }} - {{ customer.mobile }}
+                                                                    </option>
+                                                                {% endfor %}
+                                                            </select>
+
+                                                        </td>
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+
+                                        <input type="hidden" id="wa_date" name="now" value="{{ now }}">
+                                        <input type="hidden" id="wa_quotation_no" name="quotation_no" value="{{ quotation_no }}">
+                                        <input type="hidden" name="model_id" value="{{ model_id }}">
+                                        <input type="hidden" name="wa_cust_mobile" id="wa_cust_mobile">
+
+
+                                        <div class="modal-footer">
+                                            <button type="button"
+                                                    class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-success"
+                                                onclick="shareWhatsAppAjax()">
+                                                <i class="bi bi-whatsapp"></i> Share WhatsApp
+                                            </button>
+
+                                            <button type="submit"
+                                                    name="submit_action"
+                                                    value="download_pdf"
+                                                    class="btn btn-primary">
+                                                Check Quotation
+                                            </button>
+
+                                            <button type="submit"
+                                                    name="submit_action"
+                                                    value="save_quotation"
+                                                    class="btn btn-info">
+                                                Save Quotation
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    {# ===================== END Quotation PDF ===================== #}
+                {% endif %}
+
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const lightbox = GLightbox({
+                selector: '.glightbox',
+                loop: true,
+                touchNavigation: true,
+                zoomable: true
+            });
+        });
+    </script>
+{% endblock content %}
+
+
+{% block extra_script %}
+    <script>
+        function toggleAll(source) {
+            document.querySelectorAll(".row-check").forEach(cb => {
+                cb.checked = source.checked;
+            });
+        }
+
+        function downloadExcel() {
+
+            const table = document.getElementById("KavasamTable");
+            const clone = table.cloneNode(true);
+
+            /* -------------------------------------------------
+            KEEP ONLY SELECTED ROWS
+            ------------------------------------------------- */
+            const rows = clone.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                const checkbox = row.querySelector(".row-check");
+                if (!checkbox || !checkbox.checked) {
+                    row.remove();
+                }
+            });
+
+            // If no rows selected → export all
+            if (clone.querySelectorAll("tbody tr").length === 0) {
+                table.querySelectorAll("tbody tr").forEach(tr => {
+                    clone.querySelector("tbody").appendChild(tr.cloneNode(true));
+                });
+            }
+
+            /* -------------------------------------------------
+            REMOVE CHECKBOX & IMAGE COLUMNS
+            (checkbox = col 0, image = col 2 originally)
+            ------------------------------------------------- */
+            clone.querySelectorAll("tr").forEach(row => {
+                if (row.children.length > 2) {
+                    row.children[2].remove(); // Image
+                    row.children[0].remove(); // Checkbox
+                }
+            });
+
+            /* -------------------------------------------------
+            CREATE WORKBOOK
+            ------------------------------------------------- */
+            const wb = XLSX.utils.table_to_book(clone, {
+                sheet: "Kavasam Estimation"
+            });
+
+            const ws = wb.Sheets["Kavasam Estimation"];
+            const range = XLSX.utils.decode_range(ws["!ref"]);
+
+            /* -------------------------------------------------
+            HEADER STYLING + FREEZE HEADER
+            ------------------------------------------------- */
+            ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[addr]) continue;
+
+                ws[addr].s = {
+                    font: { bold: true },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    fill: { fgColor: { rgb: "E7E6E6" } },
+                    border: {
+                        top: { style: "thin" },
+                        bottom: { style: "thin" },
+                        left: { style: "thin" },
+                        right: { style: "thin" }
+                    }
+                };
+            }
+
+            // /* -------------------------------------------------
+            // ₹ CURRENCY FORMAT (LAST COLUMN = COST)
+            // ------------------------------------------------- */
+            // for (let R = 1; R <= range.e.r; ++R) {
+            //     const cellAddr = XLSX.utils.encode_cell({ r: R, c: range.e.c });
+            //     if (!ws[cellAddr]) continue;
+
+            //     ws[cellAddr].t = "n";
+            //     ws[cellAddr].z = '₹#,##0';
+            // }
+
+            /* -------------------------------------------------
+            AUTO COLUMN WIDTH
+            ------------------------------------------------- */
+            ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
+
+            /* -------------------------------------------------
+            DATE IN FILENAME
+            ------------------------------------------------- */
+            const today = new Date().toISOString().split("T")[0];
+            XLSX.writeFile(wb, `Kavasam_Estimation_${today}.xlsx`);
+        }
+    </script>
+
+    <script>
+        let measureIndex = 1;
+
+        function addMeasure() {
+            const container = document.getElementById("measure-container");
+
+            const block = document.createElement("div");
+            block.className = "measure-row";
+            block.style = `
+                border:1px solid #d1d9e6;
+                padding:10px;
+                border-radius:8px;
+                margin-bottom:10px;
+                background:#f9fbfd;
+            `;
+
+            block.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="number" step="any"
+                            name="measures[${measureIndex}][height]"
+                            placeholder="Height"
+                            class="form-control"
+                            required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <select name="measures[${measureIndex}][uom_height]"
+                                class="form-control"
+                                required>
+                            <option value="">UOM (Height)</option>
+                            <option value="Feet">Feet</option>
+                            <option value="Inch">Inch</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <input type="number" step="any"
+                            name="measures[${measureIndex}][width]"
+                            placeholder="Width"
+                            class="form-control"
+                            required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <select name="measures[${measureIndex}][uom_width]"
+                                class="form-control"
+                                required>
+                            <option value="">UOM (Width)</option>
+                            <option value="Feet">Feet</option>
+                            <option value="Inch">Inch</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(block);
+            measureIndex++;
+        }
+    </script>
+
+    <script>
+        function shareWhatsAppAjax() {
+
+            const form = document.getElementById("kavasamPdfForm");
+
+            // ✅ STEP 1: trigger native HTML validation
+            if (!form.reportValidity()) {
+                return; // browser will highlight required fields
+            }
+
+            // ✅ STEP 2: now safe to ask for phone
+            let phone = prompt(
+                "Enter WhatsApp number (with country code)",
+                document.getElementById("wa_cust_mobile").value
+            );
+
+            if (!phone) return;
+
+            phone = phone.replace(/\D/g, "");
+            document.getElementById("wa_cust_mobile").value = phone;
+
+            // ✅ STEP 3: popup-safe open
+            const whatsappTab = window.open("", "_blank");
+
+            const formData = new FormData(form);
+            formData.set("submit_action", "share_whatsapp");
+
+            fetch(form.getAttribute("action"), {
+                method: "POST",
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Server error");
+                return res.json();
+            })
+            .then(data => {
+                if (data.whatsapp_url) {
+                    whatsappTab.location.href = data.whatsapp_url;
+                } else {
+                    whatsappTab.close();
+                    alert("WhatsApp URL not received");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                whatsappTab.close();
+                alert("Failed to open WhatsApp");
+            });
+        }
+    </script>
+
+    <script>
+        document.getElementById("customer_select").addEventListener("change", function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const mobile = selectedOption.getAttribute("data-mobile") || "";
+
+            document.getElementById("wa_cust_mobile").value = mobile;
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+{% endblock extra_script %}

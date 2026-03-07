@@ -1,0 +1,968 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Estimation Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+
+{% block navbar %}
+    <li>
+        <a href="{{ url_for('user_home') }}" style="color: white;">
+            <i class="bi bi-house navicon"></i> 
+            Home
+        </a>
+    </li>
+    <li class="dropdown">
+        <a href="#" style="color: white;">
+            <i class="bi bi-grid navicon"></i> 
+            <span>
+                Category
+            </span> 
+            <i class="bi bi-chevron-down toggle-dropdown"></i>
+        </a>
+        <ul>
+            <li>
+                <a href="{{ url_for('user_thiruvachi') }}" style="color: white;">
+                    Thiruvachi
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('user_kavasam') }}" style="color: white;">
+                    Kavasam
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('user_vahanam') }}" style="color: white;">
+                    Vahanam
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('user_kodimaram') }}" style="color: white;">
+                    Kodimaram
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('user_sheet_metal') }}" style="color: white;">
+                    Sheet Metal
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('user_panchaloha_statue') }}" style="color: white;">
+                    Panchaloha Statue
+                </a>
+            </li>
+        </ul>
+    </li>
+    
+    <li>
+        <a href="{{ url_for('user_quotation_1') }}" style="color: yellow;">
+            <i class="bi bi-file-earmark-text navicon"></i> 
+            <b>
+                Quotation
+            </b>
+        </a>
+    </li>
+
+    <li>
+        <a href="{{ url_for('index') }}" style="color: white;">
+            <i class="bi bi-box-arrow-right navicon"></i> 
+            Logout 
+        </a>
+    </li>
+{% endblock navbar %}
+
+
+
+{% block content %}
+    <form id="pdfForm" action="{{ url_for('quotation_pdf') }}" method="POST">
+        <section class="section" style="background-color: #FBDAAF; min-height: 100vh;">
+
+            {% set validity_days = items[0].validity_days if items else '' %}
+            {% set delivery_days = items[0].delivery_days if items else '' %}
+            {% set total_qty = items | sum(attribute='unit') %}
+            {% set has_pure_silver = items | selectattr('material','equalto','Pure Silver') | list | length > 0 %}
+
+            <div class="container" style="max-width: 900px;">
+
+                <!-- Title -->
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">Quotation Details</h2>
+                    <span class="badge bg-secondary fs-6">
+                        Quotation No: {{ master.quotation_no }}
+                    </span>
+                </div>
+
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body p-0">
+                        <table class="table table-bordered mb-0">
+                            <thead class="table-secondary text-center">
+                                <tr>
+                                    <th colspan="2">Sales Person Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td width="35%">Name</td>
+                                    <td width="65%">
+                                        <input type="text" name="sales_name" value="{{ master.sales_name }}" class="form-control" required style="background-color: aliceblue;">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Mobile</td>
+                                    <td>
+                                        <input type="number" name="sales_mobile" value="{{ master.sales_mobile }}" class="form-control" required style="background-color: aliceblue;">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Company</td>
+                                    <td>
+                                        <input type="text" name="company" value="Raja Spiritual Pvt Ltd" class="form-control" required style="background-color: aliceblue;">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Branch</td>
+                                    <td>
+                                        <select name="branch" class="form-control" required style="background-color: aliceblue;">
+                                            <option value="Kanchipuram" {% if master.branch == 'Kanchipuram' %}selected{% endif %}>Kanchipuram</option>
+                                            <option value="Vellore" {% if master.branch == 'Vellore' %}selected{% endif %}>Vellore</option>
+                                            <option value="Hosur" {% if master.branch == 'Hosur' %}selected{% endif %}>Hosur</option>
+                                            <option value="Chennai" {% if master.branch == 'Chennai' %}selected{% endif %}>Chennai</option>
+                                            <option value="Bengalore" {% if master.branch == 'Bengalore' %}selected{% endif %}>Bengalore</option>
+                                            <option value="Kumbakonam" {% if master.branch == 'Kumbakonam' %}selected{% endif %}>Kumbakonam</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body p-0">
+                        <table class="table table-bordered mb-0">
+                            <thead class="table-secondary text-center">
+                                <tr>
+                                    <th colspan="2">Customer Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>
+                                        <input type="text" name="cust_name" value="{{ master.customer_name }}" class="form-control" required style="background-color: aliceblue;">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Mobile</td>
+                                    <td>
+                                        <input type="number" name="cust_mobile" value="{{ master.mobile }}" class="form-control" required style="background-color: aliceblue;">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Temple Name</td>
+                                    <td>
+                                        <textarea name="cust_temple" class="form-control" rows="2" required style="background-color: aliceblue;">{{ master.temple }}</textarea>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Address</td>
+                                    <td>
+                                        <textarea name="cust_address" class="form-control" rows="3" required style="background-color: aliceblue;">{{ master.address }}</textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body p-0">
+                        <table class="table table-bordered mb-0">
+                            <thead class="table-secondary text-center">
+                                <tr>
+                                    <th width="5%">S.No</th>
+                                    <th width="29%">Category</th>
+                                    <th width="69%">Item Description</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for row in items %}
+
+                                    <tr>
+                                        <td align="center">
+                                            {{ loop.index }}
+                                        </td>
+                                        <td align="left">
+                                            <input type="text" name="items[{{ loop.index0 }}][category]" value="{{ row.category }}" class="form-control" readonly required style="background-color: aliceblue;">
+                                        </td>
+                                        <td align="justify-content">
+                                            <small>
+                                                {% if row.category == 'thiruvachi' %}
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="material" class="form-label mb-0">
+                                                                Material :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <select name="items[{{ loop.index0 }}][material]" id="material" class="form-control" required style="background-color: aliceblue;">
+                                                                <option value="brass" {% if row.material == 'brass' %}selected{% endif %}>brass</option>
+                                                                <option value="copper" {% if row.material == 'copper' %}selected{% endif %}>copper</option>
+                                                                <option value="Pure Silver" {% if row.material == 'Pure Silver' %}selected{% endif %}>Pure Silver</option>
+                                                                <option value="Silver Platting" {% if row.material == 'Silver Platting' %}selected{% endif %}>Silver Platting</option>
+                                                                <option value="Gold Platting" {% if row.material == 'Gold Platting' %}selected{% endif %}>Gold Platting</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="leg_breadth" class="form-label mb-0">
+                                                                Leg Breadth :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" name="items[{{ loop.index0 }}][leg_breadth]" id="leg_breadth" value="{{ row.leg_breadth }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="sheet_thick" class="form-label mb-0">
+                                                                Sheet Thickness :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" name="items[{{ loop.index0 }}][sheet_thick]" id="sheet_thick" value="{{ row.sheet_thick }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="work_type" class="form-label mb-0">
+                                                                Work Type :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <select name="items[{{ loop.index0 }}][work_type]" id="work_type" class="form-control" required style="background-color: aliceblue;">
+                                                                <option value="Regular" {% if row.work_type == 'Regular' %}selected{% endif %}>Regular</option>
+                                                                <option value="Customized" {% if row.work_type == 'Customized' %}selected{% endif %}>Customized</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="work_details" class="form-label mb-0">
+                                                                Work Details :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <textarea name="items[{{ loop.index0 }}][work_details]" id="work_details" class="form-control" required style="background-color: aliceblue;">{{ row.work_details }}</textarea>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="SQFT" class="form-label mb-0">
+                                                                SQFT :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" step="0.01" name="items[{{ loop.index0 }}][SQFT]" id="SQFT" value="{{ row.SQFT }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+
+                                                {% elif row.category == 'kavasam' %}
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="material" class="form-label mb-0">
+                                                                Material :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <select name="items[{{ loop.index0 }}][material]" id="material" class="form-control" required style="background-color: aliceblue;">
+                                                                <option value="brass" {% if row.material == 'brass' %}selected{% endif %}>brass</option>
+                                                                <option value="Pure Silver" {% if row.material == 'Pure Silver' %}selected{% endif %}>Pure Silver</option>
+                                                                <option value="Silver Platting" {% if row.material == 'Silver Platting' %}selected{% endif %}>Silver Platting</option>
+                                                                <option value="Gold Platting" {% if row.material == 'Gold Platting' %}selected{% endif %}>Gold Platting</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="sheet_thick" class="form-label mb-0">
+                                                                Sheet Thickness :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" name="items[{{ loop.index0 }}][sheet_thick]" id="sheet_thick" value="{{ row.sheet_thick }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="SQFT" class="form-label mb-0">
+                                                                SQFT :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" step="0.01" name="items[{{ loop.index0 }}][SQFT]" id="SQFT" value="{{ row.SQFT }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="wax_cost" class="form-label mb-0">
+                                                                Wax Cost :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" name="items[{{ loop.index0 }}][wax_cost]" id="wax_cost" value="{{ row.wax_cost }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+
+                                                {% elif row.category == 'vahanam' %}
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="name" class="form-label mb-0">
+                                                                Name :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <select name="items[{{ loop.index0 }}][name]" id="name" class="form-control" required style="background-color: aliceblue;">
+                                                                <option value="Rishabam" {% if row.name == 'Rishabam' %}selected{% endif %}>Rishabam</option>
+                                                                <option value="Simmam" {% if row.name == 'Simmam' %}selected{% endif %}>Simmam</option>
+                                                                <option value="Horse" {% if row.name == 'Horse' %}selected{% endif %}>Horse</option>
+                                                                <option value="Munchur" {% if row.name == 'Munchur' %}selected{% endif %}>Munchur</option>
+                                                                <option value="Garudan" {% if row.name == 'Garudan' %}selected{% endif %}>Garudan</option>
+                                                                <option value="Hanuman" {% if row.name == 'Hanuman' %}selected{% endif %}>Hanuman</option>
+                                                                <option value="Suran" {% if row.name == 'Suran' %}selected{% endif %}>Suran</option>
+                                                                <option value="Goat" {% if row.name == 'Goat' %}selected{% endif %}>Goat</option>
+                                                                <option value="Puli" {% if row.name == 'Puli' %}selected{% endif %}>Puli</option>
+                                                                <option value="Elephant" {% if row.name == 'Elephant' %}selected{% endif %}>Elephant</option>
+                                                                <option value="Annam" {% if row.name == 'Annam' %}selected{% endif %}>Annam</option>
+                                                                <option value="Peacock" {% if row.name == 'Peacock' %}selected{% endif %}>Peacock</option>
+                                                                <option value="Snake" {% if row.name == 'Snake' %}selected{% endif %}>Snake</option>
+                                                                <option value="Suriya Brabai" {% if row.name == 'Suriya Brabai' %}selected{% endif %}>Suriya Brabai</option>
+                                                                <option value="Chandra Brabai" {% if row.name == 'Chandra Brabai' %}selected{% endif %}>Chandra Brabai</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="material" class="form-label mb-0">
+                                                                Material :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <select name="items[{{ loop.index0 }}][material]" id="material" class="form-control" required style="background-color: aliceblue;">
+                                                                <option value="Wood" {% if row.material == 'Wood' %}selected{% endif %}>Wood</option>
+                                                                <option value="brass" {% if row.material == 'brass' %}selected{% endif %}>brass</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="specification" class="form-label mb-0">
+                                                                Specification :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <textarea name="items[{{ loop.index0 }}][specification]" id="specification" class="form-control" required style="background-color: aliceblue;">{{ row.specification }}</textarea>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="height" class="form-label mb-0">
+                                                                Height :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" step="0.01" min="0" max="5" name="items[{{ loop.index0 }}][height]" id="height" value="{{ row.height }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+
+                                                {% elif row.category == 'kodimaram' %}
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="height" class="form-label mb-0">
+                                                                Height :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" step="0.01" name="items[{{ loop.index0 }}][height]" id="height" value="{{ row.height }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="weight" class="form-label mb-0">
+                                                                Weight :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" step="0.01" name="items[{{ loop.index0 }}][weight]" id="weight" value="{{ row.weight }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="diameter" class="form-label mb-0">
+                                                                Diameter :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" step="0.01" name="items[{{ loop.index0 }}][diameter]" id="diameter" value="{{ row.diameter }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="SQFT" class="form-label mb-0">
+                                                                SQFT :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" step="0.01" name="items[{{ loop.index0 }}][SQFT]" id="SQFT" value="{{ row.SQFT }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                
+                                                {% elif row.category == 'sheet_metal' %}
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="material" class="form-label mb-0">
+                                                                Material :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="text" name="items[{{ loop.index0 }}][material]" id="material" value="{{ row.material }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="thickness" class="form-label mb-0">
+                                                                Sheet Thickness :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="text" name="items[{{ loop.index0 }}][thickness]" id="thickness" value="{{ row.thickness }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    {% if row.nilai_padi_plain_total_SQFT %}
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="type" class="form-label mb-0">
+                                                                    Type :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="text" id="type" value="Nilai Padi Plain" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="nilai_padi_plain_total_SQFT" class="form-label mb-0">
+                                                                    Nilai Padi Plain Total SQFT :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_plain_total_SQFT]" id="nilai_padi_plain_total_SQFT" value="{{ row.nilai_padi_plain_total_SQFT }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="nilai_padi_plain_unit" class="form-label mb-0">
+                                                                    Nilai Padi Plain Unit :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_plain_unit]" id="nilai_padi_plain_unit" value="{{ row.nilai_padi_plain_unit }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="nilai_padi_plain_final_cost" class="form-label mb-0">
+                                                                    Nilai Padi Plain Final Cost :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_plain_final_cost]" id="nilai_padi_plain_final_cost" value="{{ row.nilai_padi_plain_final_cost }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    {% if row.nilai_padi_vargam_total_SQFT %}
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="type" class="form-label mb-0">
+                                                                    Type :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="text" id="type" value="Nilai Padi vargam" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="nilai_padi_vargam_total_SQFT" class="form-label mb-0">
+                                                                    Nilai Padi Vargam Total SQFT :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_vargam_total_SQFT]" id="nilai_padi_vargam_total_SQFT" value="{{ row.nilai_padi_vargam_total_SQFT }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="nilai_padi_vargam_unit" class="form-label mb-0">
+                                                                    Nilai Padi Vargam Unit :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_vargam_unit]" id="nilai_padi_vargam_unit" value="{{ row.nilai_padi_vargam_unit }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="nilai_padi_vargam_final_cost" class="form-label mb-0">
+                                                                    Nilai Padi Vargam Final Cost :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_vargam_final_cost]" id="nilai_padi_vargam_final_cost" value="{{ row.nilai_padi_vargam_final_cost }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    {% if row.custom_picture_total_SQFT %}
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="type" class="form-label mb-0">
+                                                                    Type :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="text" id="type" value="Nilai Padi vargam" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="custom_picture_total_SQFT" class="form-label mb-0">
+                                                                    Custom Picture Total SQFT :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" step="0.01" name="items[{{ loop.index0 }}][custom_picture_total_SQFT]" id="custom_picture_total_SQFT" value="{{ row.custom_picture_total_SQFT }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="custom_picture_unit" class="form-label mb-0">
+                                                                    Custom Picture Unit :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" step="0.01" name="items[{{ loop.index0 }}][custom_picture_unit]" id="custom_picture_unit" value="{{ row.custom_picture_unit }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="custom_picture_final_cost" class="form-label mb-0">
+                                                                    Custom Picture Final Cost :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" step="0.01" name="items[{{ loop.index0 }}][custom_picture_final_cost]" id="custom_picture_final_cost" value="{{ row.custom_picture_final_cost }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+
+                                                {% elif row.category == 'panchaloha_statue' %}
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="name" class="form-label mb-0">
+                                                                name :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="text" name="items[{{ loop.index0 }}][name]" id="name" value="{{ row.name }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="prabavali" class="form-label mb-0">
+                                                                prabavali :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="text" name="items[{{ loop.index0 }}][prabavali]" id="prabavali" value="{{ row.prabavali }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="position" class="form-label mb-0">
+                                                                position :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="text" name="items[{{ loop.index0 }}][position]" id="position" value="{{ row.position }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="model" class="form-label mb-0">
+                                                                model :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="text" name="items[{{ loop.index0 }}][model]" id="model" value="{{ row.model }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="hands" class="form-label mb-0">
+                                                                hands :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" name="items[{{ loop.index0 }}][hands]" id="hands" value="{{ row.hands }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="height" class="form-label mb-0">
+                                                                height :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" step="0.01" name="items[{{ loop.index0 }}][height]" id="height" value="{{ row.height }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="weight" class="form-label mb-0">
+                                                                weight :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" step="0.01" name="items[{{ loop.index0 }}][weight]" id="weight" value="{{ row.weight }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                {% endif %}
+
+
+
+                                                    {% if row.category == 'sheet_metal' %}
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="unit" class="form-label mb-0">
+                                                                    Unit :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" name="items[{{ loop.index0 }}][unit]" id="unit" value="{{ row.unit }}" class="form-control" readonly required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+
+                                                    {% else %}
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="unit" class="form-label mb-0">
+                                                                    Unit :
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" name="items[{{ loop.index0 }}][unit]" id="unit" value="{{ row.unit }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+
+
+
+                                                    {% if row.category == 'vahanam' %}
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="cost_per_qty" class="form-label mb-0">
+                                                                    Cost per Qty<br><small><i>(Amount / Unit)</i></small>:
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" name="items[{{ loop.index0 }}][cost_per_qty]" value="{{ (row.cost / row.unit) | int }}" class="form-control" readonly required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+
+                                                    {% elif row.category == 'sheet_metal' %}
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="cost_per_qty" class="form-label mb-0">
+                                                                    Cost per Qty<br><small><i>(Amount / Unit)</i></small>:
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" name="items[{{ loop.index0 }}][cost_per_qty]" value="{{ (row.cost / row.unit) | int }}" class="form-control" readonly required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+
+                                                    {% else %}
+                                                        <div class="row align-items-center mb-2">
+                                                            <div class="col-3">
+                                                                <label for="cost_per_qty" class="form-label mb-0">
+                                                                    Cost per Qty<br><small><i>(Amount / Unit)</i></small>:
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-9">
+                                                                <input type="number" name="items[{{ loop.index0 }}][cost_per_qty]" value="{{ (row.cost / row.unit) | int }}" class="form-control" required style="background-color: aliceblue;">
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="cost" class="form-label mb-0">
+                                                                Amount<br><small><i>(Unit * Cost per Qty)</i></small> :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" name="items[{{ loop.index0 }}][cost]" id="cost" value="{{ row.cost | int }}" class="form-control" readonly required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="transport_cost" class="form-label mb-0">
+                                                                Transport Cost :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="number" name="items[{{ loop.index0 }}][transport_cost]" id="transport_cost" value="{{ row.transport_cost }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="delivery_days" class="form-label mb-0">
+                                                                Delivery days :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="text" name="items[{{ loop.index0 }}][delivery_days]" id="delivery_days" value="{{ row.delivery_days }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center mb-2">
+                                                        <div class="col-3">
+                                                            <label for="validity_days" class="form-label mb-0">
+                                                                Validity days :
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-9">
+                                                            <input type="text" name="items[{{ loop.index0 }}][validity_days]" id="validity_days" value="{{ row.validity_days }}" class="form-control" required style="background-color: aliceblue;">
+                                                        </div>
+                                                    </div>
+                                            </small>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col">Total Items</div>
+                            <div class="col text-end fw-semibold">{{ items | length }}</div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col">Total Qty</div>
+                            <div class="col text-end fw-semibold">{{ total_qty }}</div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col">Total Cost</div>
+                            <div class="col text-end fw-semibold">
+                                <span class="fw-semibold" data-inr="{{ master.total_cost }}"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col">Transport</div>
+                            <div class="col text-end fw-semibold">
+                                <span class="fw-semibold" data-inr="{{ master.total_transport }}"></span>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col fw-bold fs-5">Grand Total</div>
+                            <div class="col text-end fw-bold fs-5 text-success">
+                                <span class="fw-semibold" data-inr="{{ master.grand_total }}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <input type="hidden" name="quotation_no" value="{{ master.quotation_no }}" required>
+                <input type="hidden" name="master_total_items" value="{{ items | length }}" required>
+                <input type="hidden" name="master_total_qty" value="{{ total_qty }}" required>
+                <input type="hidden" name="master_total_cost" value="{{ master.total_cost }}" required>
+                <input type="hidden" name="master_total_transport" value="{{ master.total_transport }}" required>
+                <input type="hidden" name="master_grand_total" value="{{ master.grand_total }}" required>
+                
+
+                <div class="d-flex justify-content-between">
+                    <button type="button"
+                        class="btn btn-outline-success"
+                        onclick="shareWhatsApp()">
+                        <i class="bi bi-whatsapp"></i> 
+                        Share WhatsApp
+                    </button>
+
+                    <button type="submit"
+                        class="btn btn-outline-danger">
+                        <i class="bi bi-file-earmark-pdf"></i> 
+                        Download PDF
+                    </button>
+                </div>
+
+            </div>
+        </section>
+    </form>
+{% endblock content %}
+
+
+{% block extra_script %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll("[data-inr]").forEach(el => {
+                const value = parseInt(el.dataset.inr, 10);
+                el.innerText = "₹ " + new Intl.NumberFormat("en-IN").format(value);
+            });
+        });
+    </script>
+
+    <script>
+        function shareWhatsApp() {
+            let phone = prompt(
+                "Enter customer WhatsApp number (with country code)",
+                "{{ master.mobile or '' }}"
+            );
+
+            if (!phone) return;
+
+            phone = phone.replace(/\D/g, "");
+
+            const pdfUrl = "{{ url_for('quotation_pdf_share', quotation_id=master.id, _external=True) }}";
+
+            const message =
+                `Dear Customer,\n\n` +
+                `Please find your quotation below:\n` +
+                `${pdfUrl}\n\n` +
+                `Regards,\n{{ sales_name }}\n🙏 Raja Spiritual Pvt Ltd`;
+
+            const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+            window.open(waUrl, "_blank");
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+{% endblock extra_script %}
