@@ -16,21 +16,21 @@ app.jinja_env.auto_reload = True
 app.secret_key = os.environ.get("SECRET_KEY", "RSS@123")
 
 
-DB_CONFIG = {
-    "host": os.environ.get("DB_HOST", "127.0.0.1"),
-    "user": os.environ.get("DB_USER", "vendor_app"),
-    "password": os.environ.get("DB_PASSWORD", "RSS@123"),
-    "database": os.environ.get("DB_NAME", "vendor_quotation"),
-    "port": int(os.environ.get("DB_PORT", 3306))
-}
-
 # DB_CONFIG = {
-#     "host": os.environ.get("DB_HOST"),
-#     "user": os.environ.get("DB_USER"),
-#     "password": os.environ.get("DB_PASSWORD"),
-#     "database": os.environ.get("DB_NAME"),
+#     "host": os.environ.get("DB_HOST", "127.0.0.1"),
+#     "user": os.environ.get("DB_USER", "vendor_app"),
+#     "password": os.environ.get("DB_PASSWORD", "RSS@123"),
+#     "database": os.environ.get("DB_NAME", "vendor_quotation"),
 #     "port": int(os.environ.get("DB_PORT", 3306))
 # }
+
+DB_CONFIG = {
+    "host": os.environ.get("DB_HOST"),
+    "user": os.environ.get("DB_USER"),
+    "password": os.environ.get("DB_PASSWORD"),
+    "database": os.environ.get("DB_NAME"),
+    "port": int(os.environ.get("DB_PORT", 3306))
+}
 
 
 
@@ -5270,7 +5270,6 @@ def user_history_1():
 ##################################################################
 ##################################################################
 
-
 if __name__ == "__main__":
-    app.run()
-    # app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
