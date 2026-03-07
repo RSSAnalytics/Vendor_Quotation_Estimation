@@ -29,7 +29,8 @@ DB_CONFIG = {
     "user": os.environ.get("DB_USER"),
     "password": os.environ.get("DB_PASSWORD"),
     "database": os.environ.get("DB_NAME"),
-    "port": int(os.environ.get("DB_PORT", 3306))
+    "port": int(os.environ.get("DB_PORT", 3306)),
+    "ssl_disabled": False
 }
 
 
@@ -5273,3 +5274,4 @@ def user_history_1():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
+
