@@ -12,5 +12,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+```
 
-CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:$PORT"]
+Then in Railway → **Settings → Deploy → Start Command**, make sure it has:
+```
+gunicorn app:app --bind 0.0.0.0:$PORT
