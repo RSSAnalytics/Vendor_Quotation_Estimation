@@ -14,15 +14,3 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 CMD gunicorn app:app --bind 0.0.0.0:$PORT
-```
-
----
-
-Also update your `requirements.txt` back to the latest xhtml2pdf (no version pin needed now):
-```
-Flask
-mysql-connector-python
-gunicorn
-APScheduler
-xhtml2pdf
-Pillow
