@@ -2,4 +2,6 @@ Flask
 mysql-connector-python
 gunicorn
 APScheduler
-xhtml2pdf
+xhtml2pdf==0.2.16
+reportlab==3.6.13
+Pillow
