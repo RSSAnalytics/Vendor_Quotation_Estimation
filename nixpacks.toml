@@ -1,5 +1,8 @@
 [phases.setup]
-nixPkgs = ["freetype", "libpng", "zlib", "fontconfig"]
+nixPkgs = ["python311", "python311Packages.pip", "freetype", "libpng", "zlib", "fontconfig"]
 
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = ["python3.11 -m pip install -r requirements.txt"]
+
+[start]
+cmd = "gunicorn app:app --bind 0.0.0.0:$PORT"
