@@ -1,2 +1,5 @@
 [phases.setup]
-nixPkgs = ["freetype", "libpng", "zlib"]
+nixPkgs = ["freetype", "libpng", "zlib", "fontconfig"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
