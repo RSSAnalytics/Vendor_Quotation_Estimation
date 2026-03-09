@@ -1,10 +1,39 @@
 -- #######################################
 -- ############### DATABASE ##############
 -- #######################################
-DROP DATABASE IF EXISTS vendor_quotation;
-CREATE DATABASE IF NOT EXISTS vendor_quotation;
-USE vendor_quotation;
+-- DROP DATABASE IF EXISTS vendor_quotation;
+-- CREATE DATABASE IF NOT EXISTS vendor_quotation;
+USE defaultdb;
 
+-- SET FOREIGN_KEY_CHECKS = 0;
+
+-- DROP TABLE IF EXISTS `master_quotation_items`;
+-- DROP TABLE IF EXISTS `master_quotations`;
+-- DROP TABLE IF EXISTS `quotations`;
+-- DROP TABLE IF EXISTS `quot_thiruvachi`;
+-- DROP TABLE IF EXISTS `quot_kavasam`;
+-- DROP TABLE IF EXISTS `quot_vahanam`;
+-- DROP TABLE IF EXISTS `quot_kodimaram`;
+-- DROP TABLE IF EXISTS `quot_sheet_metal`;
+-- DROP TABLE IF EXISTS `quot_panchaloha_statue`;
+-- DROP TABLE IF EXISTS `cat_thiruvachi_images`;
+-- DROP TABLE IF EXISTS `cat_thiruvachi_rates`;
+-- DROP TABLE IF EXISTS `cat_thiruvachi`;
+-- DROP TABLE IF EXISTS `cat_kavasam_images`;
+-- DROP TABLE IF EXISTS `cat_kavasam_rates`;
+-- DROP TABLE IF EXISTS `cat_kavasam`;
+-- DROP TABLE IF EXISTS `cat_vahanam_images`;
+-- DROP TABLE IF EXISTS `cat_vahanam`;
+-- DROP TABLE IF EXISTS `cat_sheet_metal_images`;
+-- DROP TABLE IF EXISTS `cat_sheet_metal`;
+-- DROP TABLE IF EXISTS `cat_panchaloha_statue_images`;
+-- DROP TABLE IF EXISTS `cat_panchaloha_statue`;
+-- DROP TABLE IF EXISTS `cat_kodimaram_images`;
+-- DROP TABLE IF EXISTS `customers`;
+-- DROP TABLE IF EXISTS `users`;
+-- DROP TABLE IF EXISTS `admin`;
+
+-- SET FOREIGN_KEY_CHECKS = 1;
 
 -- #######################################
 -- ############# ADMIN TABLE #############
@@ -15,10 +44,7 @@ CREATE TABLE IF NOT EXISTS admin (
   password VARCHAR(255) NOT NULL
 );
 
-INSERT INTO admin 
-  (name, password) 
-VALUES 
-  ("admin", "admin");
+INSERT INTO admin (name, password) VALUES ('admin', 'admin');
 
 
 -- #######################################
@@ -31,14 +57,14 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(225) UNIQUE NOT NULL,
   mobile VARCHAR(15) NOT NULL,
   password VARCHAR(255) NOT NULL,
-  branch ENUM('Kanchipuram', 'Vellore', 'Hosur', 'Chennai', 'Bengalore', 'Kumbakonam') NOT NULL DEFAULT 'Kanchipuram',
+  branch VARCHAR(255) NOT NULL,
   status ENUM('pending', 'approved') NOT NULL DEFAULT 'pending'
 );
 
-INSERT INTO users 
-  (name, emp_id, email, mobile, password, branch, status) 
-VALUES 
-  ("a", "a", "a@gmail.com", 1, "a", "Kanchipuram", "approved");
+-- INSERT INTO users 
+--   (name, emp_id, email, mobile, password, branch, status) 
+-- VALUES 
+--   ("a", "a", "a@gmail.com", 1, "a", "Kanchipuram", "approved");
 
 
 
@@ -55,12 +81,12 @@ CREATE TABLE IF NOT EXISTS customers (
   updated_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-INSERT INTO customers 
-  (name, mobile, temple, address, user_emp_id) 
-VALUES 
-  ("customer 1", '9999999999', "temple 1", "address 1", "a"),
-  ("customer 2", '8888888888', "temple 2", "address 2", "a"),
-  ("customer 3", '7777777777', "temple 3", "address 3", "a");
+-- INSERT INTO customers 
+--   (name, mobile, temple, address, user_emp_id) 
+-- VALUES 
+--   ("customer 1", '9999999999', "temple 1", "address 1", "a"),
+--   ("customer 2", '8888888888', "temple 2", "address 2", "a"),
+--   ("customer 3", '7777777777', "temple 3", "address 3", "a");
 
 
 -- #######################################
