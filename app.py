@@ -16,22 +16,21 @@ app.jinja_env.auto_reload = True
 app.secret_key = os.environ.get("SECRET_KEY", "RSS@123")
 
 
+DB_CONFIG = {
+    "host": os.environ.get("DB_HOST", "127.0.0.1"),
+    "user": os.environ.get("DB_USER", "vendor_app"),
+    "password": os.environ.get("DB_PASSWORD", "RSS@123"),
+    "database": os.environ.get("DB_NAME", "vendor_quotation"),
+    "port": int(os.environ.get("DB_PORT", 3306))
+}
+
 # DB_CONFIG = {
-#     "host": os.environ.get("DB_HOST", "127.0.0.1"),
-#     "user": os.environ.get("DB_USER", "vendor_app"),
-#     "password": os.environ.get("DB_PASSWORD", "RSS@123"),
-#     "database": os.environ.get("DB_NAME", "vendor_quotation"),
+#     "host": os.environ.get("DB_HOST"),
+#     "user": os.environ.get("DB_USER"),
+#     "password": os.environ.get("DB_PASSWORD"),
+#     "database": os.environ.get("DB_NAME"),
 #     "port": int(os.environ.get("DB_PORT", 3306))
 # }
-
-DB_CONFIG = {
-    "host": os.environ.get("DB_HOST"),
-    "user": os.environ.get("DB_USER"),
-    "password": os.environ.get("DB_PASSWORD"),
-    "database": os.environ.get("DB_NAME"),
-    "port": int(os.environ.get("DB_PORT", 3306)),
-    "ssl_disabled": False
-}
 
 
 
@@ -176,7 +175,6 @@ app.jinja_env.filters["inr"] = format_inr
 # def get_db_connection():
 #     return mysql.connector.connect(**DB_CONFIG)
 
-
 from mysql.connector import pooling
 
 connection_pool = pooling.MySQLConnectionPool(
@@ -188,7 +186,6 @@ connection_pool = pooling.MySQLConnectionPool(
 
 def get_db_connection():
     return connection_pool.get_connection()
-
 
 
 def image_to_base64(path):
@@ -2629,7 +2626,6 @@ def kavasam_image(image_id):
     if image and image["img"]:
         mime = image["img_type"]
 
-        # 🔥 Fix incorrect mime types
         if mime in ["jpg", "jpeg"]:
             mime = "image/jpeg"
         elif mime == "png":
@@ -2659,7 +2655,7 @@ def kavasam_pdf():
     cost = round(Decimal(request.form.get("cost")), 2)
     unit_price = int(cost / unit)
     total_cost = int(unit_price * unit)
-    grand_total = int(cost + transportation_cost + wax_cost)
+    grand_total = int(cost + transportation_cost)
 
     material = request.form.get("material")
     thickness = request.form.get("thickness")
@@ -2806,7 +2802,7 @@ def kavasam_pdf():
             cursor.execute("""
                 INSERT INTO 
                     quot_kavasam 
-                        (user_emp_id, cust_id, material, sheet_thick, SQFT, unit, cost, wax_cost, transport_cost, delivery_days, validity_days) 
+                        (user_emp_id, cust_id, material, sheet_thick, SQFT, unit, cost, wax_cost, transport_cost, delivery_days, validity_days)
                 VALUES 
                     (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (sales_emp_id, customer_id, material, thickness, total_SQFT, unit, total_cost, wax_cost, transportation_cost, delivery_days, validity_days))
@@ -4886,8 +4882,7 @@ def create_quotations():
             return redirect(url_for("user_quotation_2", cust_id=cust_id))
 
 
-        total_SQFT = total_unit = total_cost = total_transport = total_wax_cost = 0
-        nilai_padi_plain_total_SQFT = nilai_padi_vargam_total_SQFT = custom_picture_total_SQFT = nilai_padi_plain_unit = nilai_padi_vargam_unit = custom_picture_unit = nilai_padi_plain_final_cost = nilai_padi_vargam_final_cost = custom_picture_final_cost = 0
+        total_SQFT = total_unit = total_cost = total_transport = total_wax_cost = nilai_padi_plain_total_SQFT = nilai_padi_vargam_total_SQFT = custom_picture_total_SQFT = nilai_padi_plain_unit = nilai_padi_vargam_unit = custom_picture_unit = nilai_padi_plain_final_cost = nilai_padi_vargam_final_cost = custom_picture_final_cost = 0
         
         for q in quotations:
             table = cat_quot_tables_dic[q["category"]]
@@ -4945,7 +4940,7 @@ def create_quotations():
         date_str = datetime.now().strftime("%Y%m%d")
         time_hhmmss = datetime.now().strftime("%H%M%S")
         quotation_no = f"RSS-{emp_id}-{cust_id}-{date_str}-{time_hhmmss}"
-        grand_total = total_cost + total_transport + total_wax_cost
+        grand_total = total_cost + total_transport
 
         cursor.execute("""
             INSERT INTO master_quotations
@@ -5121,11 +5116,12 @@ def quotation_pdf():
 @app.route("/quotation_pdf/<int:quotation_id>")
 def quotation_pdf_share(quotation_id):
 
-    master, items = get_quotation_data(quotation_id)
-    # master is a dict
-    # items is list of dicts
+    if not session.get("user_logged_in"):
+        return redirect(url_for("index"))
 
-    # -------- Extract date from quotation number --------
+    master, items = get_quotation_data(quotation_id)
+
+    # ── Extract formatted date from quotation number ──
     formatted_date = ""
     match = re.search(r"\d{8}", master["quotation_no"])
     if match:
@@ -5133,44 +5129,78 @@ def quotation_pdf_share(quotation_id):
             match.group(), "%Y%m%d"
         ).strftime("%d/%b/%Y")
 
-    for row in items:
-        unit = row.get("unit", 0)
-        cost = row.get("cost", 0)
+    # ── Normalise every item so the PDF template always has:
+    #    item["cost"], item["cost_per_qty"], item["unit"], item["SQFT"]
+    for item in items:
+        category = item.get("category", "")
 
-        if unit:
-            row["cost_per_qty"] = int(cost / unit)
+        if category == "sheet_metal":
+            plain_sqft  = float(item.get("nilai_padi_plain_total_SQFT")  or 0)
+            vargam_sqft = float(item.get("nilai_padi_vargam_total_SQFT") or 0)
+            custom_sqft = float(item.get("custom_picture_total_SQFT")    or 0)
+
+            plain_unit  = float(item.get("nilai_padi_plain_unit")  or 0)
+            vargam_unit = float(item.get("nilai_padi_vargam_unit") or 0)
+            custom_unit = float(item.get("custom_picture_unit")    or 0)
+
+            plain_cost  = float(item.get("nilai_padi_plain_final_cost")  or 0)
+            vargam_cost = float(item.get("nilai_padi_vargam_final_cost") or 0)
+            custom_cost = float(item.get("custom_picture_final_cost")    or 0)
+
+            total_unit = plain_unit + vargam_unit + custom_unit
+            total_cost = plain_cost + vargam_cost + custom_cost
+
+            item["SQFT"]         = plain_sqft + vargam_sqft + custom_sqft
+            item["unit"]         = total_unit
+            item["cost"]         = int(total_cost)
+            item["cost_per_qty"] = int(total_cost / total_unit) if total_unit else 0
+
         else:
-            row["cost_per_qty"] = 0
+            unit         = float(item.get("unit", 0) or 0)
+            cost         = float(item.get("cost", 0) or 0)
+            item["unit"] = unit
+            item["cost"] = int(cost)
+            item["cost_per_qty"] = int(cost / unit) if unit else 0
+
+    # ── Recalculate totals (include wax_cost for kavasam) ──
+    master_total_qty       = 0
+    master_total_cost      = 0
+    master_total_transport = 0
+
+    for item in items:
+        master_total_qty       += int(float(item.get("unit", 0) or 0))
+        master_total_cost      += int(float(item.get("cost", 0) or 0))
+        master_total_transport += int(float(item.get("transport_cost", 0) or 0))
+
+    master_grand_total = master_total_cost + master_total_transport
 
     html = render_template(
         "user/pdf/quotation_pdf.html",
 
-        quotation_no=master["quotation_no"],
-        formatted_date=formatted_date,
-        items=items,
+        quotation_no    = master["quotation_no"],
+        formatted_date  = formatted_date,
+        items           = items,
 
-        sales_name=master["sales_name"],
-        sales_mobile=master["sales_mobile"],
-        branch=master["sales_branch"],
-        company="Raja Spiritual Pvt Ltd",
+        sales_name      = master["sales_name"],
+        sales_mobile    = master["sales_mobile"],
+        branch          = master["sales_branch"],
+        company         = "Raja Spiritual Pvt Ltd",
 
-        cust_name=master["customer_name"],
-        cust_mobile=master["mobile"],
-        cust_temple=master["temple"],
-        cust_address=master["address"],
+        cust_name       = master["customer_name"],
+        cust_mobile     = master["mobile"],
+        cust_temple     = master["temple"],
+        cust_address    = master["address"],
 
-        master_total_items=len(items),
-        master_total_qty=sum(int(i.get("unit", 0)) for i in items),
-        master_total_cost=master["total_cost"],
-        master_total_transport=master["total_transport"],
-        master_grand_total=master["grand_total"],
+        master_total_items     = len(items),
+        master_total_qty       = master_total_qty,
+        master_total_cost      = master_total_cost,
+        master_total_transport = master_total_transport,
+        master_grand_total     = master_grand_total,
 
-        logo_path=os.path.join(
-            app.root_path, "static/assets/img/RSS_logo.png"
-        ),
-        base_QR_base64=image_to_base64(
+        logo_path      = os.path.join(app.root_path, "static/assets/img/RSS_logo.png"),
+        base_QR_base64 = image_to_base64(
             os.path.join(app.root_path, "static/assets/img/QR.jpeg")
-        )
+        ),
     )
 
     pdf = BytesIO()
@@ -5182,7 +5212,6 @@ def quotation_pdf_share(quotation_id):
     response.headers["Content-Disposition"] = (
         f'inline; filename="{master["quotation_no"]}.pdf"'
     )
-
     return response
 
 
@@ -5276,17 +5305,10 @@ def update_customer(id):
 
 
 
-########################### USER QUOTATION HISTORY ###########################
-@app.route('/user_history_1', methods=["GET", "POST"])
-def user_history_1():
-    return render_template(r"user/history_1.html")
-
-
 ##################################################################
 ##################################################################
+
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
-
-
+    # app.run()
+    app.run(host="0.0.0.0", port=5000, debug=True)
