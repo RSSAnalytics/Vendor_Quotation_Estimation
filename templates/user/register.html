@@ -1,161 +1,201 @@
 {% extends "base.html" %}
 
-
-
 {% block navbar %}
-  <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-house navicon"></i> Home </a></li>
-  <li><a href="{{ url_for('admin_login') }}" style="color: white;"><i class="bi bi-shield-lock navicon"></i> Admin </a></li>
-  <li class="dropdown"><a href="#" style="color: yellow;"><i class="bi bi-person navicon"></i> <span> <b>User</b> </span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+  <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-house navicon"></i> Home</a></li>
+  <li><a href="{{ url_for('admin_login') }}" style="color: white;"><i class="bi bi-shield-lock navicon"></i> Admin</a></li>
+  <li class="dropdown">
+    <a href="#" style="color: yellow;">
+      <i class="bi bi-person navicon"></i>
+      <span><b>User</b></span>
+      <i class="bi bi-chevron-down toggle-dropdown"></i>
+    </a>
     <ul>
-      <li><a href="{{ url_for('user_register') }}" style="color: yellow;"> <b>Register</b> </a></li>
+      <li><a href="{{ url_for('user_register') }}" style="color: yellow;"><b>Register</b></a></li>
       <li><a href="{{ url_for('user_login') }}" style="color: white;">Log In</a></li>
     </ul>
   </li>
 {% endblock navbar %}
 
+{% block extra_style %}
+<style>
+  /* ── Page ── */
+  #contact.contact.section {
+    background-color: #FFFDD0;
+    min-height: 100vh;
+    padding: clamp(20px, 4vw, 60px) 0;
+    display: flex;
+    align-items: center;
+  }
 
+  .section-heading {
+    font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+    font-weight: 700;
+    margin-bottom: clamp(16px, 2.5vw, 28px);
+  }
+
+  /* ── Card ── */
+  .form-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    padding: clamp(16px, 3vw, 28px);
+    overflow: hidden;
+  }
+
+  /* ── Table layout ── */
+  .form-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .form-table th {
+    width: 32%;
+    font-weight: 600;
+    color: #334155;
+    font-size: clamp(0.8rem, 1.3vw, 0.93rem);
+    padding: clamp(10px, 1.5vw, 14px) clamp(10px, 1.5vw, 16px);
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+    background: #f8fafc;
+  }
+
+  .form-table td {
+    padding: clamp(8px, 1.2vw, 12px) clamp(10px, 1.5vw, 16px);
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+  }
+
+  .form-table tr:last-child th,
+  .form-table tr:last-child td { border-bottom: none; }
+
+  .form-table input,
+  .form-table select {
+    background-color: #f0f8ff;
+    border: 1px solid #cfe2ff;
+    border-radius: 6px;
+    padding: clamp(6px, 1vw, 8px) clamp(8px, 1.2vw, 10px);
+    font-size: clamp(0.8rem, 1.3vw, 0.93rem);
+    width: 100%;
+  }
+
+  .form-table input:focus,
+  .form-table select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    outline: none;
+  }
+
+  /* ── Submit row ── */
+  .submit-row {
+    background: #f8fafc;
+    text-align: center;
+    padding: clamp(14px, 2vw, 20px);
+  }
+
+  .submit-row .btn {
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    padding: clamp(8px, 1.2vw, 10px) clamp(28px, 5vw, 48px);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 200px;
+  }
+
+  /* ── Stack th/td on very small screens ── */
+  @media (max-width: 400px) {
+    .form-table,
+    .form-table tbody,
+    .form-table tr,
+    .form-table th,
+    .form-table td { display: block; width: 100%; }
+
+    .form-table th {
+      border-bottom: none;
+      padding-bottom: 4px;
+    }
+
+    .form-table td {
+      padding-top: 4px;
+    }
+
+    .submit-row { display: block; }
+  }
+</style>
+{% endblock extra_style %}
 
 {% block content %}
-    <style>
-        .form-card {
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-            padding: 20px;
-        }
+  <section id="contact" class="contact section" style="background-color: #FFFDD0; min-height: 100vh;">
 
-        .form-table {
-            border-collapse: separate;
-            border-spacing: 0;
-            width: 100%;
-            overflow: hidden;
-            border-radius: 10px;
-        }
+    <div class="container" data-aos="fade-up">
 
-        .form-table th {
-            width: 30%;
-            font-weight: 600;
-            color: #334155;
-            padding: 14px 16px;
-            border-bottom: 1px solid #e2e8f0;
-            vertical-align: middle;
-        }
+      <div class="text-center mb-3">
+        <h2 class="section-heading">User Registration</h2>
+      </div>
 
-        .form-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid #e2e8f0;
-            background: #ffffff;
-        }
+      <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8 col-sm-10 col-12">
+          <div class="form-card">
 
-        .form-table tr:last-child th,
-        .form-table tr:last-child td {
-            border-bottom: none;
-        }
+            <form action="{{ url_for('user_register') }}" method="post" data-aos="fade-up" data-aos-delay="100">
+              <table class="form-table">
+                <tbody>
 
-        .form-table input,
-        .form-table select {
-            background-color: #f0f8ff;
-            border: 1px solid #cfe2ff;
-            border-radius: 6px;
-            padding: 8px 10px;
-        }
+                  <tr>
+                    <th>Name</th>
+                    <td><input type="text" name="name" class="form-control" required style="background-color:#f0f8ff;"></td>
+                  </tr>
 
-        .form-table input:focus,
-        .form-table select:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
-        }
+                  <tr>
+                    <th>Emp ID</th>
+                    <td><input type="text" name="emp_id" class="form-control" required style="background-color:#f0f8ff;"></td>
+                  </tr>
 
-        .submit-row {
-            background: #f8fafc;
-            text-align: center;
-            padding: 18px;
-        }
-    </style>
+                  <tr>
+                    <th>Email</th>
+                    <td><input type="email" name="email" class="form-control" required style="background-color:#f0f8ff;"></td>
+                  </tr>
 
-    <section id="contact" class="contact section" style="background-color: #FFFDD0; min-height: 100vh;">
+                  <tr>
+                    <th>Mobile</th>
+                    <td><input type="number" name="mobile" class="form-control" required style="background-color:#f0f8ff;"></td>
+                  </tr>
 
-        <center>
-            <div class="container section-title" data-aos="fade-up">
-                <h2>User Registration</h2>
-            </div>
-        </center>
+                  <tr>
+                    <th>Branch</th>
+                    <td>
+                      <select name="branch" class="form-control" required style="background-color:#f0f8ff;">
+                        <option value="">-- Select Branch --</option>
+                        <option value="Kanchipuram">Kanchipuram</option>
+                        <option value="Vellore">Vellore</option>
+                        <option value="Hosur">Hosur</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Bengalore">Bengaluru</option>
+                        <option value="Kumbakonam">Kumbakonam</option>
+                      </select>
+                    </td>
+                  </tr>
 
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-            <div class="row gy-4 justify-content-center">
-                <div class="col-lg-6 col-md-8">
-                    <div class="form-card">
-                        
-                        <form action="{{ url_for('user_register') }}" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+                  <tr>
+                    <th>Password</th>
+                    <td><input type="password" name="password" class="form-control" required style="background-color:#f0f8ff;"></td>
+                  </tr>
 
-                            <table class="form-table">
-                                <tbody>
-                                    <tr>
-                                        <th>Name</th>
-                                        <td>
-                                            <input type="text" name="name" class="form-control" required style="background-color: #f0f8ff;">
-                                        </td>
-                                    </tr>
+                  <tr>
+                    <td colspan="2" class="submit-row">
+                      <button type="submit" class="btn btn-primary px-5 py-2">Submit</button>
+                    </td>
+                  </tr>
 
-                                    <tr>
-                                        <th>Emp ID</th>
-                                        <td>
-                                            <input type="text" name="emp_id" class="form-control" required style="background-color: #f0f8ff;">
-                                        </td>
-                                    </tr>
+                </tbody>
+              </table>
+            </form>
 
-                                    <tr>
-                                        <th>Email</th>
-                                        <td>
-                                            <input type="email" name="email" class="form-control" required style="background-color: #f0f8ff;">
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <th>Mobile</th>
-                                        <td>
-                                            <input type="number" name="mobile" class="form-control" required style="background-color: #f0f8ff;">
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <th>Branch</th>
-                                        <td>
-                                            <select name="branch" class="form-control" required style="background-color: #f0f8ff;">
-                                                <option value="">-- Select Branch --</option>
-                                                <option value="Kanchipuram">Kanchipuram</option>
-                                                <option value="Vellore">Vellore</option>
-                                                <option value="Hosur">Hosur</option>
-                                                <option value="Chennai">Chennai</option>
-                                                <option value="Bengalore">Bengalore</option>
-                                                <option value="Kumbakonam">Kumbakonam</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <th>Password</th>
-                                        <td>
-                                            <input type="password" name="password" class="form-control" required style="background-color: #f0f8ff;">
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td colspan="2" class="submit-row">
-                                            <button type="submit" class="btn btn-primary px-5 py-2">
-                                                Submit
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </form>
-
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+      </div>
 
-    </section>
-
+    </div>
+  </section>
 {% endblock content %}
