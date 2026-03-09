@@ -173,8 +173,22 @@ def format_inr(value):
 app.jinja_env.filters["inr"] = format_inr
 
 
+# def get_db_connection():
+#     return mysql.connector.connect(**DB_CONFIG)
+
+
+from mysql.connector import pooling
+
+connection_pool = pooling.MySQLConnectionPool(
+    pool_name="mypool",
+    pool_size=5,
+    pool_reset_session=True,
+    **DB_CONFIG
+)
+
 def get_db_connection():
-    return mysql.connector.connect(**DB_CONFIG)
+    return connection_pool.get_connection()
+
 
 
 def image_to_base64(path):
@@ -5274,4 +5288,5 @@ def user_history_1():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
+
 
