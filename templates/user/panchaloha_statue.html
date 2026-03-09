@@ -2,14 +2,18 @@
 
 {% block logo_name %}
     <a href="#" class="logo d-flex align-items-center justify-content-center">
-        <h1 class="sitename">Estimation Panel</h1>
+        <h1 class="sitename" style="font-size: clamp(14px, 2vw, 18px); text-align: center;">Estimation Panel</h1>
     </a>
 {% endblock logo_name %}
 
-
 {% block navbar %}
-    <li><a href="{{ url_for('user_home') }}" style="color: white;"><i class="bi bi-house navicon"></i> Home </a></li>
-    <li class="dropdown"><a href="#" style="color: yellow;"><i class="bi bi-grid navicon"></i> <span>Category</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+    <li><a href="{{ url_for('user_home') }}" style="color: white;"><i class="bi bi-house navicon"></i> Home</a></li>
+    <li class="dropdown">
+        <a href="#" style="color: yellow;">
+            <i class="bi bi-grid navicon"></i>
+            <span>Category</span>
+            <i class="bi bi-chevron-down toggle-dropdown"></i>
+        </a>
         <ul>
             <li><a href="{{ url_for('user_thiruvachi') }}" style="color: white;">Thiruvachi</a></li>
             <li><a href="{{ url_for('user_kavasam') }}" style="color: white;">Kavasam</a></li>
@@ -19,736 +23,526 @@
             <li><a href="{{ url_for('user_panchaloha_statue') }}" style="color: yellow;"><b>Panchaloha Statue</b></a></li>
         </ul>
     </li>
-    <li><a href="{{ url_for('user_quotation_1') }}" style="color: white;"><i class="bi bi-file-earmark-text navicon"></i>Quotation</a></li>
-    <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-box-arrow-right navicon"></i> Logout </a></li>
+    <li><a href="{{ url_for('user_quotation_1') }}" style="color: white;"><i class="bi bi-file-earmark-text navicon"></i> Quotation</a></li>
+    <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
 {% endblock navbar %}
 
+{% block extra_style %}
+<style>
+  /* ── Page ── */
+  #contact.contact.section {
+    background-color: #FBDAAF;
+    min-height: 100vh;
+    padding: clamp(16px, 3vw, 40px) 0;
+  }
+
+  .section-heading { font-size: clamp(1.1rem, 3vw, 1.6rem); font-weight: 700; }
+
+  /* ── Estimate form ── */
+  .form-outer {
+    background: #fff;
+    border-radius: 12px;
+    padding: clamp(16px, 3vw, 24px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  }
+
+  .form-outer .form-control {
+    font-size: clamp(0.82rem, 1.3vw, 0.95rem);
+    background-color: aliceblue;
+  }
+
+  .form-outer label {
+    font-size: clamp(0.78rem, 1.2vw, 0.9rem);
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* Submit button */
+  .submit-wrap button[type="submit"] {
+    background: #1c4e80;
+    color: #fff;
+    border: none;
+    padding: 10px 40px;
+    border-radius: 8px;
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    cursor: pointer;
+    width: 100%;
+    max-width: 200px;
+    transition: background 0.2s;
+  }
+  .submit-wrap button[type="submit"]:hover { background: #163b60; }
+
+  /* Final selection table from JS */
+  #finalResult .table { font-size: clamp(0.78rem, 1.2vw, 0.9rem); }
+  #finalResult h4 { font-size: clamp(0.95rem, 1.8vw, 1.1rem); }
+
+  /* ── Image cards ── */
+  .statue-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: clamp(12px, 2vw, 20px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+  .statue-card:hover { transform: translateY(-5px); box-shadow: 0 10px 28px rgba(0,0,0,0.14); }
+
+  .statue-image {
+    width: 100%;
+    height: clamp(140px, 20vw, 200px);
+    object-fit: cover;
+    border-radius: 12px;
+    cursor: zoom-in;
+  }
+
+  .no-image-box {
+    height: clamp(140px, 20vw, 200px);
+    background: #f3f4f6;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-weight: 500;
+  }
+
+  .statue-card h6 {
+    font-size: clamp(0.78rem, 1.2vw, 0.9rem);
+    line-height: 1.3;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    margin-top: 10px;
+  }
+
+  /* ── Result section ── */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+
+  #panchaloha_status_table {
+    min-width: 280px;
+    font-size: clamp(0.78rem, 1.2vw, 0.92rem);
+  }
+  #panchaloha_status_table th,
+  #panchaloha_status_table td {
+    padding: clamp(6px, .9vw, 10px) clamp(8px, 1.2vw, 14px);
+    vertical-align: middle;
+  }
+
+  /* ── Action bar ── */
+  .result-action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 575px) {
+    .result-action-bar { flex-direction: column; }
+    .result-action-bar .btn { width: 100%; font-size: 0.82rem; }
+  }
+
+  /* ── Quotation modal ── */
+  @media (max-width: 575px) {
+    .modal-dialog { margin: 8px; max-width: calc(100% - 16px); }
+    .modal-body table th,
+    .modal-body table td { font-size: .8rem; padding: 6px 8px; }
+    .modal-body .form-control { font-size: .82rem; }
+    .modal-footer { flex-wrap: wrap; gap: 6px; }
+    .modal-footer .btn { flex: 1 1 calc(50% - 6px); font-size: 0.78rem; }
+  }
+</style>
+{% endblock extra_style %}
 
 {% block content %}
-    <style>
-        .vahanam-card {
-            background: #ffffff;
-            border-radius: 14px;
-            padding: 20px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            height: 100%;
-        }
+  <section id="contact" class="contact section" style="background-color: #FBDAAF; min-height: 100vh;">
 
-        .vahanam-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 10px 28px rgba(0,0,0,0.15);
-        }
+    <div class="container text-center mb-3" data-aos="fade-up">
+      <h2 class="section-heading">Estimate Panchaloha Statue Models</h2>
+    </div>
 
-        .vahanam-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 12px;
-            cursor: zoom-in;
-        }
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row gy-4 justify-content-center">
+        <div class="col-lg-6 col-md-8 col-12">
 
-        .no-image-box {
-            height: 200px;
-            background: #f3f4f6;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            font-weight: 500;
-        }
+          <div class="form-outer">
+            <form action="{{ url_for('user_panchaloha_statue') }}"
+                  method="post"
+                  class="php-email-form">
 
-        .vahanam-card h6 {
-            min-height: 48px;   /* keeps equal height */
-            font-size: 14px;
-            line-height: 1.3;
-            overflow-wrap: break-word;
-            word-break: break-word;
-        }
-    </style>
+              <div class="mb-3">
+                <label>Name</label>
+                <select id="name" class="form-control" onchange="startFilter()">
+                  <option value="">-- Select Name --</option>
+                  {% for row in idol_data %}
+                    <option value="{{ row.name }}">{{ row.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
 
-    <section id="contact" class="contact section" style="background-color: #FBDAAF; min-height: 100vh;">
+              <div id="dynamicFields"></div>
+              <div id="finalResult"></div>
 
-        <center>
-            <div class="container section-title text" data-aos="fade-up">
-                <h2>Estimate Panchaloha Statue Models</h2>
+              <div class="submit-wrap text-center mt-3">
+                <button type="submit">Submit</button>
+              </div>
+            </form>
+          </div>
+
+        </div><!-- /col -->
+      </div><!-- /row -->
+    </div><!-- /container -->
+
+    <!-- Reference images -->
+    {% if images %}
+      <div class="container mt-5">
+        <div class="text-center mb-4">
+          <h4 class="fw-bold text-primary" style="font-size: clamp(1rem, 2.5vw, 1.4rem);">
+            Available Panchaloha Statue Models
+          </h4>
+          <div style="width:120px;height:3px;background:#1c4e80;margin:10px auto;"></div>
+        </div>
+
+        <div class="row g-3">
+          {% for img in images %}
+            <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+              <div class="statue-card text-center">
+
+                {% if img.image_list %}
+                  <a href="{{ url_for('user_vahanam_image', image_id=img.image_list[0].id) }}"
+                     class="glightbox"
+                     data-gallery="statue-{{ img.id }}"
+                     data-type="image"
+                     data-title="{{ img.name }}">
+                    <img src="{{ url_for('user_vahanam_image', image_id=img.image_list[0].id) }}"
+                         class="statue-image" alt="{{ img.name }}">
+                  </a>
+                  {% for extra in img.image_list[1:] %}
+                    <a href="{{ url_for('user_vahanam_image', image_id=extra.id) }}"
+                       class="glightbox d-none"
+                       data-gallery="statue-{{ img.id }}"
+                       data-type="image"></a>
+                  {% endfor %}
+                {% else %}
+                  <div class="no-image-box">No Image</div>
+                {% endif %}
+
+                <h6 class="fw-semibold">{{ img.name }}</h6>
+              </div>
             </div>
-        </center>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
 
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-            <div class="row gy-4 justify-content-center">
-                <div class="col-lg-6 col-md-8">
-                    
-                    <form action="{{ url_for('user_panchaloha_statue') }}"
-                        method="post"
-                        class="php-email-form"
-                        data-aos="fade-up"
-                        data-aos-delay="200">
+    <!-- Results -->
+    <div class="container mt-4" data-aos="fade-up" data-aos-delay="100">
 
-                        <div class="row gy-4">
-                            <div class="col-md-12">
-                                <label>Name</label>
-                                <select id="name" class="form-control" onchange="startFilter()">
-                                    <option value="">-- Select Name --</option>
-                                    {% for row in idol_data %}
-                                        <option value="{{ row.name }}">{{ row.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+      {% if statue_id %}
 
-                            <div id="dynamicFields"></div>
+        <!-- Action bar -->
+        <div class="result-action-bar">
+          <button class="btn btn-success" onclick="downloadExcel()">
+            <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
+          </button>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#QuotationPDF">
+            <i class="bi bi-plus-circle me-1"></i> Quotation PDF
+          </button>
+        </div>
 
-                            <div id="finalResult"></div>
-                        </div>
+        <!-- Result table -->
+        <div class="table-responsive">
+          <table id="panchaloha_status_table" class="table table-bordered table-hover align-middle shadow-sm">
+            <tbody>
+              <tr><th>Name</th><td>{{ name }}</td></tr>
+              <tr><th>Prabavali</th><td>{{ prabavali }}</td></tr>
+              <tr><th>Position</th><td>{{ position }}</td></tr>
+              <tr><th>Model</th><td>{{ model }}</td></tr>
+              <tr><th>Hands</th><td>{{ hands | int }}</td></tr>
+              <tr><th>Height</th><td>{{ "%.2f" % height | float }}</td></tr>
+              <tr><th>Weight</th><td>{{ "%.2f" % weight | float }}</td></tr>
+              <tr>
+                <th>Cost per Qty (incl. GST - 5%)</th>
+                <td class="fw-bold">{{ cost | int | inr }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-                        <div class="col-md-12 text-center mt-3">
-                            <button type="submit">Submit</button>
-                        </div>
-                    </form>
+        <!-- ================= Quotation PDF Modal ================= -->
+        <div class="modal fade" id="QuotationPDF" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
 
+              <div class="modal-header">
+                <h5 class="modal-title">Panchaloha Statue Quotation Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+
+              <form id="panchaloha_statuePdfForm" method="POST"
+                    action="{{ url_for('panchaloha_statue_pdf') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                  <table class="table table-bordered align-middle" style="background:#f8fbff;">
+                    <tbody>
+                      <tr class="table-secondary text-center"><th colspan="2">Panchaloha Statue Details</th></tr>
+
+                      {% for label, fname, ftype, fval, readonly in [
+                          ('Name',              'name',               'text',   name,     True),
+                          ('Prabavali',         'prabavali',          'text',   prabavali, True),
+                          ('Position',          'position',           'text',   position,  True),
+                          ('Model',             'model',              'text',   model,     True),
+                          ('Hands',             'hands',              'number', hands,     True),
+                          ('Height',            'height',             'number', height,    True),
+                          ('Weight',            'weight',             'number', weight,    True),
+                          ('Unit',              'unit',               'number', 1,         False),
+                          ('Cost (per Qty - Incl. GST 5%)', 'cost',  'number', cost,      False),
+                          ('Transportation Cost','transportation_cost','number', 0,         False),
+                          ('No of Delivery Days','delivery_days',     'text',   delivery_days, False),
+                          ('Quotation Validity Days','validity_days', 'text',   validity_days, False),
+                      ] %}
+                      <tr>
+                        <th style="width:40%;">{{ label }}</th>
+                        <td>
+                          <input type="{{ ftype }}"
+                                 name="{{ fname }}"
+                                 value="{{ fval }}"
+                                 class="form-control"
+                                 style="background-color:aliceblue;"
+                                 {% if readonly %}readonly{% endif %}
+                                 {% if fname != 'transportation_cost' %}required{% endif %}>
+                        </td>
+                      </tr>
+                      {% endfor %}
+
+                      <tr class="table-secondary text-center"><th colspan="2">Customer Details</th></tr>
+                      <tr>
+                        <th>Choose Customer</th>
+                        <td>
+                          <select name="customer_id" id="customer_select" class="form-control"
+                                  style="background-color:aliceblue;" required>
+                            <option value="">Select Customer</option>
+                            {% for customer in customer_data %}
+                              <option value="{{ customer.id }}" data-mobile="{{ customer.mobile }}">
+                                {{ customer.id }} - {{ customer.name }} - {{ customer.mobile }}
+                              </option>
+                            {% endfor %}
+                          </select>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
-                {% if images %}
-                    <div class="vahanam-gallery container mt-5">
-                        <div class="text-center mb-4">
-                            <h4 class="fw-bold text-primary">Available Vahanam Models</h4>
-                            <div style="width:120px;height:3px;background:#1c4e80;margin:10px auto;"></div>
-                        </div>
+                <input type="hidden" id="wa_date" name="now" value="{{ now }}">
+                <input type="hidden" id="wa_quotation_no" name="quotation_no" value="{{ quotation_no }}">
+                <input type="hidden" name="model_id" value="{{ model_id }}">
+                <input type="hidden" name="wa_cust_mobile" id="wa_cust_mobile">
 
-                        <div class="row">
-                            {% for img in images %}
-                                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                    <div class="vahanam-card text-center">
-
-                                        {% if img.image_list %}
-                                            <a href="{{ url_for('user_vahanam_image', image_id=img.image_list[0].id) }}"
-                                            class="glightbox"
-                                            data-gallery="vahanam-{{ img.id }}"
-                                            data-type="image"
-                                            data-title="{{ img.name }}">
-
-                                                <img src="{{ url_for('user_vahanam_image', image_id=img.image_list[0].id) }}"
-                                                    class="vahanam-image"
-                                                    alt="{{ img.name }}">
-                                            </a>
-
-                                            {% for extra in img.image_list[1:] %}
-                                                <a href="{{ url_for('user_vahanam_image', image_id=extra.id) }}"
-                                                class="glightbox"
-                                                data-gallery="vahanam-{{ img.id }}"
-                                                data-type="image"
-                                                style="display:none;">
-                                                </a>
-                                            {% endfor %}
-
-                                        {% else %}
-                                            <div class="no-image-box">No Image</div>
-                                        {% endif %}
-
-                                        <h6 class="mt-3 fw-semibold">{{ img.name }}</h6>
-
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-success" onclick="shareWhatsAppAjax()">
+                    <i class="bi bi-whatsapp"></i> Share WhatsApp
+                  </button>
+                  <button type="submit" name="submit_action" value="download_pdf" class="btn btn-primary">
+                    Check Quotation
+                  </button>
+                  <button type="submit" name="submit_action" value="save_quotation" class="btn btn-info">
+                    Save Quotation
+                  </button>
+                </div>
+              </form>
 
             </div>
-        </div><br>
-
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-            <div class="table-responsive mt-3">
-
-                {% if statue_id %}
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <button class="btn btn-success mb-3" onclick="downloadExcel()">
-                            <i class="bi bi-file-earmark-excel"></i> Download Excel
-                        </button>
-
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-primary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#QuotationPDF">
-                                <i class="bi bi-plus-circle me-1"></i> Quotation PDF
-                            </button>
-                        </div>
-                    </div>
-
-                    <table id="panchaloha_status_table" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
-                        <tr>
-                            <th align="center">name</th>
-                            <td align="center">{{ name }}</td>
-                        </tr>
-                        <tr>
-                            <th align="center">prabavali</th>
-                            <td align="center">{{ prabavali }}</td>
-                        </tr>
-                        <tr>
-                            <th align="center">position</th>
-                            <td align="center">{{ position }}</td>
-                        </tr>
-                        <tr>
-                            <th align="center">model</th>
-                            <td align="center">{{ model }}</td>
-                        </tr>
-                        <tr>
-                            <th align="center">hands</th>
-                            <td align="center">{{ hands | int }}</td>
-                        </tr>
-                        <tr>
-                            <th align="center">height</th>
-                            <td align="center">{{ "%.2f" % height | float }}</td>
-                        </tr>
-                        <tr>
-                            <th align="center">weight</th>
-                            <td align="center">{{ "%.2f" % weight | float }}</td>
-                        </tr>
-                        <tr>
-                            <th align="center">Cost per Qty (incl. GST - 5%)</th>
-                            <td align="center">{{ cost | int | inr }}</td>
-                        </tr>
-                    </table>
-
-
-                    {# ===================== Quotation PDF ===================== #}
-                    <div class="modal fade" id="QuotationPDF" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content">
-
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Panchaloha Statue Quotation Details</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-
-                                <form id="panchaloha_statuePdfForm" method="POST" action="{{ url_for('panchaloha_statue_pdf') }}" enctype="multipart/form-data">
-                                    <div class="modal-body">
-
-                                        <table class="table table-bordered align-middle"
-                                            style="background:#f8fbff; border-radius:6px; overflow:hidden;">
-                                            <tbody>
-                                                <tr class="table-secondary text-center">
-                                                    <th colspan="2">Panchaloha Statue Details</th>
-                                                </tr>
-
-                                                <tr>
-                                                    <th style="width:30%">Name</th>
-                                                    <td>
-                                                        <input type="text"
-                                                            name="name"
-                                                            value="{{ name }}"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            readonly
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th style="width:30%">Prabavali</th>
-                                                    <td>
-                                                        <input type="text"
-                                                            name="prabavali"
-                                                            value="{{ prabavali }}"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            readonly
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th style="width:30%">Position</th>
-                                                    <td>
-                                                        <input type="text"
-                                                            name="position"
-                                                            value="{{ position }}"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            readonly
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th style="width:30%">Model</th>
-                                                    <td>
-                                                        <input type="text"
-                                                            name="model"
-                                                            value="{{ model }}"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            readonly
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th style="width:30%">Hands</th>
-                                                    <td>
-                                                        <input type="number"
-                                                            name="hands"
-                                                            value="{{ hands }}"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            readonly
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th style="width:30%">Height</th>
-                                                    <td>
-                                                        <input type="number"
-                                                            step="0.01"
-                                                            name="height"
-                                                            value="{{ height }}"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            readonly
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th style="width:30%">Weight</th>
-                                                    <td>
-                                                        <input type="number"
-                                                            step="0.01"
-                                                            name="weight"
-                                                            value="{{ weight }}"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            readonly
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th style="width:30%">Unit</th>
-                                                    <td>
-                                                        <input type="number"
-                                                            name="unit"
-                                                            value="1"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th style="width:30%">Cost (per Qty - Incl. GST 5%)</th>
-                                                    <td>
-                                                        <input type="number"
-                                                            name="cost"
-                                                            value="{{ cost }}"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th>Transportation Cost (if not included in Total cost)</th>
-                                                    <td>
-                                                        <input type="number"
-                                                            name="transportation_cost"
-                                                            value="0" 
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            >
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th>No of Delivery days</th>
-                                                    <td>
-                                                        <input type="text"
-                                                            name="delivery_days"
-                                                            value="{{ delivery_days }}"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <th>Quotation Validity days</th>
-                                                    <td>
-                                                        <input type="text"
-                                                            name="validity_days"
-                                                            value="{{ validity_days }}"
-                                                            class="form-control"
-                                                            style="background-color: aliceblue;"
-                                                            required>
-                                                    </td>
-                                                </tr>
-
-
-                                                <tr class="table-secondary text-center"><th colspan="2">Customer Details</th></tr>
-
-                                                <tr>
-                                                    <th>Choose Customer</th>
-                                                    <td>
-                                                        <select name="customer_id"
-                                                                id="customer_select"
-                                                                class="form-control"
-                                                                style="background-color: aliceblue;"
-                                                                required>
-
-                                                            <option value="">Select Customer</option>
-
-                                                            {% for customer in customer_data %}
-                                                                <option value="{{ customer.id }}" data-mobile="{{ customer.mobile }}">
-                                                                    {{ customer.id }} - {{ customer.name }} - {{ customer.mobile }}
-                                                                </option>
-                                                            {% endfor %}
-                                                        </select>
-
-                                                    </td>
-                                                </tr>
-
-                                            </tbody>
-                                        </table>
-
-                                    </div>
-
-                                    <input type="hidden" id="wa_date" name="now" value="{{ now }}">
-                                    <input type="hidden" id="wa_quotation_no" name="quotation_no" value="{{ quotation_no }}">
-                                    <input type="hidden" name="model_id" value="{{ model_id }}">
-                                    <input type="hidden" name="wa_cust_mobile" id="wa_cust_mobile">
-
-                                    <div class="modal-footer">
-                                        <button type="button"
-                                                class="btn btn-secondary"
-                                                data-bs-dismiss="modal">
-                                            Cancel
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            class="btn btn-success"
-                                            onclick="shareWhatsAppAjax()">
-                                            <i class="bi bi-whatsapp"></i> Share WhatsApp
-                                        </button>
-
-                                        <button type="submit"
-                                                name="submit_action"
-                                                value="download_pdf"
-                                                class="btn btn-primary">
-                                            Check Quotation
-                                        </button>
-
-                                        <button type="submit"
-                                                name="submit_action"
-                                                value="save_quotation"
-                                                class="btn btn-info">
-                                            Save Quotation
-                                        </button>
-                                    </div>
-                                </form>
-
-                            </div>
-                        </div>
-                    </div>
-                    {# ===================== END Quotation PDF ===================== #}
-
-                {% endif %}
-                
-            </div>
+          </div>
         </div>
-    </section>
+        <!-- ================= END Quotation PDF Modal ================= -->
+
+      {% endif %}
+    </div><!-- /container -->
+
+  </section>
 {% endblock content %}
 
-
 {% block extra_script %}
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const lightbox = GLightbox({
-            selector: ".glightbox",
-            touchNavigation: true,
-            loop: true
-            });
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    GLightbox({ selector: ".glightbox", touchNavigation: true, loop: true });
+  });
+</script>
+
+<script>
+  /* ── Dynamic filter dropdowns ── */
+  let selectedFilters = {};
+
+  function startFilter() {
+    selectedFilters = {};
+    document.getElementById("dynamicFields").innerHTML = "";
+    document.getElementById("finalResult").innerHTML = "";
+
+    const name = document.getElementById("name").value;
+    if (!name) return;
+
+    selectedFilters["name"] = name;
+    fetchNextOptions();
+  }
+
+  function fetchNextOptions() {
+    fetch("/get_panchaloha_options", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(selectedFilters)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "final") { showFinalData(data.data); return; }
+      if (data.status === "options") { renderNextDropdown(data.options); }
+    });
+  }
+
+  function renderNextDropdown(options) {
+    const container = document.getElementById("dynamicFields");
+    container.innerHTML = "";
+
+    const fieldOrder = ["prabavali", "position", "model", "hands", "height"];
+
+    for (let field of fieldOrder) {
+      if (options[field] && !selectedFilters[field]) {
+
+        const label = document.createElement("label");
+        label.innerText = field.toUpperCase();
+        label.style.cssText = "font-weight:600;font-size:clamp(0.78rem,1.2vw,0.9rem);margin-bottom:4px;display:block;";
+
+        const select = document.createElement("select");
+        select.className = "form-control mb-3";
+        select.style.fontSize = "clamp(0.82rem,1.3vw,0.95rem)";
+        select.style.backgroundColor = "aliceblue";
+
+        const def = document.createElement("option");
+        def.text = "-- Select " + field + " --";
+        def.value = "";
+        select.appendChild(def);
+
+        options[field].forEach(value => {
+          const opt = document.createElement("option");
+          opt.value = value;
+          opt.text = value;
+          select.appendChild(opt);
         });
-    </script>
 
+        select.onchange = function () {
+          if (!this.value) return;
+          selectedFilters[field] = this.value;
+          fetchNextOptions();
+        };
 
-    <script>
-        let selectedFilters = {};
+        container.appendChild(label);
+        container.appendChild(select);
+        break; // one field at a time
+      }
+    }
+  }
 
-        function startFilter() {
-            selectedFilters = {};
-            document.getElementById("dynamicFields").innerHTML = "";
-            document.getElementById("finalResult").innerHTML = "";
+  function showFinalData(data) {
+    document.getElementById("finalResult").innerHTML = `
+      <input type="hidden" name="statue_id" value="${data.id}">
+      <h4 class="mt-4 text-success" style="font-size:clamp(0.95rem,1.8vw,1.1rem);">Final Selection</h4>
+      <div class="table-responsive">
+        <table class="table table-bordered" style="font-size:clamp(0.78rem,1.2vw,0.9rem);">
+          <tr><th>Name</th><td>${data.name}</td></tr>
+          <tr><th>Position</th><td>${data.position}</td></tr>
+          <tr><th>Prabavali</th><td>${data.prabavali}</td></tr>
+          <tr><th>Model</th><td>${data.model}</td></tr>
+          <tr><th>Hands</th><td>${data.hands}</td></tr>
+          <tr><th>Height</th><td>${data.height}</td></tr>
+          <tr><th>Weight</th><td>${data.weight}</td></tr>
+          <tr><th>Cost</th><td>${data.cost}</td></tr>
+        </table>
+      </div>`;
+  }
+</script>
 
-            const name = document.getElementById("name").value;
-            if (!name) return;
+<script>
+  function downloadExcel() {
+    const table = document.getElementById("panchaloha_status_table");
+    const clone = table.cloneNode(true);
 
-            selectedFilters["name"] = name;
-            fetchNextOptions();
-        }
+    clone.querySelectorAll("tbody tr").forEach(row => {
+      const cb = row.querySelector(".row-check");
+      if (!cb || !cb.checked) row.remove();
+    });
+    if (clone.querySelectorAll("tbody tr").length === 0) {
+      table.querySelectorAll("tbody tr").forEach(tr =>
+        clone.querySelector("tbody").appendChild(tr.cloneNode(true)));
+    }
 
-        function fetchNextOptions() {
+    clone.querySelectorAll("tr").forEach(row => {
+      if (row.children.length > 2) {
+        row.children[2].remove();
+        row.children[0].remove();
+      }
+    });
 
-            fetch("/get_panchaloha_options", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(selectedFilters)
-            })
-            .then(res => res.json())
-            .then(data => {
+    const wb = XLSX.utils.table_to_book(clone, { sheet: "Panchaloha Status Estimation" });
+    const ws = wb.Sheets["Panchaloha Status Estimation"];
+    const range = XLSX.utils.decode_range(ws["!ref"]);
 
-                if (data.status === "final") {
-                    showFinalData(data.data);
-                    return;
-                }
+    ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!ws[addr]) continue;
+      ws[addr].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center", vertical: "center" },
+        fill: { fgColor: { rgb: "E7E6E6" } },
+        border: { top:{style:"thin"}, bottom:{style:"thin"}, left:{style:"thin"}, right:{style:"thin"} }
+      };
+    }
+    ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
 
-                if (data.status === "options") {
-                    renderNextDropdown(data.options);
-                }
-            });
-        }
+    const today = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(wb, `Panchaloha_Status_Estimation_${today}.xlsx`);
+  }
+</script>
 
-        function renderNextDropdown(options) {
-            const container = document.getElementById("dynamicFields");
+<script>
+  function shareWhatsAppAjax() {
+    const form = document.getElementById("panchaloha_statuePdfForm");
+    if (!form.reportValidity()) return;
 
-            // Clear previous dropdown
-            container.innerHTML = "";
+    let phone = prompt(
+      "Enter WhatsApp number (with country code)",
+      document.getElementById("wa_cust_mobile").value
+    );
+    if (!phone) return;
 
-            // Define fixed order
-            const fieldOrder = ["prabavali", "position", "model", "hands", "height"];
+    phone = phone.replace(/\D/g, "");
+    document.getElementById("wa_cust_mobile").value = phone;
 
-            for (let field of fieldOrder) {
+    const whatsappTab = window.open("", "_blank");
+    const formData = new FormData(form);
+    formData.set("submit_action", "share_whatsapp");
 
-                if (options[field] && !selectedFilters[field]) {
+    fetch(form.getAttribute("action"), { method: "POST", body: formData })
+      .then(res => { if (!res.ok) throw new Error("Server error"); return res.json(); })
+      .then(data => {
+        if (data.whatsapp_url) whatsappTab.location.href = data.whatsapp_url;
+        else { whatsappTab.close(); alert("WhatsApp URL not received"); }
+      })
+      .catch(err => { console.error(err); whatsappTab.close(); alert("Failed to open WhatsApp"); });
+  }
+</script>
 
-                    const label = document.createElement("label");
-                    label.innerText = field.toUpperCase();
+<script>
+  document.getElementById("customer_select") &&
+  document.getElementById("customer_select").addEventListener("change", function () {
+    const mobile = this.options[this.selectedIndex].getAttribute("data-mobile") || "";
+    document.getElementById("wa_cust_mobile").value = mobile;
+  });
+</script>
 
-                    const select = document.createElement("select");
-                    select.className = "form-control mb-3";
-
-                    const defaultOption = document.createElement("option");
-                    defaultOption.text = "-- Select " + field + " --";
-                    defaultOption.value = "";
-                    select.appendChild(defaultOption);
-
-                    options[field].forEach(value => {
-                        const option = document.createElement("option");
-                        option.value = value;
-                        option.text = value;
-                        select.appendChild(option);
-                    });
-
-                    select.onchange = function () {
-                        if (!this.value) return;
-                        selectedFilters[field] = this.value;
-                        fetchNextOptions();
-                    };
-
-                    container.appendChild(label);
-                    container.appendChild(select);
-
-                    break; // 🔥 VERY IMPORTANT → stop after first field
-                }
-            }
-        }
-
-        function showFinalData(data) {
-            let html = `
-                <input type="hidden" name="statue_id" value="${data.id}">
-
-                <h4 class="mt-4 text-success">Final Selection</h4>
-                <table class="table table-bordered">
-                    <tr><th>Name</th><td>${data.name}</td></tr>
-                    <tr><th>Position</th><td>${data.position}</td></tr>
-                    <tr><th>Prabavali</th><td>${data.prabavali}</td></tr>
-                    <tr><th>Model</th><td>${data.model}</td></tr>
-                    <tr><th>Hands</th><td>${data.hands}</td></tr>
-                    <tr><th>Height</th><td>${data.height}</td></tr>
-                    <tr><th>Weight</th><td>${data.weight}</td></tr>
-                    <tr><th>Cost</th><td>${data.cost}</td></tr>
-                </table>
-            `;
-
-            document.getElementById("finalResult").innerHTML = html;
-        }
-    </script>
-
-
-    <script>
-        function toggleAll(source) {
-            document.querySelectorAll(".row-check").forEach(cb => {
-                cb.checked = source.checked;
-            });
-        }
-
-        function downloadExcel() {
-
-            const table = document.getElementById("panchaloha_status_table");
-            const clone = table.cloneNode(true);
-
-            /* -------------------------------------------------
-            KEEP ONLY SELECTED ROWS
-            ------------------------------------------------- */
-            const rows = clone.querySelectorAll("tbody tr");
-            rows.forEach(row => {
-                const checkbox = row.querySelector(".row-check");
-                if (!checkbox || !checkbox.checked) {
-                    row.remove();
-                }
-            });
-
-            // If no rows selected → export all
-            if (clone.querySelectorAll("tbody tr").length === 0) {
-                table.querySelectorAll("tbody tr").forEach(tr => {
-                    clone.querySelector("tbody").appendChild(tr.cloneNode(true));
-                });
-            }
-
-            /* -------------------------------------------------
-            REMOVE CHECKBOX & IMAGE COLUMNS
-            (checkbox = col 0, image = col 2 originally)
-            ------------------------------------------------- */
-            clone.querySelectorAll("tr").forEach(row => {
-                if (row.children.length > 2) {
-                    row.children[2].remove(); // Image
-                    row.children[0].remove(); // Checkbox
-                }
-            });
-
-            /* -------------------------------------------------
-            CREATE WORKBOOK
-            ------------------------------------------------- */
-            const wb = XLSX.utils.table_to_book(clone, {
-                sheet: "Panchaloha Status Estimation"
-            });
-
-            const ws = wb.Sheets["Panchaloha Status Estimation"];
-            const range = XLSX.utils.decode_range(ws["!ref"]);
-
-            /* -------------------------------------------------
-            HEADER STYLING + FREEZE HEADER
-            ------------------------------------------------- */
-            ws["!freeze"] = { xSplit: 0, ySplit: 1 };
-
-            for (let C = range.s.c; C <= range.e.c; ++C) {
-                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
-                if (!ws[addr]) continue;
-
-                ws[addr].s = {
-                    font: { bold: true },
-                    alignment: { horizontal: "center", vertical: "center" },
-                    fill: { fgColor: { rgb: "E7E6E6" } },
-                    border: {
-                        top: { style: "thin" },
-                        bottom: { style: "thin" },
-                        left: { style: "thin" },
-                        right: { style: "thin" }
-                    }
-                };
-            }
-
-            // /* -------------------------------------------------
-            // ₹ CURRENCY FORMAT (LAST COLUMN = COST)
-            // ------------------------------------------------- */
-            // for (let R = 1; R <= range.e.r; ++R) {
-            //     const cellAddr = XLSX.utils.encode_cell({ r: R, c: range.e.c });
-            //     if (!ws[cellAddr]) continue;
-
-            //     ws[cellAddr].t = "n";
-            //     ws[cellAddr].z = '₹#,##0';
-            // }
-
-            /* -------------------------------------------------
-            AUTO COLUMN WIDTH
-            ------------------------------------------------- */
-            ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
-
-            /* -------------------------------------------------
-            DATE IN FILENAME
-            ------------------------------------------------- */
-            const today = new Date().toISOString().split("T")[0];
-            XLSX.writeFile(wb, `Panchaloha_Status_Estimation_${today}.xlsx`);
-        }
-    </script>
-
-    <script>
-        function loadHeights() {
-
-            const idolName = document.getElementById("name").value;
-            const heightSelect = document.getElementById("height");
-
-            // Reset height dropdown
-            heightSelect.innerHTML = '<option value="">-- Choose Height --</option>';
-
-            if (!idolName) return;
-
-            fetch(`/get_panchaloha_heights?name=${encodeURIComponent(idolName)}`)
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach(row => {
-                        const option = document.createElement("option");
-                        option.value = row.height;
-                        option.textContent = row.height;
-                        heightSelect.appendChild(option);
-                    });
-                })
-                .catch(err => console.error(err));
-        }
-    </script>
-
-    <script>
-        function shareWhatsAppAjax() {
-
-            const form = document.getElementById("panchaloha_statuePdfForm");
-
-            // ✅ STEP 1: trigger native HTML validation
-            if (!form.reportValidity()) {
-                return; // browser will highlight required fields
-            }
-
-            // ✅ STEP 2: now safe to ask for phone
-            let phone = prompt(
-                "Enter WhatsApp number (with country code)",
-                document.getElementById("wa_cust_mobile").value
-            );
-
-            if (!phone) return;
-
-            phone = phone.replace(/\D/g, "");
-            document.getElementById("wa_cust_mobile").value = phone;
-
-            // ✅ STEP 3: popup-safe open
-            const whatsappTab = window.open("", "_blank");
-
-            const formData = new FormData(form);
-            formData.set("submit_action", "share_whatsapp");
-
-            fetch(form.getAttribute("action"), {
-                method: "POST",
-                body: formData
-            })
-            .then(res => {
-                if (!res.ok) throw new Error("Server error");
-                return res.json();
-            })
-            .then(data => {
-                if (data.whatsapp_url) {
-                    whatsappTab.location.href = data.whatsapp_url;
-                } else {
-                    whatsappTab.close();
-                    alert("WhatsApp URL not received");
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                whatsappTab.close();
-                alert("Failed to open WhatsApp");
-            });
-        }
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 {% endblock extra_script %}
