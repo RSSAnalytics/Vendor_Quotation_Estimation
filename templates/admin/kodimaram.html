@@ -29,34 +29,100 @@
     <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
 {% endblock navbar %}
 
+{% block extra_style %}
+<style>
+  .contact.section {
+    background-color: #FFFDD0;
+    min-height: 100vh;
+    padding: clamp(16px, 3vw, 40px) 0;
+  }
+
+  .section-heading {
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-weight: 700;
+  }
+
+  /* Action bar */
+  .action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 575px) {
+    .action-bar .btn {
+      width: 100%;
+      font-size: 0.82rem;
+    }
+  }
+
+  /* Table */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+
+  #kodimaram_Table {
+    min-width: 320px;
+    font-size: clamp(0.78rem, 1.2vw, 0.95rem);
+  }
+
+  #kodimaram_Table th,
+  #kodimaram_Table td {
+    padding: clamp(6px, 1vw, 12px) clamp(8px, 1.2vw, 16px);
+    vertical-align: middle;
+  }
+
+  /* Modal */
+  @media (max-width: 575px) {
+    .modal-dialog {
+      margin: 8px;
+      max-width: calc(100% - 16px);
+    }
+    .modal-body .form-control {
+      font-size: 0.82rem;
+    }
+  }
+
+  .image-box img {
+    width: clamp(80px, 15vw, 120px);
+    height: clamp(60px, 11vw, 90px);
+    object-fit: cover;
+    border-radius: 6px;
+  }
+</style>
+{% endblock extra_style %}
+
 {% block content %}
     <section class="contact section" style="background-color: #FFFDD0; min-height: 100vh;">
 
         <div class="container text-center mb-3">
-            <h2>Kodimaram Models Details</h2>
-        </div><br>
+            <h2 class="section-heading">Kodimaram Models Details</h2>
+        </div>
 
         <div class="container">
-            <div class="d-flex justify-content-between align-items-end mb-3" style="align-items: end;">
-                <b></b>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-info"
-                            data-bs-toggle="modal"
-                            data-bs-target="#UpdateImages">
-                        <i class="bi bi-pencil-square"></i> Update Reference Images
-                    </button>
-                </div>
+
+            <!-- Action bar -->
+            <div class="action-bar">
+                <button class="btn btn-info"
+                        data-bs-toggle="modal"
+                        data-bs-target="#UpdateImages">
+                    <i class="bi bi-pencil-square me-1"></i> Update Reference Images
+                </button>
             </div>
 
+            <!-- Table -->
             <div class="table-responsive">
-                <table id="kodimaram_Table" class="table table-bordered table-hover align-middle shadow-sm rounded-3 overflow-hidden">
-                    <thead class="align-middle">
+                <table id="kodimaram_Table" class="table table-bordered table-hover align-middle shadow-sm">
+                    <thead>
                         <tr class="table-danger text-center">
                             <th>Condition</th>
                             <th>Cost</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         <tr>
                             <td>{{ condition_1 }}</td>
@@ -73,17 +139,17 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
     </section>
 
-    <!-- ================= UPDATE IMAGE ================= -->
+    <!-- ================= UPDATE IMAGES MODAL ================= -->
     <div class="modal fade" id="UpdateImages" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
-
                 <form method="POST" action="{{ url_for('kodimaram_images') }}" enctype="multipart/form-data">
                     <div class="modal-header">
-                        <h5>Update kodimaram Reference Images</h5>
+                        <h5 class="modal-title">Update Kodimaram Reference Images</h5>
                         <button class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
@@ -91,10 +157,11 @@
                         <div class="mb-3">
                             <label class="form-label">Upload Reference Images</label>
                             <input type="file"
-                                name="images"
-                                class="form-control"
-                                accept="image/*"
-                                multiple>
+                                   name="images"
+                                   class="form-control"
+                                   accept="image/*"
+                                   multiple
+                                   style="background-color: aliceblue;">
                         </div>
                         <hr>
 
@@ -102,15 +169,11 @@
                         <div class="d-flex flex-wrap gap-2">
                             {% for img in images %}
                                 <div class="position-relative image-box">
-                                    <img src="data:{{ img.type }};base64,{{ img.b64 }}"
-                                        style="width:120px;height:90px;object-fit:cover;border-radius:6px;">
-
+                                    <img src="data:{{ img.type }};base64,{{ img.b64 }}">
                                     <button type="button"
                                             class="btn btn-danger btn-sm position-absolute top-0 end-0"
                                             style="padding:2px 6px;font-size:12px;"
-                                            onclick="deletekodimaramImage({{ img.id }}, this)">
-                                        ✕
-                                    </button>
+                                            onclick="deletekodimaramImage({{ img.id }}, this)">✕</button>
                                 </div>
                             {% else %}
                                 <p class="text-muted">No reference images uploaded.</p>
@@ -123,30 +186,23 @@
                         <button class="btn btn-primary">Submit</button>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>
 {% endblock content %}
 
-
 {% block extra_script %}
-    <script>
-        function deletekodimaramImage(imageId, btn) {
-            if (!confirm("Delete this reference image?")) return;
-
-            fetch(`/kodimaram/image/delete/${imageId}`, { method: "POST" })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        btn.closest(".image-box").remove();
-                    } else {
-                        alert("Failed to delete image");
-                    }
-                })
-                .catch(() => alert("Server error"));
-        }
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+    function deletekodimaramImage(imageId, btn) {
+        if (!confirm("Delete this reference image?")) return;
+        fetch(`/kodimaram/image/delete/${imageId}`, { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) btn.closest(".image-box").remove();
+                else alert("Failed to delete image");
+            })
+            .catch(() => alert("Server error"));
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 {% endblock extra_script %}
