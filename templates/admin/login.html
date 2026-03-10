@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+    <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-house navicon"></i> Home</a></li>
+    <li><a href="{{ url_for('admin_login') }}" style="color: yellow;"><i class="bi bi-shield-lock navicon"></i> <b>Admin</b></a></li>
+    <li class="dropdown">
+        <a href="#" style="color: white;">
+            <i class="bi bi-person navicon"></i>
+            <span>User</span>
+            <i class="bi bi-chevron-down toggle-dropdown"></i>
+        </a>
+        <ul>
+            <li><a href="{{ url_for('user_register') }}" style="color: white;">Register</a></li>
+            <li><a href="{{ url_for('user_login') }}" style="color: white;">Log In</a></li>
+        </ul>
+    </li>
+{% endblock navbar %}
+
+{% block extra_style %}
+<style>
+  /* ── Page ── */
+  #contact.contact.section {
+    background-color: #FFFDD0;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(24px, 5vw, 60px) 0;
+  }
+
+  /* ── Card ── */
+  .form-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.09);
+    padding: clamp(18px, 4vw, 32px);
+    width: 100%;
+  }
+
+  /* ── Form table ── */
+  .form-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .form-table th {
+    width: 30%;
+    font-weight: 600;
+    color: #334155;
+    padding: clamp(10px, 1.5vw, 14px) clamp(10px, 1.5vw, 16px);
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+    white-space: nowrap;
+    font-size: clamp(0.82rem, 1.3vw, 1rem);
+  }
+
+  .form-table td {
+    padding: clamp(8px, 1.2vw, 12px) clamp(10px, 1.5vw, 16px);
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+  }
+
+  .form-table tr:last-child th,
+  .form-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .form-table input.form-control {
+    background-color: #f0f8ff;
+    border: 1px solid #cfe2ff;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: clamp(0.82rem, 1.3vw, 1rem);
+    width: 100%;
+  }
+
+  .form-table input.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.15rem rgba(13,110,253,0.15);
+    outline: none;
+  }
+
+  .submit-row {
+    background: #f8fafc;
+    text-align: center;
+    padding: clamp(14px, 2vw, 20px);
+  }
+
+  .submit-row .btn {
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    padding: 10px clamp(28px, 5vw, 48px);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 220px;
+  }
+
+  /* ── Section title ── */
+  .section-title h2 {
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    font-weight: 700;
+  }
+
+  /* ── Mobile: stack th/td vertically ── */
+  @media (max-width: 480px) {
+    .form-table,
+    .form-table tbody,
+    .form-table tr,
+    .form-table th,
+    .form-table td {
+      display: block;
+      width: 100%;
+    }
+
+    .form-table th {
+      padding-bottom: 4px;
+      border-bottom: none;
+      color: #475569;
+    }
+
+    .form-table td {
+      padding-top: 4px;
+    }
+
+    /* Keep submit row centered */
+    .submit-row {
+      display: block;
+      text-align: center;
+    }
+  }
+</style>
+{% endblock extra_style %}
+
+{% block content %}
+  <section id="contact" class="contact section" style="background-color: #FFFDD0; min-height: 100vh;">
+
+    <div class="container section-title text-center mb-3" data-aos="fade-up">
+      <h2>Admin Login</h2>
+    </div>
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7 col-sm-10 col-12">
+
+          <div class="form-card">
+            <form action="{{ url_for('admin_login') }}"
+                  method="post"
+                  class="php-email-form">
+
+              <table class="form-table">
+                <tbody>
+
+                  <tr>
+                    <th>Name</th>
+                    <td>
+                      <input type="text"
+                             name="name"
+                             class="form-control"
+                             placeholder="Enter admin name"
+                             required>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <th>Password</th>
+                    <td>
+                      <input type="password"
+                             name="password"
+                             class="form-control"
+                             placeholder="Enter password"
+                             required>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td colspan="2" class="submit-row">
+                      <button type="submit" class="btn btn-warning">
+                        Submit
+                      </button>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+
+            </form>
+          </div><!-- /form-card -->
+
+        </div>
+      </div>
+    </div>
+
+  </section>
+{% endblock content %}

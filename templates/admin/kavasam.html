@@ -1,0 +1,443 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Admin Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+{% block navbar %}
+    <li><a href="{{ url_for('admin_home') }}" style="color: white;"><i class="bi bi-house navicon"></i> Home</a></li>
+
+    <li class="dropdown">
+        <a href="#" style="color: yellow;">
+            <i class="bi bi-grid navicon"></i>
+            <span><b>Category</b></span>
+            <i class="bi bi-chevron-down toggle-dropdown"></i>
+        </a>
+        <ul>
+            <li><a href="{{ url_for('thiruvachi') }}" style="color: white;">Thiruvachi</a></li>
+            <li><a href="{{ url_for('kavasam') }}" style="color: yellow;"><b>Kavasam</b></a></li>
+            <li><a href="{{ url_for('vahanam') }}" style="color: white;">Vahanam</a></li>
+            <li><a href="{{ url_for('sheet_metal') }}" style="color: white;">Sheet Metal</a></li>
+            <li><a href="{{ url_for('panchaloha_statue') }}" style="color: white;">Panchaloha Statue</a></li>
+            <li><a href="{{ url_for('kodimaram') }}" style="color: white;">Kodimaram</a></li>
+        </ul>
+    </li>
+
+    <li><a href="{{ url_for('users_details') }}" style="color: white;"><i class="bi bi-person navicon"></i> Users</a></li>
+    <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
+{% endblock navbar %}
+
+{% block extra_style %}
+<style>
+  /* ── Page background ── */
+  .contact.section {
+    background-color: #FFFDD0;
+    min-height: 100vh;
+    padding: clamp(16px, 3vw, 40px) 0;
+  }
+
+  /* ── Action buttons bar ── */
+  .action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .action-bar .btn-group-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* On mobile stack everything */
+  @media (max-width: 575px) {
+    .action-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .action-bar .btn-group-right {
+      flex-direction: column;
+    }
+    .action-bar .btn {
+      width: 100%;
+      font-size: 0.82rem;
+    }
+  }
+
+  /* ── Table responsiveness ── */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+
+  #Kavasam_Table {
+    min-width: 560px;   /* prevents squishing; scrolls on small screens */
+    font-size: clamp(0.72rem, 1.2vw, 0.92rem);
+  }
+
+  #Kavasam_Table th,
+  #Kavasam_Table td {
+    white-space: nowrap;
+    padding: clamp(4px, 0.8vw, 10px) clamp(6px, 1vw, 14px);
+    vertical-align: middle;
+  }
+
+  /* Shrink action buttons inside table on mobile */
+  @media (max-width: 575px) {
+    #Kavasam_Table .btn-sm {
+      font-size: 0.72rem;
+      padding: 3px 7px;
+    }
+  }
+
+  /* ── Section heading ── */
+  .section-heading {
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-weight: 700;
+  }
+
+  /* ── Modals: full-width on mobile ── */
+  @media (max-width: 575px) {
+    .modal-dialog {
+      margin: 8px;
+      max-width: calc(100% - 16px);
+    }
+    .modal-body table th,
+    .modal-body table td {
+      font-size: 0.8rem;
+      padding: 6px 8px;
+    }
+    .modal-body .form-control {
+      font-size: 0.82rem;
+    }
+  }
+
+  /* ── Image thumbnails in modal ── */
+  .image-box img {
+    width: clamp(80px, 15vw, 120px);
+    height: clamp(60px, 11vw, 90px);
+    object-fit: cover;
+    border-radius: 6px;
+  }
+</style>
+{% endblock extra_style %}
+
+{% block content %}
+    <section class="contact section" style="background-color: #FFFDD0; min-height: 100vh;">
+
+        <div class="container text-center mb-3">
+            <h2 class="section-heading">Kavasam Models Details</h2>
+        </div>
+
+        <div class="container">
+
+            <!-- Action bar -->
+            <div class="action-bar">
+                <button class="btn btn-success" onclick="downloadExcel()">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
+                </button>
+
+                <div class="btn-group-right">
+                    <button class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addModelModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add Model
+                    </button>
+
+                    <button class="btn btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#UpdateRates">
+                        <i class="bi bi-pencil-square me-1"></i> Update Rates
+                    </button>
+
+                    <button class="btn btn-info"
+                            data-bs-toggle="modal"
+                            data-bs-target="#UpdateImages">
+                        <i class="bi bi-pencil-square me-1"></i> Update Images
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable table -->
+            <div class="table-responsive">
+                <table id="Kavasam_Table" class="table table-bordered table-hover align-middle shadow-sm">
+                    <thead class="align-middle">
+                        <tr class="table-danger text-center">
+                            <th rowspan="2">
+                                <input type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                            </th>
+                            <th rowspan="2">SQFT Range</th>
+                            <th colspan="3">Gauge Rate <i style="color:red;">(Fixed)</i></th>
+                            <th rowspan="2">Wax Cost</th>
+                            <th rowspan="2">Update</th>
+                            <th rowspan="2">Delete</th>
+                        </tr>
+                        <tr class="table-danger">
+                            <th style="background-color:#FBDAAF;">24 Gauge</th>
+                            <th style="background-color:#FBDAAF;">22 Gauge</th>
+                            <th style="background-color:#FBDAAF;">20 Gauge</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in data %}
+                            <tr>
+                                <td><input type="checkbox" class="row-check"></td>
+                                <td>{{ row.SQFT|int }}</td>
+                                <td>{{ row.gauge_24|int }}</td>
+                                <td>{{ row.gauge_22|int }}</td>
+                                <td>{{ row.gauge_20|int }}</td>
+                                <td>{{ row.wax_cost|int }}</td>
+
+                                <td class="text-center">
+                                    <button class="btn btn-warning btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#updateModal{{ row.id }}">
+                                        Update
+                                    </button>
+                                </td>
+
+                                <td class="text-center">
+                                    <form method="POST"
+                                          action="{{ url_for('kavasam_delete', id=row.id) }}"
+                                          onsubmit="return confirm('Delete this model?');">
+                                        <button class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div><!-- /table-responsive -->
+
+        </div>
+    </section>
+
+    <!-- ================= UPDATE RATES MODAL ================= -->
+    <div class="modal fade" id="UpdateRates" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <form method="POST" action="{{ url_for('kavasam_rates') }}">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Kavasam Model Rates</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered align-middle text-center">
+                            <tbody>
+                                <tr class="table-secondary"><th colspan="2">Silver</th></tr>
+                                <tr><th>Copper + Silver Rate</th><td><input type="number" name="silver_rate" value="{{rate_data['silver_rate']}}" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                <tr><th>Pure Silver Rate</th><td><input type="number" name="pure_silver_rate" class="form-control" value="{{rate_data['pure_silver_rate']}}" required style="background-color:aliceblue;"></td></tr>
+                                <tr><th>Pure Silver Margin Rate</th><td><input type="number" name="pure_silver_margin_rate" class="form-control" value="{{rate_data['pure_silver_margin_rate']}}" required style="background-color:aliceblue;"></td></tr>
+                                <tr class="table-secondary"><th colspan="2">Gold</th></tr>
+                                <tr><th>Copper + Gold Rate</th><td><input type="number" name="gold_rate" value="{{rate_data['gold_rate']}}" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= UPDATE IMAGES MODAL ================= -->
+    <div class="modal fade" id="UpdateImages" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <form method="POST" action="{{ url_for('kavasam_images') }}" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Kavasam Reference Images</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Upload Reference Images</label>
+                            <input type="file" name="images" class="form-control"
+                                   accept="image/*" multiple required style="background-color:aliceblue;">
+                        </div>
+                        <hr>
+                        <label class="form-label">Existing Reference Images</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for img in images %}
+                                <div class="position-relative image-box">
+                                    <img src="data:{{ img.type }};base64,{{ img.b64 }}"
+                                         style="width:120px;height:90px;object-fit:cover;border-radius:6px;">
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm position-absolute top-0 end-0"
+                                            style="padding:2px 6px;font-size:12px;"
+                                            onclick="deleteKavasamImage({{ img.id }}, this)">✕</button>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No reference images uploaded.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ADD MODEL MODAL ================= -->
+    <div class="modal fade" id="addModelModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <form method="POST" action="{{ url_for('kavasam') }}">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Kavasam Model</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered align-middle text-center">
+                            <tbody>
+                                <tr><th>SQFT Range</th><td><input type="number" name="SQFT" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                <tr><th>Wax Cost</th><td><input type="number" name="wax_cost" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                <tr class="table-secondary"><th colspan="2">Brass / Copper</th></tr>
+                                <tr><th>24 Gauge</th><td><input type="number" name="gauge_24" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                <tr><th>22 Gauge</th><td><input type="number" name="gauge_22" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                <tr><th>20 Gauge</th><td><input type="number" name="gauge_20" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                {% if rate_data %}
+                                    <tr class="table-secondary"><th colspan="2">Silver</th></tr>
+                                    <tr><th>Copper + Silver Rate</th><td><input type="number" name="silver_rate" value="{{rate_data['silver_rate']}}" class="form-control" readonly style="background-color:aliceblue;"></td></tr>
+                                    <tr><th>Pure Silver Rate</th><td><input type="number" name="pure_silver_rate" class="form-control" value="{{rate_data['pure_silver_rate']}}" readonly style="background-color:aliceblue;"></td></tr>
+                                    <tr><th>Pure Silver Margin Rate</th><td><input type="number" name="pure_silver_margin_rate" class="form-control" value="{{rate_data['pure_silver_margin_rate']}}" readonly style="background-color:aliceblue;"></td></tr>
+                                    <tr class="table-secondary"><th colspan="2">Gold</th></tr>
+                                    <tr><th>Copper + Gold Rate</th><td><input type="number" name="gold_rate" value="{{rate_data['gold_rate']}}" class="form-control" readonly style="background-color:aliceblue;"></td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= UPDATE MODALS (per row) ================= -->
+    {% for row in data %}
+        <div class="modal fade" id="updateModal{{ row.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <form method="POST" action="{{ url_for('kavasam_update', id=row.id) }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update Model : {{ row.id }}</h5>
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-bordered align-middle text-center">
+                                <tbody>
+                                    <tr><th>SQFT</th><td><input type="number" name="SQFT" value="{{ row.SQFT }}" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                    <tr><th>Wax Cost</th><td><input type="number" name="wax_cost" value="{{ row.wax_cost }}" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                    <tr class="table-secondary"><th colspan="2">Brass / Copper</th></tr>
+                                    <tr><th>24 Gauge</th><td><input type="number" name="gauge_24" value="{{ row.gauge_24 }}" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                    <tr><th>22 Gauge</th><td><input type="number" name="gauge_22" value="{{ row.gauge_22 }}" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                    <tr><th>20 Gauge</th><td><input type="number" name="gauge_20" value="{{ row.gauge_20 }}" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                                    {% if rate_data %}
+                                        <tr class="table-secondary"><th colspan="2">Silver</th></tr>
+                                        <tr><th>Silver Rate</th><td><input type="number" name="silver_rate" value="{{ rate_data['silver_rate'] }}" class="form-control" readonly style="background-color:aliceblue;"></td></tr>
+                                        <tr><th>Pure Silver Rate</th><td><input type="number" name="pure_silver_rate" value="{{ rate_data['pure_silver_rate'] }}" class="form-control" readonly style="background-color:aliceblue;"></td></tr>
+                                        <tr><th>Pure Silver Margin Rate</th><td><input type="number" name="pure_silver_margin_rate" value="{{ rate_data['pure_silver_margin_rate'] }}" class="form-control" readonly style="background-color:aliceblue;"></td></tr>
+                                        <tr class="table-secondary"><th colspan="2">Gold</th></tr>
+                                        <tr><th>Gold Rate</th><td><input type="number" name="gold_rate" value="{{ rate_data['gold_rate'] }}" class="form-control" readonly style="background-color:aliceblue;"></td></tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <button class="btn btn-warning">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock content %}
+
+{% block extra_script %}
+<script>
+    function deleteKavasamImage(imageId, btn) {
+        if (!confirm("Delete this reference image?")) return;
+        fetch(`/kavasam/image/delete/${imageId}`, { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) btn.closest(".image-box").remove();
+                else alert("Failed to delete image");
+            })
+            .catch(() => alert("Server error"));
+    }
+</script>
+
+<script>
+    function toggleAll(source) {
+        document.querySelectorAll(".row-check").forEach(cb => cb.checked = source.checked);
+    }
+
+    function downloadExcel() {
+        const table = document.getElementById("Kavasam_Table");
+        const clone = table.cloneNode(true);
+
+        // Keep only checked rows (or all if none checked)
+        const rows = clone.querySelectorAll("tbody tr");
+        rows.forEach(row => {
+            const cb = row.querySelector(".row-check");
+            if (!cb || !cb.checked) row.remove();
+        });
+        if (clone.querySelectorAll("tbody tr").length === 0) {
+            table.querySelectorAll("tbody tr").forEach(tr =>
+                clone.querySelector("tbody").appendChild(tr.cloneNode(true)));
+        }
+
+        // Remove checkbox column
+        clone.querySelectorAll("input.row-check").forEach(cb => {
+            const td = cb.closest("td"); if (td) td.remove();
+        });
+        const selectAll = clone.querySelector("#selectAll");
+        if (selectAll) { const th = selectAll.closest("th"); if (th) th.remove(); }
+
+        // Remove Update / Delete columns
+        clone.querySelectorAll("td, th").forEach(cell => {
+            const text = cell.innerText.trim().toLowerCase();
+            if (text === "update" || text === "delete") cell.remove();
+        });
+
+        const wb = XLSX.utils.table_to_book(clone, { sheet: "Kavasam Estimation" });
+        const ws = wb.Sheets["Kavasam Estimation"];
+        const range = XLSX.utils.decode_range(ws["!ref"]);
+
+        ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+            const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+            if (!ws[addr]) continue;
+            ws[addr].s = {
+                font: { bold: true },
+                alignment: { horizontal: "center", vertical: "center" },
+                fill: { fgColor: { rgb: "E7E6E6" } },
+                border: { top:{style:"thin"}, bottom:{style:"thin"}, left:{style:"thin"}, right:{style:"thin"} }
+            };
+        }
+        ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
+
+        const today = new Date().toISOString().split("T")[0];
+        XLSX.writeFile(wb, `Kavasam_Estimation_${today}.xlsx`);
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+{% endblock extra_script %}

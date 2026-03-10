@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Vendor Quotation Application</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='assets/img/favicon.png', v=1) }}" rel="icon">
+  <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png', v=1) }}" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css', v=1) }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css', v=1) }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css', v=1) }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css', v=1) }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css', v=1) }}" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="{{ url_for('static', filename='assets/css/main.css', v=3) }}" rel="stylesheet">
+
+  <style>
+    /* ============================================================
+       RESPONSIVE LAYOUT OVERRIDES
+       Desktop  ≥1200px : sidebar always visible, pushes content
+       Tablet/Mobile <1200px : sidebar off-canvas, hamburger shown
+    ============================================================ */
+
+    .header {
+      width: 280px;
+      transition: left 0.3s ease-in-out;
+      z-index: 1050;
+    }
+
+    /* ── Desktop: sidebar pinned ── */
+    @media (min-width: 1200px) {
+      .header { left: 0 !important; }
+      .header ~ main,
+      .header ~ #footer { margin-left: 280px; }
+      .header-toggle { display: none !important; }
+    }
+
+    /* ── Mobile / Tablet: off-canvas sidebar ── */
+    @media (max-width: 1199px) {
+      .header {
+        left: -100%;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        overflow-y: auto;
+      }
+      .header.header-show { left: 0; }
+      .header ~ main,
+      .header ~ #footer { margin-left: 0 !important; }
+
+      /* Hamburger — top-left corner */
+      .header-toggle {
+        position: fixed !important;
+        top: 12px !important;
+        left: 12px !important;
+        right: auto !important;
+        z-index: 1055 !important;
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: #F57F58 !important;
+        color: #fff !important;
+        font-size: 22px !important;
+        cursor: pointer !important;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.3) !important;
+      }
+
+      main.main { padding-top: 64px; }
+    }
+
+    /* ── Backdrop overlay ── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1049;
+      cursor: pointer;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* ── Sidebar profile on small screens ── */
+    @media (max-width: 575px) {
+      .header .profile-img img { width: 80px; margin: 10px auto; }
+      .header .logo .sitename  { font-size: 16px !important; }
+    }
+
+    /* ── Nav link sizing ── */
+    .navmenu a {
+      font-size: clamp(13px, 1.4vw, 16px);
+      padding: 12px 10px;
+    }
+
+    /* ── Shared hero styles ── */
+    .hero {
+      min-height: 100vh;
+      min-height: 100svh;
+      padding: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden;
+    }
+    .hero img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      z-index: 1;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 2;
+    }
+
+    /* ── Shared hero text card ── */
+    .hero-text-card {
+      position: relative;
+      z-index: 3;
+      background-color: rgba(224, 196, 15, 0.62);
+      border-radius: 10px;
+      padding: clamp(14px, 3vw, 32px) clamp(20px, 4vw, 52px);
+      text-align: center;
+      max-width: min(580px, 88vw);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+      backdrop-filter: blur(2px);
+    }
+    .hero-text-card h2 {
+      font-size: clamp(1.3rem, 4.5vw, 3.2rem);
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 8px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+      line-height: 1.2;
+    }
+    .hero-text-card p {
+      font-size: clamp(0.82rem, 2vw, 1.25rem);
+      color: #fff;
+      margin: 0;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    /* ── Utilities ── */
+    @media (max-width: 575px) {
+      .container.mt-2 { padding-left: 12px; padding-right: 12px; }
+      .scroll-top { right: 10px; bottom: 10px; width: 36px; height: 36px; }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    img { max-width: 100%; height: auto; }
+  </style>
+
+  {% block extra_style %}{% endblock extra_style %}
+</head>
+
+<body class="index-page">
+
+  <!-- Backdrop: tap to close sidebar on mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <header id="header" class="header dark-background d-flex flex-column" style="background-color: #F57F58;">
+
+    <!--
+      class="header-toggle" is REQUIRED — main.js queries this class.
+      main.js handles the click → toggles .header-show + swaps bi-list/bi-x.
+      Our script below adds the overlay sync via MutationObserver only.
+    -->
+    <i class="header-toggle bi bi-list"></i>
+
+    <div class="profile-img">
+      <img src="{{ url_for('static', filename='assets/img/RSS_logo.png', v=1) }}"
+           alt="" class="img-fluid rounded-circle">
+    </div>
+
+    {% block logo_name %}
+      <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">RSS</h1>
+      </a>
+    {% endblock logo_name %}
+
+    <nav id="navmenu" class="navmenu">
+      <ul>
+        {% block navbar %}{% endblock navbar %}
+      </ul>
+    </nav>
+  </header>
+
+  <main class="main">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container mt-2">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock content %}
+
+  </main>
+
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+    <i class="bi bi-arrow-up-short"></i>
+  </a>
+
+  {% if msg %}<script>alert({{ msg | tojson }});</script>{% endif %}
+
+  <!-- Vendor JS Files -->
+  <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js', v=1) }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js', v=1) }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/typed.js/typed.umd.js', v=1) }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/purecounter/purecounter_vanilla.js', v=1) }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/waypoints/noframework.waypoints.js', v=1) }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js', v=1) }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/imagesloaded/imagesloaded.pkgd.min.js', v=1) }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js', v=1) }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js', v=1) }}"></script>
+
+  <!--
+    main.js runs first — it attaches the click handler to .header-toggle
+    and toggles .header-show on #header. Our script below only adds extras.
+  -->
+  <script src="{{ url_for('static', filename='assets/js/main.js', v=3) }}"></script>
+
+  <script>
+    (function () {
+      const overlay = document.getElementById('sidebarOverlay');
+      const header  = document.getElementById('header');
+      const toggle  = document.querySelector('.header-toggle');
+
+      /* Watch for .header-show changes made by main.js → sync overlay */
+      new MutationObserver(function () {
+        overlay.classList.toggle('active', header.classList.contains('header-show'));
+      }).observe(header, { attributes: true, attributeFilter: ['class'] });
+
+      /* Tap backdrop → simulate toggle click (main.js closes sidebar) */
+      overlay.addEventListener('click', function () {
+        if (header.classList.contains('header-show')) toggle.click();
+      });
+
+      /* Resize to desktop → close sidebar if it was open */
+      window.addEventListener('resize', function () {
+        if (window.innerWidth >= 1200 && header.classList.contains('header-show')) {
+          toggle.click();
+        }
+      });
+    })();
+  </script>
+
+  {% block extra_script %}{% endblock extra_script %}
+
+</body>
+</html>

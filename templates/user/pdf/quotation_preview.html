@@ -1,0 +1,564 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+  <a href="#" class="logo d-flex align-items-center justify-content-center">
+    <h1 class="sitename" style="font-size: clamp(14px, 2vw, 18px); text-align: center;">Estimation Panel</h1>
+  </a>
+{% endblock logo_name %}
+
+{% block navbar %}
+  <li><a href="{{ url_for('user_home') }}" style="color: white;"><i class="bi bi-house navicon"></i> Home</a></li>
+  <li class="dropdown">
+    <a href="#" style="color: white;">
+      <i class="bi bi-grid navicon"></i>
+      <span>Category</span>
+      <i class="bi bi-chevron-down toggle-dropdown"></i>
+    </a>
+    <ul>
+      <li><a href="{{ url_for('user_thiruvachi') }}"        style="color: white;">Thiruvachi</a></li>
+      <li><a href="{{ url_for('user_kavasam') }}"           style="color: white;">Kavasam</a></li>
+      <li><a href="{{ url_for('user_vahanam') }}"           style="color: white;">Vahanam</a></li>
+      <li><a href="{{ url_for('user_kodimaram') }}"         style="color: white;">Kodimaram</a></li>
+      <li><a href="{{ url_for('user_sheet_metal') }}"       style="color: white;">Sheet Metal</a></li>
+      <li><a href="{{ url_for('user_panchaloha_statue') }}" style="color: white;">Panchaloha Statue</a></li>
+    </ul>
+  </li>
+  <li><a href="{{ url_for('user_quotation_1') }}" style="color: yellow;"><i class="bi bi-file-earmark-text navicon"></i> <b>Quotation</b></a></li>
+  <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
+{% endblock navbar %}
+
+{% block extra_style %}
+<style>
+  /* ── Page ── */
+  .qp-section {
+    background-color: #FBDAAF;
+    min-height: 100vh;
+    padding: clamp(16px, 3vw, 40px) 0 40px;
+  }
+
+  /* ── Cards ── */
+  .qp-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .qp-card-header {
+    background: #e9ecef;
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: clamp(0.88rem, 1.5vw, 1rem);
+    border-bottom: 1px solid #dee2e6;
+    color: #2c3e50;
+  }
+  .qp-card-body { padding: clamp(12px, 2vw, 20px); }
+
+  /* ── Form rows ── */
+  .frow {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .frow-label {
+    flex: 0 0 36%;
+    font-weight: 600;
+    font-size: clamp(0.78rem, 1.2vw, 0.88rem);
+    color: #334155;
+    padding-top: 7px;
+    line-height: 1.3;
+  }
+  .frow-input { flex: 1 1 0; min-width: 0; }
+  .frow-input .form-control,
+  .frow-input select,
+  .frow-input textarea {
+    background-color: aliceblue;
+    font-size: clamp(0.78rem, 1.2vw, 0.88rem);
+    width: 100%;
+  }
+  @media (max-width: 400px) {
+    .frow { flex-direction: column; gap: 2px; }
+    .frow-label { flex: none; width: 100%; padding-top: 0; }
+    .frow-input { width: 100%; }
+  }
+
+  /* ── Item card (per row) ── */
+  .item-card {
+    border: 1px solid #dce3ea;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .item-card-header {
+    background: #1c4e80;
+    color: #fff;
+    padding: 7px 14px;
+    font-weight: 600;
+    font-size: clamp(0.82rem, 1.3vw, 0.92rem);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .item-card-body { padding: clamp(10px, 1.8vw, 18px); }
+
+  /* ── Category badge inside item header ── */
+  .cat-badge {
+    font-size: 0.72rem;
+    background: rgba(255,255,255,0.22);
+    border-radius: 4px;
+    padding: 2px 7px;
+    text-transform: capitalize;
+  }
+
+  /* ── Summary card ── */
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+    font-size: clamp(0.84rem, 1.3vw, 0.96rem);
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row.grand {
+    padding-top: 12px;
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    font-weight: 700;
+    color: #1c4e80;
+  }
+
+  /* ── Action buttons ── */
+  .action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  @media (max-width: 480px) {
+    .action-bar { flex-direction: column; }
+    .action-bar .btn { width: 100%; }
+  }
+</style>
+{% endblock extra_style %}
+
+{% block content %}
+
+{% set validity_days = items[0].validity_days if items else '' %}
+{% set delivery_days = items[0].delivery_days if items else '' %}
+{% set total_qty     = items | sum(attribute='unit') %}
+
+<section class="qp-section">
+  <form id="pdfForm" action="{{ url_for('quotation_pdf') }}" method="POST">
+
+    <div class="container" style="max-width: 860px;">
+
+      <!-- Title -->
+      <div class="text-center mb-4">
+        <h2 class="fw-bold" style="font-size: clamp(1.2rem, 3.5vw, 1.8rem);">Quotation Preview</h2>
+        <span class="badge bg-secondary" style="font-size: clamp(0.78rem, 1.5vw, 0.95rem);">
+          No: {{ master.quotation_no }}
+        </span>
+      </div>
+
+      <!-- ══ SALES PERSON ══ -->
+      <div class="qp-card">
+        <div class="qp-card-header"><i class="bi bi-person-badge me-2"></i>Sales Person Details</div>
+        <div class="qp-card-body">
+
+          <div class="frow">
+            <div class="frow-label">Name</div>
+            <div class="frow-input">
+              <input type="text" name="sales_name" value="{{ master.sales_name }}" class="form-control" required>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="frow-label">Mobile</div>
+            <div class="frow-input">
+              <input type="number" name="sales_mobile" value="{{ master.sales_mobile }}" class="form-control" required>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="frow-label">Company</div>
+            <div class="frow-input">
+              <input type="text" name="company" value="Raja Spiritual Pvt Ltd" class="form-control" required>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="frow-label">Branch</div>
+            <div class="frow-input">
+              <select name="branch" class="form-control" required>
+                {% for b in ['Kanchipuram','Vellore','Hosur','Chennai','Bengaluru','Kumbakonam'] %}
+                  <option value="{{ b }}"
+                    {% if master.branch == b or (b == 'Bengaluru' and master.branch == 'Bengalore') %}selected{% endif %}>
+                    {{ b }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ CUSTOMER DETAILS ══ -->
+      <div class="qp-card">
+        <div class="qp-card-header"><i class="bi bi-person me-2"></i>Customer Details</div>
+        <div class="qp-card-body">
+
+          <div class="frow">
+            <div class="frow-label">Name</div>
+            <div class="frow-input">
+              <input type="text" name="cust_name" value="{{ master.customer_name }}" class="form-control" required>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="frow-label">Mobile</div>
+            <div class="frow-input">
+              <input type="number" name="cust_mobile" value="{{ master.mobile }}" class="form-control" required>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="frow-label">Temple Name</div>
+            <div class="frow-input">
+              <textarea name="cust_temple" class="form-control" rows="2" required>{{ master.temple }}</textarea>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="frow-label">Address</div>
+            <div class="frow-input">
+              <textarea name="cust_address" class="form-control" rows="3" required>{{ master.address }}</textarea>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ ITEMS ══ -->
+      <div class="qp-card">
+        <div class="qp-card-header"><i class="bi bi-list-ul me-2"></i>Items ({{ items | length }})</div>
+        <div class="qp-card-body">
+
+          {% for row in items %}
+          <div class="item-card">
+            <div class="item-card-header">
+              <span>#{{ loop.index }}</span>
+              <span class="cat-badge">{{ row.category | replace('_',' ') | title }}</span>
+              <input type="hidden" name="items[{{ loop.index0 }}][category]" value="{{ row.category }}">
+            </div>
+            <div class="item-card-body">
+
+              {# ── THIRUVACHI ── #}
+              {% if row.category == 'thiruvachi' %}
+                <div class="frow">
+                  <div class="frow-label">Material</div>
+                  <div class="frow-input">
+                    <select name="items[{{ loop.index0 }}][material]" class="form-control" required>
+                      {% for m in ['brass','copper','Pure Silver','Silver Platting','Gold Platting'] %}
+                        <option value="{{ m }}" {% if row.material == m %}selected{% endif %}>{{ m }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Leg Breadth</div>
+                  <div class="frow-input"><input type="number" name="items[{{ loop.index0 }}][leg_breadth]" value="{{ row.leg_breadth }}" class="form-control" required></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Sheet Thickness</div>
+                  <div class="frow-input"><input type="number" name="items[{{ loop.index0 }}][sheet_thick]" value="{{ row.sheet_thick }}" class="form-control" required></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Work Type</div>
+                  <div class="frow-input">
+                    <select name="items[{{ loop.index0 }}][work_type]" class="form-control" required>
+                      <option value="Regular"    {% if row.work_type == 'Regular'    %}selected{% endif %}>Regular</option>
+                      <option value="Customized" {% if row.work_type == 'Customized' %}selected{% endif %}>Customized</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Work Details</div>
+                  <div class="frow-input"><textarea name="items[{{ loop.index0 }}][work_details]" class="form-control" rows="2" required>{{ row.work_details }}</textarea></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">SQFT</div>
+                  <div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][SQFT]" value="{{ row.SQFT }}" class="form-control" required></div>
+                </div>
+
+              {# ── KAVASAM ── #}
+              {% elif row.category == 'kavasam' %}
+                <div class="frow">
+                  <div class="frow-label">Material</div>
+                  <div class="frow-input">
+                    <select name="items[{{ loop.index0 }}][material]" class="form-control" required>
+                      {% for m in ['brass','Pure Silver','Silver Platting','Gold Platting'] %}
+                        <option value="{{ m }}" {% if row.material == m %}selected{% endif %}>{{ m }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Sheet Thickness</div>
+                  <div class="frow-input"><input type="number" name="items[{{ loop.index0 }}][sheet_thick]" value="{{ row.sheet_thick }}" class="form-control" required></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">SQFT</div>
+                  <div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][SQFT]" value="{{ row.SQFT }}" class="form-control" required></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Wax Cost</div>
+                  <div class="frow-input"><input type="number" name="items[{{ loop.index0 }}][wax_cost]" value="{{ row.wax_cost }}" class="form-control" readonly required></div>
+                </div>
+
+              {# ── VAHANAM ── #}
+              {% elif row.category == 'vahanam' %}
+                {% set vahanam_names = ['Rishabam','Simmam','Horse','Munchur','Garudan','Hanuman','Suran','Goat','Puli','Elephant','Annam','Peacock','Snake','Suriya Brabai','Chandra Brabai'] %}
+                <div class="frow">
+                  <div class="frow-label">Name</div>
+                  <div class="frow-input">
+                    <select name="items[{{ loop.index0 }}][name]" class="form-control" required>
+                      {% for n in vahanam_names %}
+                        <option value="{{ n }}" {% if row.name == n %}selected{% endif %}>{{ n }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Material</div>
+                  <div class="frow-input">
+                    <select name="items[{{ loop.index0 }}][material]" class="form-control" required>
+                      <option value="Wood"  {% if row.material == 'Wood'  %}selected{% endif %}>Wood</option>
+                      <option value="brass" {% if row.material == 'brass' %}selected{% endif %}>Brass</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Specification</div>
+                  <div class="frow-input"><textarea name="items[{{ loop.index0 }}][specification]" class="form-control" rows="2" required>{{ row.specification }}</textarea></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Height</div>
+                  <div class="frow-input"><input type="number" step="0.01" min="0" max="5" name="items[{{ loop.index0 }}][height]" value="{{ row.height }}" class="form-control" required></div>
+                </div>
+
+              {# ── KODIMARAM ── #}
+              {% elif row.category == 'kodimaram' %}
+                <div class="frow">
+                  <div class="frow-label">Height</div>
+                  <div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][height]" value="{{ row.height }}" class="form-control" required></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Weight</div>
+                  <div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][weight]" value="{{ row.weight }}" class="form-control" required></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Diameter</div>
+                  <div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][diameter]" value="{{ row.diameter }}" class="form-control" required></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">SQFT</div>
+                  <div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][SQFT]" value="{{ row.SQFT }}" class="form-control" required></div>
+                </div>
+
+              {# ── SHEET METAL ── #}
+              {% elif row.category == 'sheet_metal' %}
+                <div class="frow">
+                  <div class="frow-label">Material</div>
+                  <div class="frow-input"><input type="text" name="items[{{ loop.index0 }}][material]" value="{{ row.material }}" class="form-control" required></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Sheet Thickness</div>
+                  <div class="frow-input"><input type="text" name="items[{{ loop.index0 }}][thickness]" value="{{ row.thickness }}" class="form-control" required></div>
+                </div>
+
+                {% if row.nilai_padi_plain_total_SQFT %}
+                  <div class="frow"><div class="frow-label">Type</div><div class="frow-input"><input type="text" value="Nilai Padi Plain" class="form-control" readonly style="background:#f0f4f8;"></div></div>
+                  <div class="frow"><div class="frow-label">Plain Total SQFT</div><div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_plain_total_SQFT]" value="{{ row.nilai_padi_plain_total_SQFT }}" class="form-control" required></div></div>
+                  <div class="frow"><div class="frow-label">Plain Unit</div><div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_plain_unit]" value="{{ row.nilai_padi_plain_unit }}" class="form-control" required></div></div>
+                  <div class="frow"><div class="frow-label">Plain Final Cost</div><div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_plain_final_cost]" value="{{ row.nilai_padi_plain_final_cost }}" class="form-control" required></div></div>
+                {% endif %}
+
+                {% if row.nilai_padi_vargam_total_SQFT %}
+                  <div class="frow"><div class="frow-label">Type</div><div class="frow-input"><input type="text" value="Nilai Padi Vargam" class="form-control" readonly style="background:#f0f4f8;"></div></div>
+                  <div class="frow"><div class="frow-label">Vargam Total SQFT</div><div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_vargam_total_SQFT]" value="{{ row.nilai_padi_vargam_total_SQFT }}" class="form-control" required></div></div>
+                  <div class="frow"><div class="frow-label">Vargam Unit</div><div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_vargam_unit]" value="{{ row.nilai_padi_vargam_unit }}" class="form-control" required></div></div>
+                  <div class="frow"><div class="frow-label">Vargam Final Cost</div><div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][nilai_padi_vargam_final_cost]" value="{{ row.nilai_padi_vargam_final_cost }}" class="form-control" required></div></div>
+                {% endif %}
+
+                {% if row.custom_picture_total_SQFT %}
+                  <div class="frow"><div class="frow-label">Type</div><div class="frow-input"><input type="text" value="Custom Picture" class="form-control" readonly style="background:#f0f4f8;"></div></div>
+                  <div class="frow"><div class="frow-label">Custom Total SQFT</div><div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][custom_picture_total_SQFT]" value="{{ row.custom_picture_total_SQFT }}" class="form-control" required></div></div>
+                  <div class="frow"><div class="frow-label">Custom Unit</div><div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][custom_picture_unit]" value="{{ row.custom_picture_unit }}" class="form-control" required></div></div>
+                  <div class="frow"><div class="frow-label">Custom Final Cost</div><div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][custom_picture_final_cost]" value="{{ row.custom_picture_final_cost }}" class="form-control" required></div></div>
+                {% endif %}
+
+              {# ── PANCHALOHA STATUE ── #}
+              {% elif row.category == 'panchaloha_statue' %}
+                {% for field, label in [('name','Name'),('prabavali','Prabavali'),('position','Position'),('model','Model')] %}
+                  <div class="frow">
+                    <div class="frow-label">{{ label }}</div>
+                    <div class="frow-input"><input type="text" name="items[{{ loop.index0 }}][{{ field }}]" value="{{ row[field] }}" class="form-control" required></div>
+                  </div>
+                {% endfor %}
+                <div class="frow">
+                  <div class="frow-label">Hands</div>
+                  <div class="frow-input"><input type="number" name="items[{{ loop.index0 }}][hands]" value="{{ row.hands }}" class="form-control" required></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Height</div>
+                  <div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][height]" value="{{ row.height }}" class="form-control" required></div>
+                </div>
+                <div class="frow">
+                  <div class="frow-label">Weight</div>
+                  <div class="frow-input"><input type="number" step="0.01" name="items[{{ loop.index0 }}][weight]" value="{{ row.weight }}" class="form-control" required></div>
+                </div>
+
+              {% endif %}
+
+              {# ── SHARED FIELDS (all categories) ── #}
+              <hr style="border-color: #dce3ea; margin: 10px 0 12px;">
+
+              <div class="frow">
+                <div class="frow-label">Unit</div>
+                <div class="frow-input">
+                  <input type="number" name="items[{{ loop.index0 }}][unit]" value="{{ row.unit }}"
+                         class="form-control" {% if row.category == 'sheet_metal' %}readonly{% endif %} required>
+                </div>
+              </div>
+
+              <div class="frow">
+                <div class="frow-label">
+                  Cost per Qty
+                  <small class="d-block text-muted fw-normal">(Amount ÷ Unit)</small>
+                </div>
+                <div class="frow-input">
+                  <input type="number" name="items[{{ loop.index0 }}][cost_per_qty]"
+                         value="{{ (row.cost / row.unit) | int }}"
+                         class="form-control"
+                         {% if row.category in ['vahanam','sheet_metal'] %}readonly{% endif %}
+                         required>
+                </div>
+              </div>
+
+              <div class="frow">
+                <div class="frow-label">
+                  Amount
+                  <small class="d-block text-muted fw-normal">(Unit × Cost per Qty)</small>
+                </div>
+                <div class="frow-input">
+                  <input type="number" name="items[{{ loop.index0 }}][cost]"
+                         value="{{ row.cost | int }}" class="form-control" readonly required>
+                </div>
+              </div>
+
+              <div class="frow">
+                <div class="frow-label">Transport Cost</div>
+                <div class="frow-input">
+                  <input type="number" name="items[{{ loop.index0 }}][transport_cost]"
+                         value="{{ row.transport_cost }}" class="form-control" required>
+                </div>
+              </div>
+
+              <div class="frow">
+                <div class="frow-label">Delivery Days</div>
+                <div class="frow-input">
+                  <input type="text" name="items[{{ loop.index0 }}][delivery_days]"
+                         value="{{ row.delivery_days }}" class="form-control" required>
+                </div>
+              </div>
+
+              <div class="frow">
+                <div class="frow-label">Validity Days</div>
+                <div class="frow-input">
+                  <input type="text" name="items[{{ loop.index0 }}][validity_days]"
+                         value="{{ row.validity_days }}" class="form-control" required>
+                </div>
+              </div>
+
+            </div><!-- /item-card-body -->
+          </div><!-- /item-card -->
+          {% endfor %}
+
+        </div>
+      </div><!-- /items card -->
+
+      <!-- ══ SUMMARY ══ -->
+      <div class="qp-card">
+        <div class="qp-card-header"><i class="bi bi-calculator me-2"></i>Summary</div>
+        <div class="qp-card-body">
+          <div class="summary-row">
+            <span>Total Items</span>
+            <span class="fw-semibold">{{ items | length }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Total Qty</span>
+            <span class="fw-semibold">{{ total_qty }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Total Cost</span>
+            <span class="fw-semibold"><span data-inr="{{ master.total_cost }}"></span></span>
+          </div>
+          <div class="summary-row">
+            <span>Transport</span>
+            <span class="fw-semibold"><span data-inr="{{ master.total_transport }}"></span></span>
+          </div>
+          <div class="summary-row grand">
+            <span>Grand Total</span>
+            <span><span data-inr="{{ master.grand_total }}"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden master fields -->
+      <input type="hidden" name="quotation_no"           value="{{ master.quotation_no }}">
+      <input type="hidden" name="master_total_items"     value="{{ items | length }}">
+      <input type="hidden" name="master_total_qty"       value="{{ total_qty }}">
+      <input type="hidden" name="master_total_cost"      value="{{ master.total_cost }}">
+      <input type="hidden" name="master_total_transport" value="{{ master.total_transport }}">
+      <input type="hidden" name="master_grand_total"     value="{{ master.grand_total }}">
+
+      <!-- ══ ACTION BUTTONS ══ -->
+      <div class="action-bar">
+        <button type="button" class="btn btn-success" onclick="shareWhatsApp()">
+          <i class="bi bi-whatsapp me-1"></i> Share WhatsApp
+        </button>
+        <button type="submit" class="btn btn-danger">
+          <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+        </button>
+      </div>
+
+    </div><!-- /container -->
+  </form>
+</section>
+
+{% endblock content %}
+
+{% block extra_script %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("[data-inr]").forEach(el => {
+      const v = parseInt(el.dataset.inr, 10);
+      el.textContent = "₹\u00a0" + new Intl.NumberFormat("en-IN").format(v);
+    });
+  });
+</script>
+
+<script>
+  function shareWhatsApp() {
+    let phone = prompt(
+      "Enter customer WhatsApp number (with country code)",
+      "{{ master.mobile or '' }}"
+    );
+    if (!phone) return;
+    phone = phone.replace(/\D/g, "");
+
+    const pdfUrl = "{{ url_for('quotation_pdf_share', quotation_id=master.id, _external=True) }}";
+    const message =
+      `Dear Customer,\n\nPlease find your quotation below:\n${pdfUrl}\n\nRegards,\n{{ master.sales_name }}\n🙏 Raja Spiritual Pvt Ltd`;
+
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank");
+  }
+</script>
+{% endblock extra_script %}
