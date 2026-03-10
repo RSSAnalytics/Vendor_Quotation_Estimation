@@ -26,11 +26,12 @@
    */
   document.querySelectorAll('#navmenu a').forEach(navmenu => {
     navmenu.addEventListener('click', () => {
+      // Don't close navbar if this is a dropdown parent link
+      if (navmenu.closest('.dropdown') && navmenu.querySelector('.toggle-dropdown')) return;
       if (document.querySelector('.header-show')) {
         headerToggle();
       }
     });
-
   });
 
   /**
