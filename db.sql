@@ -5,35 +5,35 @@
 -- CREATE DATABASE IF NOT EXISTS vendor_quotation;
 USE defaultdb;
 
--- SET FOREIGN_KEY_CHECKS = 0;
+SET FOREIGN_KEY_CHECKS = 0;
 
--- DROP TABLE IF EXISTS `master_quotation_items`;
--- DROP TABLE IF EXISTS `master_quotations`;
--- DROP TABLE IF EXISTS `quotations`;
--- DROP TABLE IF EXISTS `quot_thiruvachi`;
--- DROP TABLE IF EXISTS `quot_kavasam`;
--- DROP TABLE IF EXISTS `quot_vahanam`;
--- DROP TABLE IF EXISTS `quot_kodimaram`;
--- DROP TABLE IF EXISTS `quot_sheet_metal`;
--- DROP TABLE IF EXISTS `quot_panchaloha_statue`;
--- DROP TABLE IF EXISTS `cat_thiruvachi_images`;
--- DROP TABLE IF EXISTS `cat_thiruvachi_rates`;
--- DROP TABLE IF EXISTS `cat_thiruvachi`;
--- DROP TABLE IF EXISTS `cat_kavasam_images`;
--- DROP TABLE IF EXISTS `cat_kavasam_rates`;
--- DROP TABLE IF EXISTS `cat_kavasam`;
--- DROP TABLE IF EXISTS `cat_vahanam_images`;
--- DROP TABLE IF EXISTS `cat_vahanam`;
--- DROP TABLE IF EXISTS `cat_sheet_metal_images`;
--- DROP TABLE IF EXISTS `cat_sheet_metal`;
--- DROP TABLE IF EXISTS `cat_panchaloha_statue_images`;
--- DROP TABLE IF EXISTS `cat_panchaloha_statue`;
--- DROP TABLE IF EXISTS `cat_kodimaram_images`;
--- DROP TABLE IF EXISTS `customers`;
--- DROP TABLE IF EXISTS `users`;
--- DROP TABLE IF EXISTS `admin`;
+DROP TABLE IF EXISTS `master_quotation_items`;
+DROP TABLE IF EXISTS `master_quotations`;
+DROP TABLE IF EXISTS `quotations`;
+DROP TABLE IF EXISTS `quot_thiruvachi`;
+DROP TABLE IF EXISTS `quot_kavasam`;
+DROP TABLE IF EXISTS `quot_vahanam`;
+DROP TABLE IF EXISTS `quot_kodimaram`;
+DROP TABLE IF EXISTS `quot_sheet_metal`;
+DROP TABLE IF EXISTS `quot_panchaloha_statue`;
+DROP TABLE IF EXISTS `cat_thiruvachi_images`;
+DROP TABLE IF EXISTS `cat_thiruvachi_rates`;
+DROP TABLE IF EXISTS `cat_thiruvachi`;
+DROP TABLE IF EXISTS `cat_kavasam_images`;
+DROP TABLE IF EXISTS `cat_kavasam_rates`;
+DROP TABLE IF EXISTS `cat_kavasam`;
+DROP TABLE IF EXISTS `cat_vahanam_images`;
+DROP TABLE IF EXISTS `cat_vahanam`;
+DROP TABLE IF EXISTS `cat_sheet_metal_images`;
+DROP TABLE IF EXISTS `cat_sheet_metal`;
+DROP TABLE IF EXISTS `cat_panchaloha_statue_images`;
+DROP TABLE IF EXISTS `cat_panchaloha_statue`;
+DROP TABLE IF EXISTS `cat_kodimaram_images`;
+DROP TABLE IF EXISTS `customers`;
+DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `admin`;
 
--- SET FOREIGN_KEY_CHECKS = 1;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- #######################################
 -- ############# ADMIN TABLE #############
