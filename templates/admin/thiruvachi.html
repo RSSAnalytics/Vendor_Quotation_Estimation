@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">Admin Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+{% block navbar %}
+    <li><a href="{{ url_for('admin_home') }}" style="color: white;"><i class="bi bi-house navicon"></i> Home</a></li>
+    <li class="dropdown">
+      <a href="#" style="color: yellow;" onclick="this.querySelector('.toggle-dropdown').click(); return false;">
+          <i class="bi bi-grid navicon"></i>
+          <span>Category</span>
+          <i class="bi bi-chevron-down toggle-dropdown"></i>
+      </a>
+      <ul>
+          <li><a href="{{ url_for('thiruvachi') }}" style="color: yellow;">Thiruvachi</a></li>
+          <li><a href="{{ url_for('kavasam') }}" style="color: white;">Kavasam</a></li>
+          <li><a href="{{ url_for('vahanam') }}" style="color: white;">Vahanam</a></li>
+          <li><a href="{{ url_for('kodimaram') }}" style="color: white;">Kodimaram</a></li>
+          <li><a href="{{ url_for('sheet_metal') }}" style="color: white;">Sheet Metal</a></li>
+          <li><a href="{{ url_for('panchaloha_statue') }}" style="color: white;">Panchaloha Statue</a></li>
+      </ul>
+    </li>
+    <li><a href="{{ url_for('users_details') }}" style="color: white;"><i class="bi bi-person navicon"></i> Users Details</a></li>
+    <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
+{% endblock navbar %}
+
+{% block extra_style %}
+<style>
+  /* ── Lightbox ── */
+  .glightbox-container .ginner-container { display:flex; align-items:center; justify-content:center; }
+  .glightbox-container .gslide-image img { max-width:100%; max-height:90vh; width:auto; height:auto; object-fit:contain; margin:auto; display:block; }
+  .glightbox-container .gslide-title    { text-align:center; font-size:18px; font-weight:600; }
+  .glightbox-container .gslide-desc     { font-size:13px; opacity:.8; }
+
+  /* ── Page ── */
+  #contact.contact.section {
+    background-color: #FFFDD0;
+    min-height: 100vh;
+    padding: clamp(16px, 3vw, 40px) 0;
+  }
+
+  .section-heading { font-size: clamp(1.1rem, 3vw, 1.6rem); font-weight: 700; }
+
+  /* ── Action bar ── */
+  .action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .action-bar .btn {
+    flex: 1 1 0;
+    min-width: 140px;
+    white-space: nowrap;
+  }
+  @media (max-width: 575px) {
+    .action-bar .btn { flex: 1 1 100%; font-size: 0.82rem; }
+  }
+
+  /* ── Table ── */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+  #Thiruvachi_Table {
+    min-width: 780px;
+    font-size: clamp(0.72rem, 1.1vw, 0.88rem);
+  }
+  #Thiruvachi_Table th,
+  #Thiruvachi_Table td {
+    white-space: nowrap;
+    padding: clamp(4px, .7vw, 10px) clamp(5px, .9vw, 12px);
+    vertical-align: middle;
+  }
+  #Thiruvachi_Table td:nth-child(3) { width: 90px; } /* image col */
+
+  @media (max-width: 575px) {
+    #Thiruvachi_Table .btn-sm { font-size: .7rem; padding: 3px 6px; }
+  }
+
+  /* ── image-box ── */
+  .image-box { position: relative; display: inline-block; }
+  .image-box button { border-radius: 50%; line-height: 1; }
+
+  /* ── Update modal form layout ── */
+  .update-form-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .update-form-row .form-label {
+    flex: 0 0 140px;
+    font-weight: 600;
+    font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+    padding-top: 7px;
+  }
+  .update-form-row .form-control {
+    flex: 1;
+    font-size: clamp(0.8rem, 1.2vw, 0.92rem);
+    background-color: aliceblue;
+  }
+
+  @media (max-width: 480px) {
+    .update-form-row          { flex-direction: column; gap: 4px; }
+    .update-form-row .form-label { flex: none; padding-top: 0; }
+  }
+
+  /* ── Modals ── */
+  .modal {
+    overflow-y: auto !important;
+  }
+  .modal-dialog.modal-dialog-scrollable {
+    max-height: calc(100vh - 30px) !important;
+    margin: 15px auto !important;
+  }
+  .modal-dialog.modal-dialog-scrollable .modal-content {
+    max-height: calc(100vh - 30px) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .modal-dialog.modal-dialog-scrollable .modal-body {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex: 1 1 auto !important;
+  }
+  .modal-dialog.modal-dialog-scrollable .modal-footer {
+    flex-shrink: 0 !important;
+  }
+  @media (max-width: 575px) {
+    .modal-dialog {
+      margin: 8px auto !important;
+      max-width: calc(100% - 16px) !important;
+    }
+    .modal-dialog.modal-dialog-scrollable {
+      max-height: calc(100svh - 16px) !important;
+      margin-top: 8px !important;
+      margin-bottom: 8px !important;
+    }
+    .modal-dialog.modal-dialog-scrollable .modal-content {
+      max-height: calc(100svh - 16px) !important;
+    }
+    .modal-body table th, .modal-body table td { font-size: .8rem; padding: 6px 8px; }
+    .modal-body .form-control { font-size: .82rem; }
+  }
+</style>
+{% endblock extra_style %}
+
+{% block content %}
+  <section id="contact" class="contact section" style="background-color: #FFFDD0; min-height: 100vh;">
+
+    <div class="container text-center mb-3" data-aos="fade-up">
+      <h2 class="section-heading">Thiruvachi Models Details</h2>
+    </div>
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+      <div class="action-bar">
+        <button class="btn btn-success" onclick="downloadExcel()">
+          <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
+        </button>
+
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModelModal">
+          <i class="bi bi-plus-circle me-1"></i> Add Model
+        </button>
+        
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#UpdateRates">
+          <i class="bi bi-pencil-square me-1"></i> Update Rates
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-responsive mt-2">
+        <table id="Thiruvachi_Table" class="table table-bordered table-hover align-middle shadow-sm">
+          <thead>
+            <tr class="table-danger text-center">
+              <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
+              <th>Model</th>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Leg breadth</th>
+              <th>Sheet thick</th>
+              <th>Work Type</th>
+              <th>Work details</th>
+              <th>Cost</th>
+              <th>Update</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for row in data %}
+              <tr>
+                <td><input type="checkbox" class="row-check"></td>
+                <td>{{ row.id }}</td>
+
+                <td class="text-center">
+                  {% if row.images and row.images|length > 0 %}
+                    <a href="data:{{ row.images[0].type }};base64,{{ row.images[0].b64 }}"
+                       class="glightbox"
+                       data-gallery="thiruvachi-{{ row.id }}"
+                       data-type="image"
+                       data-title="Name: {{ row.name }}">
+                      <img src="data:{{ row.images[0].type }};base64,{{ row.images[0].b64 }}"
+                           style="width:60px;height:60px;object-fit:cover;border-radius:8px;cursor:zoom-in;">
+                    </a>
+                    {% for img in row.images[1:] %}
+                      <a href="data:{{ img.type }};base64,{{ img.b64 }}"
+                         class="glightbox d-none"
+                         data-gallery="thiruvachi-{{ row.id }}"
+                         data-type="image"
+                         data-title="Name: {{ row.name }}"></a>
+                    {% endfor %}
+                    <small class="text-muted d-block mt-1">{{ row.images|length }} img</small>
+                  {% else %}
+                    <span class="text-muted">No image</span>
+                  {% endif %}
+                </td>
+
+                <td>{{ row.name }}</td>
+                <td>{{ row.leg_breadth }}''</td>
+                <td>{{ row.sheet_thick }} Gauge</td>
+                <td>{{ row.work_type }}</td>
+                <td>{{ row.work_details }}</td>
+                <td>{{ row.cost|int }}</td>
+
+                <td class="text-center">
+                  <button type="button" class="btn btn-sm btn-warning"
+                          data-bs-toggle="modal"
+                          data-bs-target="#updateModal{{ row.id }}">
+                    <i class="bi bi-pencil-square me-1"></i>Update
+                  </button>
+                </td>
+
+                <td class="text-center">
+                  <form method="POST"
+                        action="{{ url_for('thiruvachi_delete', id=row.id) }}"
+                        onsubmit="return confirm('Are you sure you want to delete this model?');">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                      <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div><!-- /table-responsive -->
+
+      <!-- ================= UPDATE MODALS (outside table) ================= -->
+      {% for row in data %}
+        <div class="modal fade" id="updateModal{{ row.id }}" tabindex="-1">
+          <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Update Model: {{ row.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <form id="updateForm{{ row.id }}"
+                      method="POST"
+                      action="{{ url_for('thiruvachi_update', id=row.id) }}"
+                      enctype="multipart/form-data">
+
+                  <div class="update-form-row">
+                    <label class="form-label">Name</label>
+                    <input type="text" name="name" class="form-control" value="{{ row.name }}" required>
+                  </div>
+                  <div class="update-form-row">
+                    <label class="form-label">Leg breadth</label>
+                    <input type="number" step="0.01" name="leg_breadth" class="form-control" value="{{ row.leg_breadth }}" required>
+                  </div>
+                  <div class="update-form-row">
+                    <label class="form-label">Sheet thick</label>
+                    <input type="number" step="0.01" name="sheet_thick" class="form-control" value="{{ row.sheet_thick }}" required>
+                  </div>
+                  <div class="update-form-row">
+                    <label class="form-label">Cost</label>
+                    <input type="number" name="cost" class="form-control" value="{{ row.cost }}" required>
+                  </div>
+                  <div class="update-form-row">
+                    <label class="form-label">Work Type</label>
+                    <select name="work_type" class="form-control">
+                      <option value="Regular"    {% if row.work_type == 'Regular'    %}selected{% endif %}>Regular</option>
+                      <option value="Customized" {% if row.work_type == 'Customized' %}selected{% endif %}>Customized</option>
+                    </select>
+                  </div>
+                  <div class="update-form-row">
+                    <label class="form-label">Work details</label>
+                    <textarea name="work_details" class="form-control" rows="3" required>{{ row.work_details }}</textarea>
+                  </div>
+                  <div class="update-form-row">
+                    <label class="form-label">Add image <small class="text-muted">(optional)</small></label>
+                    <div class="flex-fill">
+                      <input type="file" name="images" class="form-control" accept="image/*" multiple>
+                      <small class="text-muted">Existing images remain if left blank.</small>
+                    </div>
+                  </div>
+                  <div class="update-form-row">
+                    <label class="form-label">Existing Images</label>
+                    <div class="d-flex flex-wrap gap-2">
+                      {% for img in row.images %}
+                        <div class="position-relative image-box" data-image-id="{{ img.id }}">
+                          <img src="data:{{ img.type }};base64,{{ img.b64 }}"
+                              style="width:72px;height:56px;object-fit:cover;border-radius:6px;">
+                          <button type="button"
+                                  class="btn btn-danger btn-sm position-absolute top-0 end-0"
+                                  style="padding:2px 6px;font-size:11px;"
+                                  onclick="deleteImage({{ img.id }}, this)">✕</button>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="updateForm{{ row.id }}" class="btn btn-warning">Save Changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+
+      <!-- ================= ADD MODAL ================= -->
+      <div class="modal fade" id="addModelModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Add Thiruvachi Model</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form id="addModelForm" method="POST" action="{{ url_for('thiruvachi') }}" enctype="multipart/form-data">
+                <table class="table table-bordered align-middle" style="background:#f8fbff;">
+                  <tbody>
+                    <tr><th style="width:30%">Name</th><td><input type="text" name="name" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                    <tr><th>Leg breadth</th><td><input type="number" step="0.01" name="leg_breadth" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                    <tr><th>Sheet thick</th><td><input type="number" step="0.01" name="sheet_thick" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                    <tr>
+                      <th>Work Type</th>
+                      <td>
+                        <select name="work_type" class="form-control" required style="background-color:aliceblue;">
+                          <option value="">-- Select Work Type --</option>
+                          <option value="Regular">Regular</option>
+                          <option value="Customized">Customized</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr><th>Work details</th><td><textarea name="work_details" class="form-control" rows="3" required style="background-color:aliceblue;"></textarea></td></tr>
+                    <tr><th>Cost</th><td><input type="number" name="cost" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                    <tr><th>Upload image</th><td><input type="file" name="images" class="form-control" accept="image/*" multiple style="background-color:aliceblue;"></td></tr>
+                  </tbody>
+                </table>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" form="addModelForm" class="btn btn-primary">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= UPDATE RATES MODAL ================= -->
+      <div class="modal fade" id="UpdateRates" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Update Thiruvachi Model Rates</h5>
+              <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form id="updateRatesForm" method="POST" action="{{ url_for('thiruvachi_rates') }}">
+                <table class="table table-bordered align-middle text-center">
+                  <tbody>
+                    <tr class="table-secondary"><th colspan="2">Silver</th></tr>
+                    <tr><th>Copper with Silver Rate</th><td><input type="number" name="silver_rate" value="{{rate_data['silver_rate']}}" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                    <tr><th>Pure Silver Rate</th><td><input type="number" name="pure_silver_rate" class="form-control" value="{{rate_data['pure_silver_rate']}}" required style="background-color:aliceblue;"></td></tr>
+                    <tr><th>Pure Silver Margin Rate</th><td><input type="number" name="pure_silver_margin_rate" class="form-control" value="{{rate_data['pure_silver_margin_rate']}}" required style="background-color:aliceblue;"></td></tr>
+                    <tr class="table-secondary"><th colspan="2">Gold</th></tr>
+                    <tr><th>Copper with Gold Rate</th><td><input type="number" name="gold_rate" value="{{rate_data['gold_rate']}}" class="form-control" required style="background-color:aliceblue;"></td></tr>
+                  </tbody>
+                </table>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" form="updateRatesForm" class="btn btn-primary">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /container -->
+  </section>
+{% endblock content %}
+
+{% block extra_script %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    GLightbox({ selector: ".glightbox", touchNavigation: true, loop: true });
+  });
+</script>
+
+<script>
+  function deleteImage(imageId, btn) {
+    if (!confirm("Delete this image?")) return;
+    fetch(`/thiruvachi/image/delete/${imageId}`, { method: "POST" })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) btn.closest(".image-box").remove();
+        else alert("Failed to delete image");
+      })
+      .catch(() => alert("Error deleting image"));
+  }
+
+  function toggleAll(source) {
+    document.querySelectorAll(".row-check").forEach(cb => cb.checked = source.checked);
+  }
+
+  function downloadExcel() {
+    const table = document.getElementById("Thiruvachi_Table");
+    const clone = table.cloneNode(true);
+
+    // Keep only selected (or all)
+    clone.querySelectorAll("tbody tr").forEach(row => {
+      const cb = row.querySelector(".row-check");
+      if (!cb || !cb.checked) row.remove();
+    });
+    if (clone.querySelectorAll("tbody tr").length === 0) {
+      table.querySelectorAll("tbody tr").forEach(tr =>
+        clone.querySelector("tbody").appendChild(tr.cloneNode(true)));
+    }
+
+    // Remove checkbox, image, update, delete columns (right → left)
+    clone.querySelectorAll("tr").forEach(row => {
+      if (row.children.length > 9) row.children[9].remove(); // Delete
+      if (row.children.length > 8) row.children[8].remove(); // Update (now at 8 after delete removed)
+      // After above removals indices shift; handle image (was 2) and checkbox (was 0)
+      if (row.children.length > 2) row.children[2].remove(); // Image
+      if (row.children.length > 0) row.children[0].remove(); // Checkbox
+    });
+
+    const wb = XLSX.utils.table_to_book(clone, { sheet: "Thiruvachi Estimation" });
+    const ws = wb.Sheets["Thiruvachi Estimation"];
+    const range = XLSX.utils.decode_range(ws["!ref"]);
+
+    ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!ws[addr]) continue;
+      ws[addr].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center", vertical: "center" },
+        fill: { fgColor: { rgb: "E7E6E6" } },
+        border: { top:{style:"thin"}, bottom:{style:"thin"}, left:{style:"thin"}, right:{style:"thin"} }
+      };
+    }
+    ws["!cols"] = Array(range.e.c + 1).fill({ wch: 22 });
+
+    const today = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(wb, `Thiruvachi_Estimation_${today}.xlsx`);
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+{% endblock extra_script %}

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Quotation</title>
+
+        <style>
+            @page {
+                size: A4;
+                margin: 12mm;
+            }
+
+            body {
+                font-family: Helvetica;
+                font-size: 11px;
+                color: #2E2E2E;
+                background: #fff;
+            }
+
+            .container {
+                width: 100%;
+            }
+
+            /* Header */
+            .header-bg {
+                background-color: #F3E5DC;
+                border-bottom: 2px solid #8B3A2A;
+            }
+
+            .title {
+                font-size: 26px;
+                font-weight: 600;
+                color: #8B3A2A;
+            }
+
+            /* Tables */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 18px;
+            }
+
+            th {
+                background: #c56552;
+                color: #fff;
+                border: 1px solid #D6C1B8;
+                padding: 4px 6px;        /* ⬅ reduce vertical padding */
+                line-height: 1.2;        /* ⬅ tighter text */
+                font-size: 9px;         /* ⬅ same as body */
+            }
+
+            td {
+                border: 1px solid #D6C1B8;
+                padding: 6px;
+            }
+
+            td.text-right {
+                text-align: right;
+            }
+
+            /* Info section */
+            .info-table td {
+                border: none;
+                padding: 4px 6px;
+                line-height: 1.5;
+            }
+
+            /* Terms */
+            .terms-title {
+                color: #8B3A2A;
+                margin-bottom: 6px;
+            }
+
+            /* Summary box */
+            .summary-table {
+                border: 1px solid #8B3A2A;
+            }
+
+            .summary-table td {
+                border: none;
+                padding: 8px;
+            }
+
+            .total-row {
+                background: #8B3A2A;
+                color: #fff;
+                font-weight: bold;
+            }
+
+            ol {
+                margin: 0;
+                padding-left: 0;
+                padding-bottom: 0;
+            }
+
+            ol li {
+                margin-bottom: 3px;
+                padding: 0;
+            }
+
+            .bank-table th {
+                padding: 4px;
+                font-size: 9px;
+                line-height: 1.1;
+            }
+
+            /* Remove borders ONLY for terms table */
+            .terms-list,
+            .terms-list tr,
+            .terms-list td {
+                border: none !important;
+            }
+
+            /* Tight spacing */
+            .terms-list td {
+                padding: 2px 4px;
+                vertical-align: top;
+            }
+
+            /* Number column */
+            .terms-list .num {
+                width: 30px;
+                text-align: right;
+                padding-right: 6px;
+            }
+
+            .footer {
+                margin-top: 30px;
+                padding: 10px;
+                border: 1px solid #8B3A2A;
+                text-align: center;
+                font-size: 11px;
+                background: #F9F4F1;
+            }
+
+        </style>
+    </head>
+
+    <body>
+
+        {% set validity_days = items[0].validity_days if items else '' %}
+        {% set delivery_days = items[0].delivery_days if items else '' %}
+        {% set has_pure_silver = items | selectattr('material','equalto','Pure Silver') | list | length > 0 %}
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:8px;">
+            <tr>
+                <td width="10%" style="vertical-align:middle; padding:5px;">
+                {% if logo_path %}
+                    <img src="{{ logo_path }}" height="50" width="50">
+                {% endif %}
+                </td>
+                <td width="90%" style="text-align: center; vertical-align: middle;">
+                <div style="font-size: 22px; font-weight: bold; color: #8B3A2A; line-height: 1.2;">
+                    Detailed Estimation
+                </div>
+                </td>
+            </tr>
+        </table>
+
+
+        <table>
+            <tr valign="top">
+                <td width="35%">
+                    <b>Quotation by;</b><br>
+                    {{ sales_name }},<br>
+                    {{ sales_mobile }},<br>
+                    {{ branch }},<br>
+                    {{ company }}.
+                </td>
+
+                <td width="40%">
+                    <b>Quotation to;</b><br>
+                    {{ cust_name }},<br>
+                    {{ cust_mobile }},<br>
+                    {{ cust_temple }},<br>
+                    {{ cust_address }}.<br>
+                </td>
+
+                <td width="27%">
+                    <b>Quotation No:</b> {{ quotation_no }}<br>
+                    <b>Date:</b> {{ formatted_date }}
+                </td>
+            </tr>
+        </table>
+        
+
+        <table>
+            <thead>
+                <tr>
+                    <th width="5%">S.No</th>
+                    <th width="15%">Category</th>
+                    <th width="45%">Item Description</th>
+                    <th width="7.5%">SQFT</th>
+                    <th width="7.5%">Quantity</th>
+                    <th width="10%">Rate per Qty</th>
+                    <th width="10%">Total Amount</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for row in items %}
+
+                    {% set p = row.nilai_padi_plain_total_SQFT | default(0) %}
+                    {% set v = row.nilai_padi_vargam_total_SQFT | default(0) %}
+                    {% set c = row.custom_picture_total_SQFT | default(0) %}
+                    {% set parts_count = (1 if p else 0) + (1 if v else 0) + (1 if c else 0) %}
+                    
+                    <tr>
+                        <td align="center">{{ loop.index }}</td>
+                        <td align="center">{{ row.category }}</td>
+
+                        <td>
+                            {% if row.category == 'thiruvachi' %}
+                                <small>
+                                    Material: {{ row.material }}<br>
+                                    Leg Breadth: {{ row.leg_breadth }}'<br>
+                                    Sheet: {{ row.sheet_thick }} Gauge<br>
+                                    Work Type: {{ row.work_type }}<br>
+                                    Work Details: {{ row.work_details }}<br>
+                                    Delivery Days: {{ row.delivery_days }}<br>
+                                    Validity Days: {{ row.validity_days }}
+                                </small>
+
+                            {% elif row.category == 'kavasam' %}
+                                <small>
+                                    Material: {{ row.material }}<br>
+                                    Sheet: {{ row.sheet_thick }} Gauge<br>
+                                    Wax Cost: {{ row.wax_cost }}<br>
+                                    Delivery Days: {{ row.delivery_days }}<br>
+                                    Validity Days: {{ row.validity_days }}
+                                </small>
+
+                            {% elif row.category == 'vahanam' %}
+                                <small>
+                                    Name: {{ row.name }}<br>
+                                    Material: {{ row.material }}<br>
+                                    Specification: {{ row.specification }}<br>
+                                    Height: {{ row.height }}<br>
+                                    Delivery Days: {{ row.delivery_days }}<br>
+                                    Validity Days: {{ row.validity_days }}
+                                </small>
+
+                            {% elif row.category == 'kodimaram' %}
+                                <small>
+                                    Height: {{ row.height }}<br>
+                                    Weight: {{ row.weight }}<br>
+                                    Diameter: {{ row.diameter }}<br>
+                                    Delivery Days: {{ row.delivery_days }}<br>
+                                    Validity Days: {{ row.validity_days }}
+                                </small>
+
+                            {% elif row.category == 'sheet_metal' %}
+                                <small>
+                                    Material: {{ row.material }}<br>
+                                    Thickness: {{ row.thickness }}<br>
+
+                                    {% if row.nilai_padi_plain_total_SQFT %}
+                                        Type : Nilai Padi Plain<br>
+                                        Nilai Padi Plain Total SQFT: {{ row.nilai_padi_plain_total_SQFT | float | round(2) }}<br>
+                                        Nilai Padi Plain Unit : {{ row.nilai_padi_plain_unit }}<br>
+                                        Nilai Padi Plain Total Cost : {{ row.nilai_padi_plain_final_cost }}<br>
+                                    {% endif %}
+
+                                    {% if row.nilai_padi_vargam_total_SQFT %}
+                                        Type : Nilai Padi vargam<br>
+                                        Nilai Padi vargam Total SQFT: {{ row.nilai_padi_vargam_total_SQFT | float | round(2) }}<br>
+                                        Nilai Padi vargam Unit : {{ row.nilai_padi_vargam_unit }}<br>
+                                        Nilai Padi vargam Total Cost : {{ row.nilai_padi_vargam_final_cost }}<br>
+                                    {% endif %}
+
+                                    {% if row.custom_picture_total_SQFT %}
+                                        Type : Custom Picture<br>
+                                        Custom Picture Total SQFT: {{ row.custom_picture_total_SQFT | float | round(2) }}<br>
+                                        Custom Picture Unit : {{ row.custom_picture_unit }}<br>
+                                        Custom Picture Total Cost : {{ row.custom_picture_final_cost }}<br>
+                                    {% endif %}
+
+                                    Delivery Days: {{ row.delivery_days }}<br>
+                                    Validity Days: {{ row.validity_days }}<br>
+                                </small>
+
+                            {% elif row.category == 'panchaloha_statue' %}
+                                <small>
+                                    Name: {{ row.name }}<br>
+                                    Prabavali: {{ row.prabavali }}<br>
+                                    Position: {{ row.position }}<br>
+                                    Model: {{ row.model }}<br>
+                                    Hands: {{ row.hands }}<br>
+                                    Height: {{ row.height }}<br>
+                                    Weight: {{ row.weight }}<br>
+                                    Delivery Days: {{ row.delivery_days }}<br>
+                                    Validity Days: {{ row.validity_days }}
+                                </small>
+
+                            {% endif %}
+                        </td>
+
+
+                        <td class="text-right">
+                            {% if row.category == 'sheet_metal' %}
+                                {{ row.SQFT | float | round(2) }}
+                                {% if parts_count > 1 %}
+                                    <br><small class="text-muted">(Sum)</small>
+                                {% endif %}
+                            {% else %}
+                                {{ row.SQFT | float | round(2) if row.SQFT else '-' }}
+                            {% endif %}
+                        </td>
+
+
+                        <td class="text-right">
+                            {{ row.unit }}
+                            {% if row.category == 'sheet_metal' and parts_count > 1 %}
+                                <br><small class="text-muted">(Sum)</small>
+                            {% endif %}
+                        </td>
+
+
+                         <td class="text-right">
+                            {{ row.cost_per_qty | int | inr }}
+                            {% if row.category == 'sheet_metal' and parts_count > 1 %}
+                                <br><small class="text-muted">(Avg)</small>
+                            {% endif %}
+                        </td>
+
+
+                        <td class="text-right">
+                            {{ row.cost | int | inr }}
+                            {% if row.category == 'sheet_metal' and parts_count > 1 %}
+                                <br><small class="text-muted">(Sum)</small>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+        <table class="no-border" cellpadding="0" cellspacing="0" width="100%">
+            <tr valign="top">
+
+                <!-- LEFT: Terms -->
+                <td width="60%" style="background-color:#eedbcc; padding:5px;">
+                    <b style="color:#8B3A2A; display:block; margin-bottom:3px; font-size:10px;">
+                        Terms and Conditions
+                    </b>
+
+                    <table class="terms-list" width="100%" cellpadding="0" cellspacing="0" style="font-size: 10px; line-height: 1.5;">
+                        <tr>
+                            <td style="padding-left: 10px;">1) Delivery within mentioned delivery days.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left: 10px;">2) Quotation valid upto mentioned validity days.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left: 10px;">3) Price includes material, labour, polishing, fixing.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left: 10px;">
+                                {% if has_pure_silver %}
+                                    4) 100% of silver cost need to pay as advance.
+                                {% else %}
+                                    4) Confirmation of order 50%, remaining after completion.
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+                <!-- GAP COLUMN -->
+                <td width="2%" style="border:none;"></td>
+
+                <!-- RIGHT: Summary -->
+                <td width="38%" style="background:white; padding:5px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="font-size:10px; line-height:1.25;">
+                        <tr>
+                            <td>Total Items</td>
+                            <td class="text-right">{{ master_total_items }}</td>
+                        </tr>
+                        <tr>
+                            <td>Total Quantity</td>
+                            <td class="text-right">{{ master_total_qty }}</td>
+                        </tr>
+
+                        {% if master_total_transport %}
+                        <tr>
+                            <td>Transport Cost</td>
+                            <td class="text-right">{{ master_total_transport | inr }}</td>
+                        </tr>
+                        {% endif %}
+
+                        <tr>
+                            <td>
+                                <b>Total Amount</b><br>
+                                <small style="font-size:8px;">
+                                    {% if master_total_transport %}
+                                        (incl. GST & transport)
+                                    {% else %}
+                                        (incl. GST)
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td class="text-right">
+                                <b>{{ master_grand_total | inr}}</b>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+            </tr>
+        </table>
+
+
+
+        <table class="bank-table" width="100%" cellspacing="0" cellpadding="4" style="font-size:10px; margin-top:8px;">
+            <thead>
+                <tr>
+                    <th width="15%">Bank Details</th>
+                    <th width="25%">Karur Vysya Bank</th>
+                    <th width="25%">Axis Bank</th>
+                    <th width="35%">Google Pay</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td><b>A/C No</b></td>
+                    <td>1138135000001081</td>
+                    <td>911020046416927</td>
+                    <td rowspan="4" align="center" style="padding:6px;">
+                        {% if base_QR_base64 %}
+                            <img src="{{ base_QR_base64 }}"  width="80" height="80"><br>
+                        {% endif %}
+
+                        <span style="font-size:9px; line-height:1.2;">
+                            <b>GPay:</b> 9443195723<br>
+                            <b>UPI:</b> 9443195723@okbizaxis
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><b>IFSC Code</b></td>
+                    <td>KVBL0001138</td>
+                    <td>UTIB0000534</td>
+                </tr>
+
+                <tr>
+                    <td><b>SWIFT Code</b></td>
+                    <td colspan="2" align="center">UTIB0000534</td>
+                </tr>
+
+                <tr>
+                    <td><b>Branch</b></td>
+                    <td colspan="2" align="center">Kanchipuram</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer" style="width:90%; margin:30px auto 0;">
+            For any enquiries, email us on <u><i>enquiry@rssonline.in</i></u> or call us on <u><i>+91 {{ sales_mobile }}</i></u>
+        </div>
+
+    </body>
+</html>

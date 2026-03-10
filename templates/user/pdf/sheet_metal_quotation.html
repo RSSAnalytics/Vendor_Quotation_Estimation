@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+        <title>Quotation</title>
+
+        <style>
+            @page {
+                size: A4;
+                margin: 12mm;
+            }
+
+            body {
+                font-family: Helvetica;
+                font-size: 11px;
+                color: #2E2E2E;
+                background: #fff;
+            }
+
+            .container {
+                width: 100%;
+            }
+
+            /* Header */
+            .header-bg {
+                background-color: #F3E5DC;
+                border-bottom: 2px solid #8B3A2A;
+            }
+
+            .title {
+                font-size: 26px;
+                font-weight: 600;
+                color: #8B3A2A;
+            }
+
+            /* Tables */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 18px;
+            }
+
+            th {
+                background: #c56552;
+                color: #fff;
+                border: 1px solid #D6C1B8;
+                padding: 4px 6px;        /* ⬅ reduce vertical padding */
+                line-height: 1.2;        /* ⬅ tighter text */
+                font-size: 9px;         /* ⬅ same as body */
+            }
+
+            .main-table td {
+                border: 1px solid #D6C1B8;
+                padding: 6px;
+            }
+
+            td.text-right {
+                text-align: right;
+            }
+
+            /* Info section */
+            .info-table td {
+                border: none;
+                padding: 4px 6px;
+                line-height: 1.5;
+            }
+
+            /* Terms */
+            .terms-title {
+                color: #8B3A2A;
+                margin-bottom: 6px;
+            }
+
+            /* Summary box */
+            .summary-table {
+                border: 1px solid #8B3A2A;
+            }
+
+            .summary-table td {
+                border: none;
+                padding: 8px;
+            }
+
+            .total-row {
+                background: #8B3A2A;
+                color: #fff;
+                font-weight: bold;
+            }
+
+            ol {
+                margin: 0;
+                padding-left: 0;
+                padding-bottom: 0;
+            }
+
+            ol li {
+                margin-bottom: 3px;
+                padding: 0;
+            }
+
+            .bank-table th {
+                padding: 4px;
+                font-size: 9px;
+                line-height: 1.1;
+            }
+
+            /* Remove borders ONLY for terms table */
+            .terms-list,
+            .terms-list tr,
+            .terms-list td {
+                border: none !important;
+            }
+
+            /* Tight spacing */
+            .terms-list td {
+                padding: 2px 4px;
+                vertical-align: top;
+            }
+
+            /* Number column */
+            .terms-list .num {
+                width: 30px;
+                text-align: right;
+                padding-right: 6px;
+            }
+
+            .footer {
+                margin-top: 30px;
+                padding: 10px;
+                border: 1px solid #8B3A2A;
+                text-align: center;
+                font-size: 11px;
+                background: #F9F4F1;
+            }
+
+            .bordered-table {
+                border: 1px solid #c56552;
+                border-collapse: collapse;
+            }
+
+            .bordered-table th {
+                border: 1px solid #c56552;
+                background: #c56552;
+                color: #fff;
+                padding: 6px;
+                font-size: 9px;
+            }
+
+            .bordered-table td {
+                border: 1px solid #d6c1b8;
+                padding: 6px;
+                vertical-align: middle;
+            }
+
+        </style>
+    </head>
+
+    <body>
+
+        <div class="container">
+
+            <table width="100%" cellspacing="0" cellpadding="0"
+                style="border:1px solid #D6C1B8;">
+                <tr>
+                    <td width="12%"
+                        style="text-align:center; vertical-align:middle; padding:8px;">
+                        <img src="file:///{{ logo_path }}" width="60" />
+                    </td>
+
+                    <td width="88%" style="text-align:center; vertical-align:middle; padding:8px;">
+                        <div style="font-size:20px; font-weight:bold; color:#8B3A2A;">
+                            Detailed Estimation
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+
+            <table width="100%" cellpadding="6" cellspacing="0" style="margin-top:10px; border: 1px solid #D6C1B8">
+                <tr valign="top">
+                    <td width="33%">
+                        <b>Quotation by</b><br>
+                        {{ sales_name }},<br>
+                        {{ sales_mobile }},<br>
+                        {{ sales_branch }},<br>
+                        Raja Spiritual Pvt Ltd.<br>
+                    </td>
+
+                    <td width="33%">
+                        <b>Quotation to</b><br>
+                        {{ cust_name }},<br>
+                        {{ cust_mobile }},<br>
+                        {{ temple_name }},<br>
+                        {{ address }}.
+                    </td>
+
+                    <td width="34%">
+                        <b>Quotation No:</b> {{ quotation_no }}<br>
+                        <b>Date:</b> {{ now }}
+                    </td>
+                </tr>
+            </table>
+
+
+            <table class="main-table bordered-table" width="100%" cellspacing="0" cellpadding="6" style="border: 1px solid #D6C1B8">
+                <colgroup>
+                    <col width="5%">
+                    <col width="15%">
+                    <col width="40%">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="10%">
+                </colgroup>
+
+                <thead style="border: 1px solid #D6C1B8">
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="15%">Category</th>
+                        <th width="40%">Item Description</th>
+                        <th width="10%">SQFT</th>
+                        <th width="10%">Quantity</th>
+                        <th width="10%">Price<br>per<br>Quantity</th>
+                        <th width="10%">Total<br>Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Sheet Metal</td>
+
+                        <td>
+                            <small style="color: #494545; font-family: DejaVu Sans Mono, monospace;">
+                                Material : {{ material }}<br>
+                                Thickness : {{ thickness }}<br><br>
+
+                                {% if nilai_padi_plain_total_SQFT %}
+                                    Type : Nilai Padi Plain<br>
+                                    Nilai Padi Plain SQFT : {{ nilai_padi_plain_total_SQFT | float | round(2) }}<br>
+                                    Unit : {{ nilai_padi_plain_unit | float | round(2) }}<br>
+                                    Cost / Qty : {{ nilai_padi_plain_cost_per_Qty | int }}<br>
+                                    Amount : {{ nilai_padi_plain_final_cost | int }}<br><br>
+                                {% endif %}
+
+                                {% if nilai_padi_vargam_total_SQFT %}
+                                    Type : Nilai Padi Vargam<br>
+                                    Nilai Padi Vargam SQFT : {{ nilai_padi_vargam_total_SQFT | float | round(2) }}<br>
+                                    Unit : {{ nilai_padi_vargam_unit | float | round(2) }}<br>
+                                    Cost / Qty : {{ nilai_padi_vargam_cost_per_Qty | int }}<br>
+                                    Amount : {{ nilai_padi_vargam_final_cost | int }}<br><br>
+                                {% endif %}
+
+                                {% if custom_picture_total_SQFT %}
+                                    Type : Custom Picture<br>
+                                    Custom Picture SQFT : {{ custom_picture_total_SQFT | float | round(2) }}<br>
+                                    Unit : {{ custom_picture_unit | float | round(2) }}<br>
+                                    Cost / Qty : {{ custom_picture_cost_per_Qty | int }}<br>
+                                    Amount : {{ custom_picture_final_cost | int }}<br><br>
+                                {% endif %}
+
+                                Validity : {{ validity_days }} days<br>
+                                Delivery : {{ delivery_days }}
+                            </small>
+                        </td>
+
+                        <td align="right">{{ total_SQFT | float | round(2) }}</td>
+                        <td align="right">{{ total_unit | float | round(2) }}</td>
+                        <td align="right">{{ unit_price | int }}</td>
+                        <td align="right">{{ total_cost | int }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <table class="bordered-table" width="100%" cellspacing="0" cellpadding="0" style="margin-top:15px; border: 1px solid #D6C1B8">
+                <colgroup>
+                    <col width="60%">
+                    <col width="40%">
+                </colgroup>
+
+                <tr valign="top">
+
+                    <!-- TERMS -->
+                    <td style="padding:10px; background:#eedbcc;">
+                        <b style="color:#8B3A2A;">Terms and Conditions</b>
+
+                        <ol style="margin:6px 0 0 16px; font-size:10px; line-height:1.4;">
+                            <li>Delivery within {{ delivery_days }}</li>
+                            <li>Quotation valid upto {{ validity_days }}</li>
+                            <li>Price includes material, labour, polishing & fixing</li>
+                            <li>
+                                {% if material == 'Pure Silver' %}
+                                    100% of silver cost to be paid as advance
+                                {% else %}
+                                    50% advance, balance before delivery
+                                {% endif %}
+                            </li>
+                        </ol>
+                    </td>
+
+                    <!-- SUMMARY -->
+                    <td style="padding:10px; background:#eedbcc;">
+                        <table width="100%" cellspacing="0" cellpadding="0" style="background:#fff;">
+                            <colgroup>
+                                <col width="70%">
+                                <col width="30%">
+                            </colgroup>
+
+                            <tr>
+                                <td style="padding:4px;">Total Item</td>
+                                <td style="padding:4px;" align="right">1</td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding:4px;">Total Quantity</td>
+                                <td style="padding:4px;" align="right">{{ total_unit }}</td>
+                            </tr>
+
+                            {% if transportation_cost %}
+                            <tr>
+                                <td style="padding:4px;">Transportation</td>
+                                <td style="padding:4px;" align="right">
+                                    {{ transportation_cost | int }}
+                                </td>
+                            </tr>
+                            {% endif %}
+
+                            <tr>
+                                <td style="padding:6px; font-weight:bold;">Grand Total</td>
+                                <td style="padding:6px; font-weight:bold;" align="right">
+                                    {{ grand_total | int }}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+
+                </tr>
+            </table>
+
+
+
+            <table class="bank-table" width="100%" cellspacing="0" cellpadding="4" style="font-size:10px; margin-top:8px; border: 1px solid #D6C1B8">
+
+                <thead>
+                    <tr>
+                        <th width="15%">Bank Details</th>
+                        <th width="25%">Karur Vysya Bank</th>
+                        <th width="25%">Axis Bank</th>
+                        <th width="35%">Google Pay</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td><b>A/C No</b></td>
+                        <td>1138135000001081</td>
+                        <td>911020046416927</td>
+                        <td rowspan="4" align="center" style="padding:6px;">
+                            <img src="{{ base_QR_base64 }}" width="80" height="80"><br>
+                            <span style="font-size:9px; line-height:1.2;">
+                                <b>GPay:</b> 9443195723<br>
+                                <b>UPI:</b> 9443195723@okbizaxis
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td><b>IFSC Code</b></td>
+                        <td>KVBL0001138</td>
+                        <td>UTIB0000534</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>SWIFT Code</b></td>
+                        <td colspan="2" align="center">UTIB0000534</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>Branch</b></td>
+                        <td colspan="2" align="center">Kanchipuram</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+
+            <div class="footer" style="width:90%; margin:30px auto 0;">
+                For any enquiries, email us on <u><i>enquiry@rssonline.in</i></u> or call us on <u><i>+91 {{ sales_mobile }}</i></u>
+            </div>
+
+        </div>
+
+    </body>
+</html>

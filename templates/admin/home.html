@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block logo_name %}
+    <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename" style="font-size: clamp(14px, 2vw, 20px); text-align: center;">Admin Panel</h1>
+    </a>
+{% endblock logo_name %}
+
+
+{% block navbar %}
+  <li><a href="{{ url_for('admin_home') }}" style="color: yellow;"><i class="bi bi-house navicon"></i> <b>Home</b></a></li>
+  <li class="dropdown">
+    <a href="#" style="color: white;" onclick="this.querySelector('.toggle-dropdown').click(); return false;">
+        <i class="bi bi-grid navicon"></i>
+        <span>Category</span>
+        <i class="bi bi-chevron-down toggle-dropdown"></i>
+    </a>
+    <ul>
+        <li><a href="{{ url_for('thiruvachi') }}" style="color: white;">Thiruvachi</a></li>
+        <li><a href="{{ url_for('kavasam') }}" style="color: white;">Kavasam</a></li>
+        <li><a href="{{ url_for('vahanam') }}" style="color: white;">Vahanam</a></li>
+        <li><a href="{{ url_for('kodimaram') }}" style="color: white;">Kodimaram</a></li>
+        <li><a href="{{ url_for('sheet_metal') }}" style="color: white;">Sheet Metal</a></li>
+        <li><a href="{{ url_for('panchaloha_statue') }}" style="color: white;">Panchaloha Statue</a></li>
+    </ul>
+  </li>
+  <li><a href="{{ url_for('users_details') }}" style="color: white;"><i class="bi bi-person navicon"></i> Users Details</a></li>
+  <li><a href="{{ url_for('index') }}" style="color: white;"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
+{% endblock navbar %}
+
+
+{% block extra_style %}
+<style>
+  /* ── Admin Hero ─────────────────────────────────────────────── */
+
+  /* Force the section to fill the full viewport on ALL screen sizes,
+     overriding every padding/min-height rule from main.css          */
+  #hero.hero {
+    position: relative !important;
+    min-height: 100vh !important;
+    min-height: 100svh !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+  }
+
+  /* The background image — pinned to cover the full section box */
+  #hero.hero img {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    z-index: 1 !important;
+  }
+
+  #hero.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.28);
+    z-index: 2;
+  }
+
+  .hero-text-card {
+    position: relative;
+    z-index: 3;
+    background-color: rgba(224, 196, 15, 0.60);
+    border-radius: 10px;
+    padding: clamp(14px, 3vw, 30px) clamp(20px, 4vw, 48px);
+    text-align: center;
+    max-width: min(560px, 88vw);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    backdrop-filter: blur(2px);
+  }
+
+  .hero-text-card h2 {
+    font-size: clamp(1.3rem, 4.5vw, 3.2rem);
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 8px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    line-height: 1.2;
+  }
+
+  .hero-text-card p {
+    font-size: clamp(0.85rem, 2vw, 1.3rem);
+    color: #fff;
+    margin: 0;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  /* ── Quick-links grid ───────────────────────────────────────── */
+  .admin-quicklinks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    padding: 32px clamp(12px, 4vw, 48px);
+    background: #fafafa;
+  }
+
+  .admin-quicklinks a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 12px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    color: #333;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #eee;
+  }
+
+  .admin-quicklinks a i {
+    font-size: 1.8rem;
+    color: #F57F58;
+  }
+
+  .admin-quicklinks a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(245,127,88,0.2);
+    color: #F57F58;
+  }
+
+  @media (max-width: 575px) {
+    .admin-quicklinks {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 20px 12px;
+    }
+    .admin-quicklinks a {
+      padding: 16px 8px;
+      font-size: 0.8rem;
+    }
+  }
+
+  /* ── Mobile hero image fix ───────────────── */
+  @media (max-width: 768px) {
+
+    #hero.hero {
+      min-height: calc(100vh - 60px) !important;
+    }
+
+    #hero.hero img {
+      object-position: 65% center !important;
+    }
+
+    .hero-text-card {
+      max-width: 90%;
+      padding: 16px 18px;
+    }
+
+  }
+
+  @media (max-width: 480px){
+
+    #hero.hero img{
+      object-position: 70% center !important;
+    }
+
+  }
+
+  #hero.hero picture{
+    position:absolute;
+    inset:0;
+  }
+
+  #hero.hero picture img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+</style>
+{% endblock extra_style %}
+
+
+{% block content %}
+  <section id="hero" class="hero section dark-background">
+
+    <picture>
+      <source media="(max-width: 768px)" srcset="/static/assets/img/mobile.jpeg">
+      <img src="/static/assets/img/bg.jpg" alt="Raja Spiritual background" data-aos="fade-in">
+    </picture>
+
+    <div class="hero-text-card" data-aos="fade-up" data-aos-delay="100">
+      <h2>Raja Spritual Pvt Ltd</h2>
+      <p>Welcome <b style="color: #90ee90;">Admin!</b></p>
+    </div>
+
+  </section>
+
+  <!-- Quick-access category cards (visible below hero on all screen sizes) -->
+  <div class="admin-quicklinks">
+    <a href="{{ url_for('thiruvachi') }}">
+      <i class="bi bi-brightness-high"></i> Thiruvachi
+    </a>
+    <a href="{{ url_for('kavasam') }}">
+      <i class="bi bi-shield"></i> Kavasam
+    </a>
+    <a href="{{ url_for('vahanam') }}">
+      <i class="bi bi-truck"></i> Vahanam
+    </a>
+    <a href="{{ url_for('sheet_metal') }}">
+      <i class="bi bi-layers"></i> Sheet Metal
+    </a>
+    <a href="{{ url_for('panchaloha_statue') }}">
+      <i class="bi bi-person-standing"></i> Panchaloha Statue
+    </a>
+    <a href="{{ url_for('kodimaram') }}">
+      <i class="bi bi-flag"></i> Kodimaram
+    </a>
+    <a href="{{ url_for('users_details') }}">
+      <i class="bi bi-people"></i> Users Details
+    </a>
+  </div>
+{% endblock content %}
