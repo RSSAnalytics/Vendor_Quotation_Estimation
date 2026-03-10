@@ -1,7 +1,6 @@
 from flask import Flask, flash, render_template, request, redirect, url_for, Response, abort, session, jsonify, make_response
 import mysql.connector, base64, os, mimetypes, time, atexit, math, re
 from apscheduler.schedulers.background import BackgroundScheduler
-from mysql.connector import pooling
 from collections import defaultdict
 from urllib.parse import quote
 from datetime import datetime
@@ -176,6 +175,7 @@ app.jinja_env.filters["inr"] = format_inr
 # def get_db_connection():
 #     return mysql.connector.connect(**DB_CONFIG)
 
+from mysql.connector import pooling
 
 connection_pool = pooling.MySQLConnectionPool(
     pool_name="mypool",
@@ -5311,5 +5311,4 @@ def update_customer(id):
 
 if __name__ == "__main__":
     # app.run()
-
     app.run(host="0.0.0.0", port=5000, debug=True)
