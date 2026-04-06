@@ -4,3 +4,4 @@ gunicorn
 APScheduler
 xhtml2pdf==0.2.11
 Pillow
+boto3
