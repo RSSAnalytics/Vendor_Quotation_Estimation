@@ -1,6 +1,8 @@
 from flask import Flask, flash, render_template, request, redirect, url_for, Response, abort, session, jsonify, make_response
 import mysql.connector, base64, os, mimetypes, time, atexit, math, re
 from apscheduler.schedulers.background import BackgroundScheduler
+from mysql.connector import pooling
+from botocore.client import Config
 from collections import defaultdict
 from urllib.parse import quote
 from datetime import datetime
@@ -8,29 +10,64 @@ from decimal import Decimal
 from xhtml2pdf import pisa
 from io import BytesIO
 from uuid import uuid4
+import boto3
 
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.jinja_env.auto_reload = True
-app.secret_key = os.environ.get("SECRET_KEY", "RSS@123")
+app.secret_key = os.environ.get("SECRET_KEY")
 
 
 DB_CONFIG = {
-    "host": os.environ.get("DB_HOST", "127.0.0.1"),
-    "user": os.environ.get("DB_USER", "vendor_app"),
-    "password": os.environ.get("DB_PASSWORD", "RSS@123"),
-    "database": os.environ.get("DB_NAME", "vendor_quotation"),
+    "host": os.environ.get("DB_HOST"),
+    "user": os.environ.get("DB_USER"),
+    "password": os.environ.get("DB_PASSWORD"),
+    "database": os.environ.get("DB_NAME"),
     "port": int(os.environ.get("DB_PORT", 3306))
 }
 
-# DB_CONFIG = {
-#     "host": os.environ.get("DB_HOST"),
-#     "user": os.environ.get("DB_USER"),
-#     "password": os.environ.get("DB_PASSWORD"),
-#     "database": os.environ.get("DB_NAME"),
-#     "port": int(os.environ.get("DB_PORT", 3306))
-# }
+
+# ─── Cloudflare R2 Config ────────────────────────────────────────────────────
+R2_ACCESS_KEY = os.environ.get("R2_ACCESS_KEY")
+R2_SECRET_KEY = os.environ.get("R2_SECRET_KEY")
+R2_ENDPOINT   = os.environ.get("R2_ENDPOINT")
+R2_BUCKET     = os.environ.get("R2_BUCKET", "vendor-quotation-images")
+R2_CDN_URL    = os.environ.get("R2_CDN_URL", "https://images.templearticles.com")
+
+s3 = boto3.client(
+    "s3",
+    endpoint_url=R2_ENDPOINT,
+    aws_access_key_id=R2_ACCESS_KEY,
+    aws_secret_access_key=R2_SECRET_KEY,
+    config=Config(signature_version="s3v4"),
+    region_name="auto"
+)
+
+def upload_to_r2(file, folder):
+    ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else "jpg"
+    filename = f"{folder}/{uuid4().hex}.{ext}"
+    file.seek(0)
+    s3.upload_fileobj(
+        file,
+        R2_BUCKET,
+        filename,
+        ExtraArgs={"ContentType": file.mimetype, "ACL": "public-read"}
+    )
+    return f"{R2_CDN_URL}/{filename}"
+
+def delete_from_r2(image_url):
+    try:
+        if image_url and image_url.startswith(R2_CDN_URL):
+            key = image_url.replace(f"{R2_CDN_URL}/", "")
+            s3.delete_object(Bucket=R2_BUCKET, Key=key)
+    except Exception as e:
+        print(f"R2 delete error: {e}")
+
+@app.context_processor
+def inject_cdn():
+    return dict(CDN=R2_CDN_URL)
+# ─────────────────────────────────────────────────────────────────────────────
 
 
 
@@ -172,14 +209,9 @@ def format_inr(value):
 app.jinja_env.filters["inr"] = format_inr
 
 
-# def get_db_connection():
-#     return mysql.connector.connect(**DB_CONFIG)
-
-from mysql.connector import pooling
-
 connection_pool = pooling.MySQLConnectionPool(
     pool_name="mypool",
-    pool_size=5,
+    pool_size=10,
     pool_reset_session=True,
     **DB_CONFIG
 )
@@ -341,7 +373,6 @@ def user_update(emp_id):
         return render_template("index.html", msg="Session expired!")
 
     name = request.form.get("name")
-    email = request.form.get("email")
     mobile = request.form.get("mobile")
     branch = request.form.get("branch")
     password = request.form.get("password")
@@ -356,13 +387,12 @@ def user_update(emp_id):
                 users
             SET 
                 name=%s,
-                email=%s,
                 mobile=%s,
                 branch=%s,
                 password=%s
             WHERE 
                 emp_id=%s
-        """, (name, email, mobile, branch, password, emp_id))
+        """, (name, mobile, branch, password, emp_id))
         conn.commit()
 
     except Exception as e:
@@ -427,13 +457,14 @@ def thiruvachi():
             # Insert images
             for i, file in enumerate(images):
                 if file and file.filename:
+                    img_url = upload_to_r2(file, "thiruvachi")
                     cursor.execute("""
                         INSERT INTO cat_thiruvachi_images
                         (cat_thiruvachi_id, img, img_type, is_primary)
                         VALUES (%s, %s, %s, %s)
                     """, (
                         model_id,
-                        file.read(),
+                        img_url,
                         file.mimetype,
                         1 if i == 0 else 0
                     ))
@@ -472,23 +503,24 @@ def thiruvachi():
         if rate_data:
             rate_data = rate_data[0]
 
+        # Load ALL images in ONE query
+        cursor.execute("""
+            SELECT id, cat_thiruvachi_id, img, img_type
+            FROM cat_thiruvachi_images
+            ORDER BY is_primary DESC, id ASC
+        """)
+        all_imgs = cursor.fetchall()
+
+        imgs_by_id = defaultdict(list)
+        for img in all_imgs:
+            imgs_by_id[img["cat_thiruvachi_id"]].append({
+                "id": img["id"],
+                "url": img["img"],
+                "type": img["img_type"]
+            })
+
         for row in data:
-            cursor.execute("""
-                SELECT id, img, img_type
-                FROM cat_thiruvachi_images
-                WHERE cat_thiruvachi_id = %s
-                ORDER BY is_primary DESC, id ASC
-            """, (row["id"],))
-
-            imgs = cursor.fetchall()
-            row["images"] = []
-
-            for img in imgs:
-                row["images"].append({
-                    "id": img["id"],
-                    "b64": base64.b64encode(img["img"]).decode(),
-                    "type": img["img_type"]
-                })
+            row["images"] = imgs_by_id.get(row["id"], [])
 
         msg = session.get('msg')
         session['msg'] = False
@@ -607,13 +639,14 @@ def thiruvachi_update(id):
 
         for i, file in enumerate(images):
             if file and file.filename:
+                img_url = upload_to_r2(file, "thiruvachi")
                 cursor.execute("""
                     INSERT INTO cat_thiruvachi_images
                     (cat_thiruvachi_id, img, img_type, is_primary)
                     VALUES (%s, %s, %s, %s)
                 """, (
                     id,
-                    file.read(),
+                    img_url,
                     file.mimetype,
                     1 if (i == 0 and not has_primary) else 0
                 ))
@@ -661,6 +694,11 @@ def thiruvachi_image_delete(image_id):
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
+        cursor.execute("SELECT img FROM cat_thiruvachi_images WHERE id = %s", (image_id,))
+        row = cursor.fetchone()
+        if row:
+            delete_from_r2(row["img"])
+
         cursor.execute(
             "DELETE FROM cat_thiruvachi_images WHERE id = %s",
             (image_id,)
@@ -690,7 +728,7 @@ def thiruvachi_image(image_id):
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT img, img_type
+            SELECT img
             FROM cat_thiruvachi_images
             WHERE id = %s
         """, (image_id,))
@@ -699,7 +737,7 @@ def thiruvachi_image(image_id):
         if not row:
             abort(404)
 
-        return Response(row["img"], mimetype=row["img_type"])
+        return redirect(row["img"])
 
     finally:
         if cursor: cursor.close()
@@ -784,7 +822,7 @@ def kavasam():
         for img in kavasam_images:
             images.append({
                 "id": img["id"],
-                "b64": base64.b64encode(img["img"]).decode(),
+                "url": img["img"],
                 "type": img["img_type"]
             })
 
@@ -956,12 +994,13 @@ def kavasam_images():
 
         for i, file in enumerate(images):
             if file and file.filename:
+                img_url = upload_to_r2(file, "kavasam")
                 cursor.execute("""
                     INSERT INTO cat_kavasam_images
                     (img, img_type, is_primary)
                     VALUES (%s, %s, %s)
                 """, (
-                    file.read(),
+                    img_url,
                     file.mimetype,
                     1 if (i == 0 and not has_primary) else 0
                 ))
@@ -985,6 +1024,10 @@ def kavasam_image_delete(image_id):
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
+        cursor.execute("SELECT img FROM cat_kavasam_images WHERE id=%s", (image_id,))
+        row = cursor.fetchone()
+        if row:
+            delete_from_r2(row["img"])
         cursor.execute("DELETE FROM cat_kavasam_images WHERE id=%s", (image_id,))
         conn.commit()
         return jsonify({"success": True})
@@ -1045,13 +1088,14 @@ def vahanam():
 
             for i, file in enumerate(images):
                 if file and file.filename:
+                    img_url = upload_to_r2(file, "vahanam")
                     cursor.execute("""
                         INSERT INTO cat_vahanam_images
                         (cat_vahanam_id, img, img_type, is_primary)
                         VALUES (%s, %s, %s, %s)
                     """, (
                         model_id,
-                        file.read(),
+                        img_url,
                         file.mimetype,
                         1 if i == 0 else 0
                     ))
@@ -1094,7 +1138,7 @@ def vahanam():
             for img in imgs:
                 row["images"].append({
                     "id": img["id"],
-                    "b64": base64.b64encode(img["img"]).decode(),
+                    "url": img["img"],
                     "type": img["img_type"]
                 })
 
@@ -1179,13 +1223,14 @@ def vahanam_update(id):
 
         for i, file in enumerate(images):
             if file and file.filename:
+                img_url = upload_to_r2(file, "vahanam")
                 cursor.execute("""
                     INSERT INTO cat_vahanam_images
                     (cat_vahanam_id, img, img_type, is_primary)
                     VALUES (%s, %s, %s, %s)
                 """, (
                     id,
-                    file.read(),
+                    img_url,
                     file.mimetype,
                     1 if (i == 0 and not has_primary) else 0
                 ))
@@ -1237,6 +1282,10 @@ def vahanam_image_delete(image_id):
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
+        cursor.execute("SELECT img FROM cat_vahanam_images WHERE id = %s", (image_id,))
+        row = cursor.fetchone()
+        if row:
+            delete_from_r2(row["img"])
         cursor.execute(
             "DELETE FROM cat_vahanam_images WHERE id = %s",
             (image_id,)
@@ -1323,7 +1372,7 @@ def sheet_metal():
         for img in sheet_metal_images:
             images.append({
                 "id": img["id"],
-                "b64": base64.b64encode(img["img"]).decode(),
+                "url": img["img"],
                 "type": img["img_type"]
             })
 
@@ -1430,12 +1479,13 @@ def sheet_metal_images():
 
         for i, file in enumerate(images):
             if file and file.filename:
+                img_url = upload_to_r2(file, "sheet_metal")
                 cursor.execute("""
                     INSERT INTO cat_sheet_metal_images
                     (img, img_type, is_primary)
                     VALUES (%s, %s, %s)
                 """, (
-                    file.read(),
+                    img_url,
                     file.mimetype,
                     1 if (i == 0 and not has_primary) else 0
                 ))
@@ -1459,6 +1509,10 @@ def sheet_metal_image_delete(image_id):
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
+        cursor.execute("SELECT img FROM cat_sheet_metal_images WHERE id=%s", (image_id,))
+        row = cursor.fetchone()
+        if row:
+            delete_from_r2(row["img"])
         cursor.execute("DELETE FROM cat_sheet_metal_images WHERE id=%s", (image_id,))
         conn.commit()
         return jsonify({"success": True})
@@ -1510,13 +1564,14 @@ def panchaloha_statue():
 
             for i, file in enumerate(images):
                 if file and file.filename:
+                    img_url = upload_to_r2(file, "panchaloha_statue")
                     cursor.execute("""
                         INSERT INTO cat_panchaloha_statue_images
                         (cat_panchaloha_statue_id, img, img_type, is_primary)
                         VALUES (%s, %s, %s, %s)
                     """, (
                         model_id,
-                        file.read(),
+                        img_url,
                         file.mimetype,
                         1 if i == 0 else 0
                     ))
@@ -1559,7 +1614,7 @@ def panchaloha_statue():
             for img in imgs:
                 row["images"].append({
                     "id": img["id"],
-                    "b64": base64.b64encode(img["img"]).decode(),
+                    "url": img["img"],
                     "type": img["img_type"]
                 })
 
@@ -1626,13 +1681,14 @@ def panchaloha_statue_update(id):
 
             for i, file in enumerate(images):
                 if file and file.filename:
+                    img_url = upload_to_r2(file, "panchaloha_statue")
                     cursor.execute("""
                         INSERT INTO cat_panchaloha_statue_images
                         (cat_panchaloha_statue_id, img, img_type, is_primary)
                         VALUES (%s, %s, %s, %s)
                     """, (
                         id,
-                        file.read(),
+                        img_url,
                         file.mimetype,
                         1 if (i == 0 and not has_primary) else 0
                     ))
@@ -1684,6 +1740,10 @@ def panchaloha_statue_image_delete(image_id):
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
+        cursor.execute("SELECT img FROM cat_panchaloha_statue_images WHERE id = %s", (image_id,))
+        row = cursor.fetchone()
+        if row:
+            delete_from_r2(row["img"])
         cursor.execute(
             "DELETE FROM cat_panchaloha_statue_images WHERE id = %s",
             (image_id,)
@@ -1700,7 +1760,7 @@ def panchaloha_statue_image_delete(image_id):
         if conn: conn.close()
 
 
-# ================= panchaloha_statue Image Update =================
+# ================= panchaloha_statue Image Route =================
 @app.route("/panchaloha_statue/image/<int:image_id>")
 def panchaloha_statue_image(image_id):
     if not(session.get("admin_logged_in")):
@@ -1711,19 +1771,11 @@ def panchaloha_statue_image(image_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-
-        cursor.execute("""
-            SELECT img, img_type
-            FROM cat_panchaloha_statue_images
-            WHERE id = %s
-        """, (image_id,))
+        cursor.execute("SELECT img FROM cat_panchaloha_statue_images WHERE id = %s", (image_id,))
         row = cursor.fetchone()
-
         if not row:
             abort(404)
-
-        return Response(row["img"], mimetype=row["img_type"])
-
+        return redirect(row["img"])
     finally:
         if cursor: cursor.close()
         if conn: conn.close()
@@ -1769,13 +1821,14 @@ def kodimaram():
 
             for i, file in enumerate(images):
                 if file and file.filename:
+                    img_url = upload_to_r2(file, "kodimaram")
                     cursor.execute("""
                         INSERT INTO cat_kodimaram_images
                         (cat_kodimaram_id, img, img_type, is_primary)
                         VALUES (%s, %s, %s, %s)
                     """, (
                         model_id,
-                        file.read(),
+                        img_url,
                         file.mimetype,
                         1 if i == 0 else 0
                     ))
@@ -1811,7 +1864,7 @@ def kodimaram():
         for img in kodimaram_images:
             images.append({
                 "id": img["id"],
-                "b64": base64.b64encode(img["img"]).decode(),
+                "url": img["img"],
                 "type": img["img_type"]
             })
 
@@ -1859,12 +1912,13 @@ def kodimaram_images():
 
         for i, file in enumerate(images):
             if file and file.filename:
+                img_url = upload_to_r2(file, "kodimaram")
                 cursor.execute("""
                     INSERT INTO cat_kodimaram_images
                     (img, img_type, is_primary)
                     VALUES (%s, %s, %s)
                 """, (
-                    file.read(),
+                    img_url,
                     file.mimetype,
                     1 if (i == 0 and not has_primary) else 0
                 ))
@@ -1888,6 +1942,10 @@ def kodimaram_image_delete(image_id):
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
+        cursor.execute("SELECT img FROM cat_kodimaram_images WHERE id=%s", (image_id,))
+        row = cursor.fetchone()
+        if row:
+            delete_from_r2(row["img"])
         cursor.execute("DELETE FROM cat_kodimaram_images WHERE id=%s", (image_id,))
         conn.commit()
         return jsonify({"success": True})
@@ -1911,7 +1969,6 @@ def user_register():
     if request.method == "POST":
         name = request.form.get("name")
         emp_id = request.form.get("emp_id")
-        email = request.form.get("email")
         mobile = request.form.get("mobile")
         password = request.form.get("password")
         branch = request.form.get("branch")
@@ -1932,22 +1989,13 @@ def user_register():
                 return render_template(r"user/register.html", msg=f"This employee ID ({emp_id}) is already registered!")
 
             cursor.execute(
-                "SELECT * FROM users WHERE email=%s",
-                (email,)
-            )
-            email_data = cursor.fetchone()
-
-            if email_data:
-                return render_template(r"user/register.html", msg=f"This Email ({email}) is already registered!")
-
-            cursor.execute(
                 """
                 INSERT INTO users
-                  (name, emp_id, email, mobile, password, branch)
+                  (name, emp_id, mobile, password, branch)
                 VALUES
-                  (%s, %s, %s, %s, %s, %s)
+                  (%s, %s, %s, %s, %s)
                 """,
-                (name, emp_id, email, mobile, password, branch)
+                (name, emp_id, mobile, password, branch)
             )
             conn.commit()
 
@@ -1966,7 +2014,7 @@ def user_register():
 @app.route('/user_login', methods=["GET", "POST"])
 def user_login():
     if request.method == "POST":
-        email = request.form.get("email")
+        emp_id = request.form.get("emp_id")
         password = request.form.get("password")
 
         conn = None
@@ -1976,8 +2024,8 @@ def user_login():
             cursor = conn.cursor(dictionary=True)
 
             cursor.execute(
-                "SELECT * FROM users WHERE email=%s AND password=%s",
-                (email, password)
+                "SELECT * FROM users WHERE emp_id=%s AND password=%s",
+                (emp_id, password)
             )
             user = cursor.fetchone()
 
@@ -1994,7 +2042,7 @@ def user_login():
                 else:
                     return render_template(r"user/login.html", msg="Admin approval is pending!")
             else:
-                return render_template(r"user/login.html", msg="Invalid Email ID or Password!")
+                return render_template(r"user/login.html", msg="Invalid Employee ID or Password!")
 
         except mysql.connector.Error as e:
             return render_template(r"user/login.html", msg=f"DB Error: {e}")
@@ -2207,32 +2255,12 @@ def user_thiruvachi():
 def user_thiruvachi_image(image_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
-        SELECT img, img_type
-        FROM cat_thiruvachi_images
-        WHERE id = %s
-    """, (image_id,))
-
+    cursor.execute("SELECT img FROM cat_thiruvachi_images WHERE id = %s", (image_id,))
     image = cursor.fetchone()
-
     cursor.close()
     conn.close()
-
     if image and image["img"]:
-        mime = image["img_type"]
-
-        if mime in ["jpg", "jpeg"]:
-            mime = "image/jpeg"
-        elif mime == "png":
-            mime = "image/png"
-        elif mime == "webp":
-            mime = "image/webp"
-        elif not mime.startswith("image/"):
-            mime = "image/jpeg"
-
-        return Response(image["img"], mimetype=mime)
-
+        return redirect(image["img"])
     return "Image not found", 404
 
 
@@ -2595,10 +2623,7 @@ def user_kavasam():
         images = cursor.fetchall()
 
         for img in images:
-            if img["img"]:
-                img["img_b64"] = base64.b64encode(img["img"]).decode("utf-8")
-            else:
-                img["img_b64"] = ""
+            img["img_url"] = img["img"] if img["img"] else ""
 
         msg = session.get('msg')
         session['msg'] = False
@@ -2616,31 +2641,12 @@ def user_kavasam():
 def kavasam_image(image_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("SELECT img, img_type FROM cat_kavasam_images WHERE id=%s", (image_id,))
+    cursor.execute("SELECT img FROM cat_kavasam_images WHERE id=%s", (image_id,))
     image = cursor.fetchone()
-
     cursor.close()
     conn.close()
-
     if image and image["img"]:
-        mime = image["img_type"]
-
-        if mime in ["jpg", "jpeg"]:
-            mime = "image/jpeg"
-        elif mime == "png":
-            mime = "image/png"
-        elif mime == "webp":
-            mime = "image/webp"
-        elif not mime.startswith("image/"):
-            mime = "image/jpeg"  # fallback
-
-        return Response(
-                        image["img"],
-                        mimetype=mime,
-                        headers={
-                            "Cache-Control": "no-store"
-                        })
+        return redirect(image["img"])
     return "Image not found", 404
 
 
@@ -2937,17 +2943,22 @@ def user_vahanam():
         """)
         data = cursor.fetchall()
 
+        # Load ALL images in ONE query
+        cursor.execute("""
+            SELECT id, cat_vahanam_id, img
+            FROM cat_vahanam_images
+            ORDER BY is_primary DESC, id ASC
+        """)
+        all_images = cursor.fetchall()
+
+        # Group images by vahanam id
+        from collections import defaultdict
+        images_by_id = defaultdict(list)
+        for img in all_images:
+            images_by_id[img["cat_vahanam_id"]].append(img)
 
         for row in data:
-            cursor.execute("""
-                SELECT id
-                FROM cat_vahanam_images
-                WHERE cat_vahanam_id = %s
-                ORDER BY is_primary DESC, id ASC
-            """, (row["id"],))
-
-            images = cursor.fetchall()
-            row["image_list"] = images
+            row["image_list"] = images_by_id.get(row["id"], [])
 
         msg = session.get('msg')
         session['msg'] = False
@@ -2966,31 +2977,12 @@ def user_vahanam():
 def user_vahanam_image(image_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
-        SELECT img, img_type
-        FROM cat_vahanam_images
-        WHERE id = %s
-    """, (image_id,))
-
+    cursor.execute("SELECT img FROM cat_vahanam_images WHERE id = %s", (image_id,))
     image = cursor.fetchone()
-
     cursor.close()
     conn.close()
-
     if image and image["img"]:
-        mime = image["img_type"]
-
-        if mime in ["jpg", "jpeg"]:
-            mime = "image/jpeg"
-        elif mime == "png":
-            mime = "image/png"
-        elif mime == "webp":
-            mime = "image/webp"
-        elif not mime.startswith("image/"):
-            mime = "image/jpeg"
-
-        return Response(image["img"], mimetype=mime)
+        return redirect(image["img"])
     return "Image not found", 404
 
 
@@ -3439,10 +3431,7 @@ def user_kodimaram():
         images = cursor.fetchall()
 
         for img in images:
-            if img["img"]:
-                img["img_b64"] = base64.b64encode(img["img"]).decode("utf-8")
-            else:
-                img["img_b64"] = ""
+            img["img_url"] = img["img"] if img["img"] else ""
 
         msg = session.get('msg')
         session['msg'] = False
@@ -3456,38 +3445,17 @@ def user_kodimaram():
         if conn: conn.close()
 
 
-
 @app.route("/kodimaram_image/<int:image_id>")
 def kodimaram_image(image_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("SELECT img, img_type FROM cat_kodimaram_images WHERE id=%s", (image_id,))
+    cursor.execute("SELECT img FROM cat_kodimaram_images WHERE id=%s", (image_id,))
     image = cursor.fetchone()
-
     cursor.close()
     conn.close()
-
     if image and image["img"]:
-        mime = image["img_type"]
-
-        if mime in ["jpg", "jpeg"]:
-            mime = "image/jpeg"
-        elif mime == "png":
-            mime = "image/png"
-        elif mime == "webp":
-            mime = "image/webp"
-        elif not mime.startswith("image/"):
-            mime = "image/jpeg"
-
-        return Response(
-                        image["img"],
-                        mimetype=mime,
-                        headers={
-                            "Cache-Control": "no-store"
-                        })
+        return redirect(image["img"])
     return "Image not found", 404
-
 
 
 
@@ -3956,10 +3924,7 @@ def user_sheet_metal():
         images = cursor.fetchall()
 
         for img in images:
-            if img["img"]:
-                img["img_b64"] = base64.b64encode(img["img"]).decode("utf-8")
-            else:
-                img["img_b64"] = ""
+            img["img_url"] = img["img"] if img["img"] else ""
 
         msg = session.get('msg')
         session['msg'] = False
@@ -3976,40 +3941,16 @@ def user_sheet_metal():
 
 @app.route("/sheet_metal_image/<int:image_id>")
 def sheet_metal_image(image_id):
-    conn = cursor = None
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT img FROM cat_sheet_metal_images WHERE id=%s", (image_id,))
+    image = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if image and image["img"]:
+        return redirect(image["img"])
+    return "Image not found", 404
 
-        cursor.execute("SELECT img, img_type FROM cat_sheet_metal_images WHERE id=%s", (image_id,))
-        image = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
-
-        if image and image["img"]:
-            mime = image["img_type"]
-
-            if mime in ["jpg", "jpeg"]:
-                mime = "image/jpeg"
-            elif mime == "png":
-                mime = "image/png"
-            elif mime == "webp":
-                mime = "image/webp"
-            elif not mime.startswith("image/"):
-                mime = "image/jpeg"
-
-            return Response(
-                            image["img"],
-                            mimetype=mime,
-                            headers={
-                                "Cache-Control": "no-store"
-                            })
-        return "Image not found", 404
-    
-    except:
-        return "Image not found", 404
-    
 
 
 @app.route("/sheet_metal/pdf", methods=["POST"])
@@ -4349,16 +4290,21 @@ def user_panchaloha_statue():
         data = cursor.fetchall()
 
 
-        for row in data:
-            cursor.execute("""
-                SELECT id
-                FROM cat_panchaloha_statue_images
-                WHERE cat_panchaloha_statue_id = %s
-                ORDER BY is_primary DESC, id ASC
-            """, (row["id"],))
+        # Load ALL images in ONE query
+        cursor.execute("""
+            SELECT id, cat_panchaloha_statue_id
+            FROM cat_panchaloha_statue_images
+            ORDER BY is_primary DESC, id ASC
+        """)
+        all_imgs = cursor.fetchall()
 
-            images = cursor.fetchall()
-            row["image_list"] = images
+        imgs_by_id = defaultdict(list)
+        for img in all_imgs:
+            imgs_by_id[img["cat_panchaloha_statue_id"]].append(img)
+
+        for row in data:
+            row["image_list"] = imgs_by_id.get(row["id"], [])
+
 
         cursor.execute("""
             SELECT DISTINCT name
@@ -4384,33 +4330,14 @@ def user_panchaloha_statue():
 def user_panchaloha_statue_image(image_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
-        SELECT img, img_type
-        FROM cat_panchaloha_statue_images
-        WHERE id = %s
-    """, (image_id,))
-
+    cursor.execute("SELECT img FROM cat_panchaloha_statue_images WHERE id=%s", (image_id,))
     image = cursor.fetchone()
-
     cursor.close()
     conn.close()
-
     if image and image["img"]:
-        mime = image["img_type"]
-
-        if mime in ["jpg", "jpeg"]:
-            mime = "image/jpeg"
-        elif mime == "png":
-            mime = "image/png"
-        elif mime == "webp":
-            mime = "image/webp"
-        elif not mime.startswith("image/"):
-            mime = "image/jpeg"
-
-        return Response(image["img"], mimetype=mime)
-
+        return redirect(image["img"])
     return "Image not found", 404
+
 
 
 @app.route("/get_panchaloha_options", methods=["POST"])
