@@ -1,9 +1,9 @@
 -- #######################################
 -- ############### DATABASE ##############
 -- #######################################
--- DROP DATABASE IF EXISTS vendor_quotation;
--- CREATE DATABASE IF NOT EXISTS vendor_quotation;
-USE defaultdb;
+DROP DATABASE IF EXISTS vendor_quotation;
+CREATE DATABASE IF NOT EXISTS vendor_quotation;
+USE vendor_quotation;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -54,7 +54,6 @@ CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(225) NOT NULL,
   emp_id VARCHAR(50) UNIQUE NOT NULL,
-  email VARCHAR(225) UNIQUE NOT NULL,
   mobile VARCHAR(15) NOT NULL,
   password VARCHAR(255) NOT NULL,
   branch VARCHAR(255) NOT NULL,
@@ -62,9 +61,9 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- INSERT INTO users 
---   (name, emp_id, email, mobile, password, branch, status) 
+--   (name, emp_id, mobile, password, branch, status) 
 -- VALUES 
---   ("a", "a", "a@gmail.com", 1, "a", "Kanchipuram", "approved");
+--   ("a", "a", 1, "a", "Kanchipuram", "approved");
 
 
 
@@ -271,7 +270,7 @@ CREATE TABLE IF NOT EXISTS cat_thiruvachi_rates (
 CREATE TABLE IF NOT EXISTS cat_thiruvachi_images (
   id INT AUTO_INCREMENT PRIMARY KEY,
   cat_thiruvachi_id INT NOT NULL,
-  img LONGBLOB NOT NULL,
+  img VARCHAR(1000) NOT NULL,
   img_type VARCHAR(50) NOT NULL,
   is_primary TINYINT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -302,7 +301,7 @@ CREATE TABLE IF NOT EXISTS cat_kavasam_rates (
 
 CREATE TABLE IF NOT EXISTS cat_kavasam_images (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  img LONGBLOB NOT NULL,
+  img VARCHAR(1000) NOT NULL,
   img_type VARCHAR(50) NOT NULL,
   is_primary TINYINT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -335,7 +334,7 @@ CREATE TABLE IF NOT EXISTS cat_vahanam (
 CREATE TABLE IF NOT EXISTS cat_vahanam_images (
   id INT AUTO_INCREMENT PRIMARY KEY,
   cat_vahanam_id INT NOT NULL,
-  img LONGBLOB NOT NULL,
+  img VARCHAR(1000) NOT NULL,
   img_type VARCHAR(50) NOT NULL,
   is_primary TINYINT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -361,7 +360,7 @@ CREATE TABLE IF NOT EXISTS cat_sheet_metal (
 
 CREATE TABLE IF NOT EXISTS cat_sheet_metal_images (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  img LONGBLOB NOT NULL,
+  img VARCHAR(1000) NOT NULL,
   img_type VARCHAR(50) NOT NULL,
   is_primary TINYINT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -385,7 +384,7 @@ CREATE TABLE IF NOT EXISTS cat_panchaloha_statue (
 CREATE TABLE IF NOT EXISTS cat_panchaloha_statue_images (
   id INT AUTO_INCREMENT PRIMARY KEY,
   cat_panchaloha_statue_id INT NOT NULL,
-  img LONGBLOB NOT NULL,
+  img VARCHAR(1000) NOT NULL,
   img_type VARCHAR(50) NOT NULL,
   is_primary TINYINT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -399,7 +398,7 @@ CREATE TABLE IF NOT EXISTS cat_panchaloha_statue_images (
 -- ############## KODIMARAM ##############
 CREATE TABLE IF NOT EXISTS cat_kodimaram_images (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  img LONGBLOB NOT NULL,
+  img VARCHAR(1000) NOT NULL,
   img_type VARCHAR(50) NOT NULL,
   is_primary TINYINT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
