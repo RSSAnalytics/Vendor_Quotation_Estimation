@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+        <title>Quotation</title>
+
+        <style>
+            @page {
+                size: A4;
+                margin: 12mm;
+            }
+
+            body {
+                font-family: Helvetica;
+                font-size: 11px;
+                color: #2E2E2E;
+                background: #fff;
+            }
+
+            .container {
+                width: 100%;
+            }
+
+            /* Header */
+            .header-bg {
+                background-color: #F3E5DC;
+                border-bottom: 2px solid #8B3A2A;
+            }
+
+            .title {
+                font-size: 26px;
+                font-weight: 600;
+                color: #8B3A2A;
+            }
+
+            /* Tables */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 18px;
+            }
+
+            th {
+                background: #c56552;
+                color: #fff;
+                border: 1px solid #D6C1B8;
+                padding: 4px 6px;        /* ⬅ reduce vertical padding */
+                line-height: 1.2;        /* ⬅ tighter text */
+                font-size: 9px;         /* ⬅ same as body */
+            }
+
+            td {
+                border: 1px solid #D6C1B8;
+                padding: 6px;
+            }
+
+            td.text-right {
+                text-align: right;
+            }
+
+            /* Info section */
+            .info-table td {
+                border: none;
+                padding: 4px 6px;
+                line-height: 1.5;
+            }
+
+            /* Terms */
+            .terms-title {
+                color: #8B3A2A;
+                margin-bottom: 6px;
+            }
+
+            /* Summary box */
+            .summary-table {
+                border: 1px solid #8B3A2A;
+            }
+
+            .summary-table td {
+                border: none;
+                padding: 8px;
+            }
+
+            .total-row {
+                background: #8B3A2A;
+                color: #fff;
+                font-weight: bold;
+            }
+
+            ol {
+                margin: 0;
+                padding-left: 0;
+                padding-bottom: 0;
+            }
+
+            ol li {
+                margin-bottom: 3px;
+                padding: 0;
+            }
+
+            .bank-table th {
+                padding: 4px;
+                font-size: 9px;
+                line-height: 1.1;
+            }
+
+            /* Remove borders ONLY for terms table */
+            .terms-list,
+            .terms-list tr,
+            .terms-list td {
+                border: none !important;
+            }
+
+            /* Tight spacing */
+            .terms-list td {
+                padding: 2px 4px;
+                vertical-align: top;
+            }
+
+            /* Number column */
+            .terms-list .num {
+                width: 30px;
+                text-align: right;
+                padding-right: 6px;
+            }
+
+            .footer {
+                border: 1px solid #8B3A2A;
+                text-align: center;
+                background: #F9F4F1;
+            }
+
+        </style>
+    </head>
+
+    <body>
+
+        <div class="container">
+
+            <table width="100%" cellpadding="0" cellspacing="0"
+                style="border-bottom: 0px solid #8B3A2A;">
+                <tr valign="middle">
+                    <td width="12%">
+                        <img src="file:///{{ logo_path }}" width="60">
+                    </td>
+                    <td width="88%" align="right">
+                        <span style="font-size:20px; font-weight:bold; color:#8B3A2A;">
+                            Detailed Estimation
+                        </span>
+                    </td>
+                </tr>
+            </table>
+
+
+            <table width="100%" cellpadding="6" cellspacing="0" style="margin-top:10px;">
+                <tr valign="top">
+                    <td width="33%">
+                        <b>Quotation by</b><br>
+                        {{ sales_name }},<br>
+                        {{ sales_mobile }},<br>
+                        Raja Spiritual Pvt Ltd,<br>
+                        {{ sales_branch }}.<br>
+                    </td>
+
+                    <td width="33%">
+                        <b>Quotation to</b><br>
+                        {{ cust_name }},<br>
+                        {{ cust_mobile }},<br>
+                        {{ temple_name }},<br>
+                        {{ address }}.
+                    </td>
+
+                    <td width="34%">
+                        <b>Quotation No:</b> {{ quotation_no }}<br>
+                        <b>Date:</b> {{ now }}
+                    </td>
+                </tr>
+            </table>
+
+
+            <table width="100%" cellpadding="6" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="15%">Category</th>
+                        <th width="50%">Item Description</th>
+                        <th width="10%">Quantity</th>
+                        <th width="10%">Price<br>per<br>Quantity</th>
+                        <th width="10%">Total<br>Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Panchaloha Statue</td>
+                        <td>
+                            <small style="color: #494545; font-family: DejaVu Sans Mono, monospace;">
+                                Name        : {{ name }}<br>
+                                Prabavali   : {{ prabavali }}<br>
+                                Position    : {{ position }}<br>
+                                Model       : {{ model }}<br>
+                                Hands       : {{ hands }}<br>
+                                Height      : {{ height }}<br>
+                                weight      : {{ weight }}
+                            </small>
+                        </td>
+                        <td class="text-right">{{ unit | int }}</td>
+                        <td class="text-right">{{ unit_price | int | inr }}</td>
+                        <td class="text-right">{{ total_cost | int | inr }}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:15px;">
+                <tr valign="top">
+
+                    <td width="60%" style="border: none; padding: 10px; background-color: #eedbcc;">
+                        <b style="color:#8B3A2A; display:block; margin-bottom:2px;">
+                            Terms and Conditions
+                        </b>
+
+                        <table class="terms-list" width="100%" cellpadding="0" cellspacing="0" style="margin-top: -100px;">
+                            <tr>
+                                <td class="num">1)</td>
+                                <td>Delivery within {{ delivery_days }}</td>
+                            </tr>
+                            <tr>
+                                <td class="num">2)</td>
+                                <td>Quotation valid upto {{ validity_days }}</td>
+                            </tr>
+                            <tr>
+                                <td class="num">3)</td>
+                                <td>Price includes material, labour, polishing &amp; fixing</td>
+                            </tr>
+                            <tr>
+                                <td class="num">4)</td>
+                                {% if material == 'Pure Silver' %}
+                                    <td>100% of silver cost need to pay as advance.</td>
+                                {% else %}
+                                    <td>An advance payment of 50% is required for order confirmation. The remaining 50% shall be paid upon completion of the product and before delivery.</td>
+                                {% endif %}
+                            </tr>
+                        </table>
+                    </td>
+
+
+                    <td width="40%" style="padding: 10px; border: none; background-color: #eedbcc;">
+                        <table width="100%" cellpadding="6" cellspacing="0" style="background-color: white;">
+                            <tr>
+                                <td>Total Item</td>
+                                <td align="right">1</td>
+                            </tr>
+                            <tr>
+                                <td>Total Quantity</td>
+                                <td align="right">{{ unit }}</td>
+                            </tr>
+
+                            {% if transportation_cost %}
+                                <tr>
+                                    <td>Transportation Cost</td>
+                                    <td align="right">{{ transportation_cost | int | inr }}</td>
+                                </tr>
+                            {% endif %}
+
+                            <tr>
+                                <td>Total Amount</td>
+                                <td align="right">{{ grand_total | int | inr }}</td>
+                            </tr>
+                        </table>
+                    </td>
+
+                </tr>
+            </table>
+
+
+            <table class="bank-table" width="100%" cellspacing="0" cellpadding="4" style="font-size:10px; margin-top:8px;">
+                <thead>
+                    <tr>
+                        <th width="15%">Bank Details</th>
+                        <th width="25%">Karur Vysya Bank</th>
+                        <th width="25%">Axis Bank</th>
+                        <th width="35%">Google Pay</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td><b>A/C No</b></td>
+                        <td>1138135000001081</td>
+                        <td>911020046416927</td>
+                        <td rowspan="4" align="center" style="padding:6px;">
+                            <img src="{{ base_QR_base64 }}" width="80" height="80"><br>
+                            <span style="font-size:9px; line-height:1.2;">
+                                <b>GPay:</b> 9443195723<br>
+                                <b>UPI:</b> 9443195723@okbizaxis
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td><b>IFSC Code</b></td>
+                        <td>KVBL0001138</td>
+                        <td>UTIB0000534</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>SWIFT Code</b></td>
+                        <td colspan="2" align="center">UTIB0000534</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>Branch</b></td>
+                        <td colspan="2" align="center">Kanchipuram</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <table class="bank-table" width="100%" cellspacing="0" cellpadding="4" style="font-size:10px; margin-top:8px;">
+                <tbody>
+                    <tr>
+                        <td width="33.33%" align="center" style="padding:6px; background-color: #F9F4F1; color: black;">
+                            <span style="font-size:9px; line-height:1.2;">
+                                Kanchipuram<br>
+                                No.443, Gandhi Road, Theradi.<br>
+                                Ph: 7397731525
+                            </span>
+                        </td>
+
+                        <td width="33.33%" align="center" style="padding:6px; background-color: #F9F4F1; color: black;">
+                            <span style="font-size:9px; line-height:1.2;">
+                                Vellore<br>
+                                No.141-A, M.P.Sarathi Nagar, Kaakidha pattarai, Vellore.<br>
+                                Ph: 9500382625
+                            </span>
+                        </td>
+
+                        <td width="33.33%" align="center" style="padding:6px; background-color: #F9F4F1; color: black;">
+                            <span style="font-size:9px; line-height:1.2;">
+                                Bengalore<br>
+                                Sai complex, Museum Road, M.G.Road.<br>
+                                Ph: 8904749977
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="3" class="footer">
+                            For any enquiries, email us on <u><i>enquiry@rssonline.in</i></u> or call us on <u><i>+91 {{ sales_mobile }}</i></u>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </body>
+</html>
